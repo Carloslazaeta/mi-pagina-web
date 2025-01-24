@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
         <h1>Dispatch Section</h1>
     </header>
     <main>
-        <p>Bienvenido al área de Dispatch. Aquí encontrarás los enlaces relevantes.</p>
+        <p>Welcome to the Dispatch area. Here you will find the relevant links.</p>
 
         <div class="button-container">
             <a href="https://docs.google.com/spreadsheets/d/1CpIX-Hi8KT9lxdPKwsISV5M8C9JHzNv3mKA4pxy16VQ/edit?gid=651716819#gid=651716819" 
@@ -35,23 +35,23 @@
 
         <div class="button-container">
             <a href="https://forms.gle/A9foeWnJ4z3tKAoE6" target="_blank" class="btn">DWDL DVIC</a>
-            <button class="copy-btn" onclick="copyToClipboard('https://forms.gle/A9foeWnJ4z3tKAoE6')">Copiar enlace</button>
+            <button class="copy-btn" onclick="copyToClipboard('https://forms.gle/A9foeWnJ4z3tKAoE6')">Copy link</button>
         </div>
 
         <div class="button-container">
-            <a href="https://forms.gle/atAhnsUiqT2LYp1a6" target="_blank" class="btn">Dispatch Incident Form</a>
-            <button class="copy-btn" onclick="copyToClipboard('https://forms.gle/d3nMLRE7R4L5zPJx6')">Copiar enlace</button>
+            <a href="https://forms.gle/d3nMLRE7R4L5zPJx6" target="_blank" class="btn">Dispatch Incident Form</a>
+            <button class="copy-btn" onclick="copyToClipboard('https://forms.gle/d3nMLRE7R4L5zPJx6')">Copy link</button>
         </div>
 
-        <a href="index.html" class="back-btn">Volver a la página principal</a>
+        <a href="index.html" class="back-btn">Back to Home</a>
     </main>
 
     <script>
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(function() {
-                alert("Enlace copiado al portapapeles: " + text);
+                alert("Link copied to clipboard: " + text);
             }).catch(function(err) {
-                console.error('Error al copiar: ', err);
+                console.error('Error copying link: ', err);
             });
         }
     </script>
