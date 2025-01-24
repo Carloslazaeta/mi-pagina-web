@@ -33,7 +33,23 @@
                target="_blank" class="btn">Winter Uniform</a>
         </div>
 
+        <div class="button-container">
+            <a href="https://docs.google.com/spreadsheets/d/1aBcdEfGhijkLmNoPqRsTuVWxYzABc123/edit?usp=sharing" 
+               target="_blank" class="btn">New Link</a>
+            <button class="copy-btn" onclick="copyToClipboard('https://docs.google.com/spreadsheets/d/1aBcdEfGhijkLmNoPqRsTuVWxYzABc123/edit?usp=sharing')">Copiar enlace</button>
+        </div>
+
         <a href="index.html" class="back-btn">Volver a la página principal</a>
     </main>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert("Enlace copiado al portapapeles: " + text);
+            }).catch(function(err) {
+                console.error('Error al copiar: ', err);
+            });
+        }
+    </script>
 </body>
 </html>
