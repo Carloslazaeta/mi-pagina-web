@@ -9,13 +9,42 @@
 <body>
     <header>
         <h1>🔗 Other Section</h1>
-        <p>Access other useful links.</p>
+        <p>Manage other useful links and items.</p>
     </header>
 
     <main class="button-container">
+        <!-- Textbox y Botón para agregar elementos -->
+        <div class="input-container">
+            <input type="text" id="itemInput" placeholder="Enter an item">
+            <button class="btn" onclick="addItem()">Add to List</button>
+        </div>
+
+        <!-- ListBox para mostrar los elementos agregados -->
+        <div class="list-container">
+            <ul id="itemList">
+                <!-- Los elementos se agregarán aquí dinámicamente -->
+            </ul>
+        </div>
+
         <div>
             <a href="index.html" class="back-btn">⬅ Back to Home</a>
         </div>
     </main>
+
+    <script>
+        function addItem() {
+            let input = document.getElementById("itemInput");
+            let list = document.getElementById("itemList");
+
+            if (input.value.trim() !== "") {
+                let listItem = document.createElement("li");
+                listItem.textContent = input.value;
+                list.appendChild(listItem);
+                input.value = ""; // Limpiar el input después de agregar
+            } else {
+                alert("Please enter a valid item.");
+            }
+        }
+    </script>
 </body>
 </html>
