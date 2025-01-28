@@ -9,20 +9,19 @@
 <body>
     <header>
         <h1>🔗 Other Section</h1>
-        <p>Manage other useful links and items.</p>
+        <p>Search for employees from Google Sheets.</p>
     </header>
 
     <main class="button-container">
-        <!-- Textbox y Botón para agregar elementos -->
+        <!-- Barra de búsqueda -->
         <div class="input-container">
-            <input type="text" id="itemInput" placeholder="Enter an item">
-            <button class="btn" onclick="addItem()">Add to List</button>
+            <input type="text" id="searchInput" placeholder="Search for a name..." onkeyup="filterList()">
         </div>
 
-        <!-- ListBox para mostrar los elementos agregados -->
+        <!-- ListBox con los nombres cargados desde Google Sheets -->
         <div class="list-container">
             <ul id="itemList">
-                <!-- Los elementos se agregarán aquí dinámicamente -->
+                <li>Loading data from Google Sheets...</li>
             </ul>
         </div>
 
@@ -32,19 +31,61 @@
     </main>
 
     <script>
-        function addItem() {
-            let input = document.getElementById("itemInput");
-            let list = document.getElementById("itemList");
+        // URL del Google Sheet publicado en formato JSON
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
 
-            if (input.value.trim() !== "") {
-                let listItem = document.createElement("li");
-                listItem.textContent = input.value;
-                list.appendChild(listItem);
-                input.value = ""; // Limpiar el input después de agregar
-            } else {
-                alert("Please enter a valid item.");
+        let allData = []; // Almacenará todos los nombres y apellidos para la búsqueda
+
+        // Función para cargar datos desde Google Sheets
+        async function loadGoogleSheetData() {
+            try {
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Limpiar el JSON
+
+                const rows = jsonData.table.rows;
+                const list = document.getElementById("itemList");
+
+                list.innerHTML = ""; // Limpiar la lista antes de cargar los datos
+
+                rows.forEach(row => {
+                    if (row.c[1] && row.c[2]) { // Verifica que las columnas B (1) y C (2) existan
+                        let fullName = `${row.c[1].v} ${row.c[2].v}`; // Nombre + Apellido
+                        allData.push(fullName); // Guardar en el array global
+
+                        let listItem = document.createElement("li");
+                        listItem.textContent = fullName;
+                        list.appendChild(listItem);
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error loading Google Sheets data:", error);
+                document.getElementById("itemList").innerHTML = "<li>Error loading data</li>";
             }
         }
+
+        // Función para filtrar la lista según el texto ingresado en la barra de búsqueda
+        function filterList() {
+            let query = document.getElementById("searchInput").value.toLowerCase();
+            let list = document.getElementById("itemList");
+            list.innerHTML = ""; // Limpiar lista
+
+            let filteredData = allData.filter(name => name.toLowerCase().includes(query));
+
+            if (filteredData.length === 0) {
+                list.innerHTML = "<li>No results found</li>";
+            } else {
+                filteredData.forEach(name => {
+                    let listItem = document.createElement("li");
+                    listItem.textContent = name;
+                    list.appendChild(listItem);
+                });
+            }
+        }
+
+        // Cargar los datos al abrir la página
+        window.onload = loadGoogleSheetData;
     </script>
 </body>
 </html>
