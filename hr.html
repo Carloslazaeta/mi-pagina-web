@@ -15,10 +15,21 @@
     <main class="button-container">
         <div>
             <a href="https://forms.gle/fL71MFgnKF2T8qZV6" target="_blank" class="btn">Hiring Application Form</a>
+            <button class="copy-btn" onclick="copyToClipboard('https://forms.gle/fL71MFgnKF2T8qZV6')">Copy link</button>
         </div>
         <div>
             <a href="index.html" class="back-btn">⬅ Back to Home</a>
         </div>
     </main>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert("Link copied to clipboard: " + text);
+            }).catch(function(err) {
+                console.error('Error copying link: ', err);
+            });
+        }
+    </script>
 </body>
 </html>
