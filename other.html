@@ -47,11 +47,12 @@
                 const list = document.getElementById("itemList");
 
                 list.innerHTML = ""; // Limpiar la lista antes de cargar los datos
+                allData = []; // Resetear los datos previos
 
                 rows.forEach((row, index) => {
-                    // Verifica que haya datos en las columnas B (1) y C (2) sin importar la fila
-                    if (row.c && row.c[1] && row.c[2]) {
-                        let fullName = `${row.c[1].v} ${row.c[2].v}`; // Nombre + Apellido
+                    // Verifica que haya datos en las columnas B (1) y C (2)
+                    if (row.c && row.c.length > 2 && row.c[1] && row.c[2]) {
+                        let fullName = `${row.c[1].v.trim()} ${row.c[2].v.trim()}`; // Nombre + Apellido
                         allData.push(fullName); // Guardar en el array global
 
                         let listItem = document.createElement("li");
