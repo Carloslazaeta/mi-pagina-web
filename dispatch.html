@@ -8,52 +8,17 @@
 </head>
 <body>
     <header>
-        <h1>Dispatch Section</h1>
+        <h1>🚚 Dispatch Section</h1>
+        <p>Access dispatch-related resources.</p>
     </header>
-    <main>
-        <p>Welcome to the Dispatch area. Here you will find the relevant links.</p>
 
-        <div class="button-container">
-            <a href="https://docs.google.com/spreadsheets/d/1CpIX-Hi8KT9lxdPKwsISV5M8C9JHzNv3mKA4pxy16VQ/edit?gid=651716819#gid=651716819" 
-               target="_blank" class="btn">Head Count</a>
+    <main class="button-container">
+        <div>
+            <a href="https://docs.google.com/spreadsheets/d/1CpIX-Hi8KT9lxdPKwsISV5M8C9JHzNv3mKA4pxy16VQ/edit?gid=651716819#gid=651716819" target="_blank" class="btn">Head Count</a>
         </div>
-
-        <div class="button-container">
-            <a href="https://docs.google.com/spreadsheets/d/1-TBghzij1FSdjj2kig3fDjkLIux_vGSAAUmWMXDPer8/edit?gid=1958657290#gid=1958657290" 
-               target="_blank" class="btn">DVIC Report</a>
+        <div>
+            <a href="index.html" class="back-btn">⬅ Back to Home</a>
         </div>
-
-        <div class="button-container">
-            <a href="https://docs.google.com/spreadsheets/d/19g3qHL8syvp6_KvUYd2rMj3IAgxe7U5IL1YG0jU95UE/edit?gid=1227361254#gid=1227361254" 
-               target="_blank" class="btn">Doctor Note Report</a>
-        </div>
-
-        <div class="button-container">
-            <a href="https://docs.google.com/spreadsheets/d/1wKtrk4kSkzCmw4-cNmYyKjE1_by2fza2yXM7uP765JA/edit?gid=1224746304#gid=1224746304" 
-               target="_blank" class="btn">Winter Uniform</a>
-        </div>
-
-        <div class="button-container">
-            <a href="https://forms.gle/A9foeWnJ4z3tKAoE6" target="_blank" class="btn">DWDL DVIC</a>
-            <button class="copy-btn" onclick="copyToClipboard('https://forms.gle/A9foeWnJ4z3tKAoE6')">Copy link</button>
-        </div>
-
-        <div class="button-container">
-            <a href="https://forms.gle/d3nMLRE7R4L5zPJx6" target="_blank" class="btn">Dispatch Incident Form</a>
-            <button class="copy-btn" onclick="copyToClipboard('https://forms.gle/d3nMLRE7R4L5zPJx6')">Copy link</button>
-        </div>
-
-        <a href="index.html" class="back-btn">Back to Home</a>
     </main>
-
-    <script>
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(function() {
-                alert("Link copied to clipboard: " + text);
-            }).catch(function(err) {
-                console.error('Error copying link: ', err);
-            });
-        }
-    </script>
 </body>
 </html>

@@ -3,60 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Section</title>
+    <title>HR</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
-        <h1>HR Section</h1>
+        <h1>📋 HR Section</h1>
+        <p>Access human resources-related links.</p>
     </header>
-    <main>
-        <p>Welcome to the HR area. Below you will find important links.</p>
 
-        <!-- Hiring Application Form -->
-        <div class="button-container">
+    <main class="button-container">
+        <div>
             <a href="https://forms.gle/fL71MFgnKF2T8qZV6" target="_blank" class="btn">Hiring Application Form</a>
-            <button class="copy-btn" onclick="copyToClipboard('https://forms.gle/fL71MFgnKF2T8qZV6')">Copy link</button>
         </div>
-
-        <!-- Employee Medical Leave Request -->
-        <div class="button-container">
-            <a href="https://forms.gle/2KzA3Dot2XBvfEvo9" target="_blank" class="btn">Employee Medical Leave Request</a>
-            <button class="copy-btn" onclick="copyToClipboard('https://forms.gle/2KzA3Dot2XBvfEvo9')">Copy link</button>
+        <div>
+            <a href="index.html" class="back-btn">⬅ Back to Home</a>
         </div>
-
-        <!-- DashWave Delivery LLC Pre Application -->
-        <div class="button-container">
-            <a href="https://forms.gle/X4MNQvGivDeeCs2y7" target="_blank" class="btn">DashWave Delivery LLC Pre Application</a>
-            <button class="copy-btn" onclick="copyToClipboard('https://forms.gle/X4MNQvGivDeeCs2y7')">Copy link</button>
-        </div>
-
-        <!-- Hiring Application Form Spreadsheet -->
-        <div class="button-container">
-            <a href="https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/edit?usp=sharing" target="_blank" class="btn">Hiring Application Form</a>
-        </div>
-
-        <!-- DWDL Doctor Notes -->
-        <div class="button-container">
-            <a href="https://docs.google.com/spreadsheets/d/19g3qHL8syvp6_KvUYd2rMj3IAgxe7U5IL1YG0jU95UE/edit?usp=sharing" target="_blank" class="btn">DWDL Doctor Notes</a>
-        </div>
-
-        <!-- Employee Incident -->
-        <div class="button-container">
-            <a href="https://docs.google.com/spreadsheets/d/1ma6Ac1sTVVwY3sX52fP2G7czAAYbTQBLrAa4ceygKXc/edit?usp=sharing" target="_blank" class="btn">Employee Incident</a>
-        </div>
-
-        <a href="index.html" class="back-btn">Back to Home</a>
     </main>
-
-    <script>
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(function() {
-                alert("Link copied to clipboard: " + text);
-            }).catch(function(err) {
-                console.error('Error copying link: ', err);
-            });
-        }
-    </script>
 </body>
 </html>
