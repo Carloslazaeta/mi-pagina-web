@@ -48,8 +48,9 @@
 
                 list.innerHTML = ""; // Limpiar la lista antes de cargar los datos
 
-                rows.forEach(row => {
-                    if (row.c[1] && row.c[2]) { // Verifica que las columnas B (1) y C (2) existan
+                rows.forEach((row, index) => {
+                    // Verifica que haya datos en las columnas B (1) y C (2) sin importar la fila
+                    if (row.c && row.c[1] && row.c[2]) {
                         let fullName = `${row.c[1].v} ${row.c[2].v}`; // Nombre + Apellido
                         allData.push(fullName); // Guardar en el array global
 
