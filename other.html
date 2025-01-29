@@ -13,17 +13,14 @@
     </header>
 
     <main class="button-container">
-        <!-- Barra de búsqueda -->
         <div class="input-container">
             <input type="text" id="searchInput" placeholder="Search for a name..." onkeyup="filterList()">
         </div>
 
-        <!-- ListBox con los nombres cargados desde Google Sheets -->
         <div class="list-container">
             <ul id="itemList"></ul>
         </div>
 
-        <!-- Botón para abrir Profile.html en otra ventana -->
         <button id="createProfileBtn" onclick="openProfile()" disabled>Create Profile</button>
 
         <div>
@@ -33,9 +30,8 @@
 
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-
-        let allData = []; // Lista de nombres
-        let selectedName = ""; // Nombre seleccionado
+        let allData = [];
+        let selectedName = "";
 
         async function loadGoogleSheetData() {
             try {
@@ -45,6 +41,7 @@
 
                 const rows = jsonData.table.rows;
                 const list = document.getElementById("itemList");
+
                 if (!list) {
                     console.error("❌ Elemento 'itemList' no encontrado en el DOM");
                     return;
@@ -53,12 +50,11 @@
                 list.innerHTML = "";
                 allData = [];
 
-                // Recorrer todas las filas desde la segunda fila (ignorando encabezado)
                 rows.forEach((row, index) => {
                     if (!row.c) return;
 
-                    let firstName = row.c[1] && row.c[1].v ? row.c[1].v.toString().trim() : "";
-                    let lastName = row.c[2] && row.c[2].v ? row.c[2].v.toString().trim() : "";
+                    let firstName = row.c[1]?.v?.trim() || "";
+                    let lastName = row.c[2]?.v?.trim() || "";
 
                     if (firstName !== "" || lastName !== "") {
                         let fullName = `${firstName} ${lastName}`.trim();
@@ -90,12 +86,12 @@
         }
 
         function openProfile() {
-    if (selectedName) {
-        window.open(`profile.html?name=${encodeURIComponent(selectedName)}`, "_blank");
-    } else {
-        alert("Por favor, selecciona un nombre primero.");
-    }
-}
+            if (selectedName) {
+                window.open(`profile.html?name=${encodeURIComponent(selectedName)}`, "_blank", "width=600,height=400");
+            } else {
+                alert("Please select a name first.");
+            }
+        }
 
         function filterList() {
             let query = document.getElementById("searchInput").value.toLowerCase();
@@ -130,6 +126,5 @@
             cursor: not-allowed;
         }
     </style>
-
 </body>
 </html>
