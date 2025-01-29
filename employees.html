@@ -62,7 +62,7 @@
             <option disabled>Loading profiles...</option>
         </select>
 
-        <button class="btn" onclick="openProfile()">View Profile</button>
+        <button class="btn" onclick="openTestPage()">View Profile</button>
 
         <a href="index.html" class="back-btn">⬅ Back to Home</a>
     </div>
@@ -86,12 +86,12 @@
             });
         }
 
-        function openProfile() {
+        function openTestPage() {
             let profileList = document.getElementById("profileList");
             let selectedName = profileList.value;
 
             if (selectedName) {
-                window.open(`profile.html?name=${encodeURIComponent(selectedName)}`, "_blank", "width=600,height=400");
+                window.open(`test.html?name=${encodeURIComponent(selectedName)}`, "_blank", "width=800,height=600");
             } else {
                 alert("Please select a profile.");
             }
