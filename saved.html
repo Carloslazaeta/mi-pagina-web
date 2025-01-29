@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Records</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>📂 Saved Records</h1>
+    </header>
+
+    <main class="profile-container">
+        <div id="savedRecordsList">
+            <p>No records saved yet.</p>
+        </div>
+
+        <div>
+            <a href="test.html" class="back-btn">⬅ Back to Test</a>
+        </div>
+    </main>
+
+    <script>
+        function loadSavedRecords() {
+            let savedRecords = JSON.parse(localStorage.getItem("savedRecords")) || [];
+            let container = document.getElementById("savedRecordsList");
+
+            if (savedRecords.length === 0) {
+                container.innerHTML = "<p>No saved records found.</p>";
+                return;
+            }
+
+            let recordsHTML = "<ul>";
+            savedRecords.forEach((record, index) => {
+                recordsHTML += `<li><strong>${record.name}</strong> - <a href="test.html?name=${encodeURIComponent(record.name)}">View</a></li>`;
+            });
+            recordsHTML += "</ul>";
+
+            container.innerHTML = recordsHTML;
+        }
+
+        window.onload = loadSavedRecords;
+    </script>
+</body>
+</html>

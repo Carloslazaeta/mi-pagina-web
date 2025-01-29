@@ -18,7 +18,9 @@
             <p>Fetching data...</p>
         </div>
 
-        <div>
+        <div class="button-group">
+            <button id="saveBtn" onclick="saveRecord()">Save</button>
+            <a href="saved.html" class="view-btn">View Saved Records</a>
             <a href="other.html" class="back-btn">⬅ Back to Other</a>
         </div>
     </main>
@@ -30,6 +32,8 @@
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
+
+        let employeeData = {}; // Guardará los datos actuales
 
         async function loadEmployeeData() {
             let selectedName = getQueryParam("name");
@@ -47,11 +51,10 @@
                 const jsonData = JSON.parse(text.substring(47, text.length - 2));
 
                 const rows = jsonData.table.rows;
-                const headers = jsonData.table.cols.map(col => col.label); // Obtener los nombres de las columnas
+                const headers = jsonData.table.cols.map(col => col.label);
 
                 let foundRow = null;
 
-                // Buscar la fila que coincide con el nombre seleccionado
                 for (let i = 1; i < rows.length; i++) {
                     let row = rows[i].c;
                     let firstName = row[1]?.v?.trim() || "";
@@ -66,11 +69,11 @@
 
                 if (foundRow) {
                     let detailsHTML = "<table>";
+                    let employeeInfo = { name: selectedName };
+
                     headers.forEach((header, index) => {
                         if (header && foundRow[index] && foundRow[index].v) {
                             let value = foundRow[index].v;
-
-                            // Si el valor es un enlace, lo mostramos como "Click here"
                             if (typeof value === "string" && value.startsWith("http")) {
                                 value = `<a href="${value}" target="_blank">Click here</a>`;
                             }
@@ -80,11 +83,15 @@
                                     <td class="label">${header}:</td>
                                     <td class="value">${value}</td>
                                 </tr>`;
+
+                            employeeInfo[header] = foundRow[index].v; // Guardar los datos
                         }
                     });
                     detailsHTML += "</table>";
 
                     document.getElementById("employeeDetails").innerHTML = detailsHTML;
+                    employeeData = employeeInfo; // Guardar en variable global
+
                 } else {
                     document.getElementById("employeeDetails").innerHTML = "<p>No data found for this name.</p>";
                 }
@@ -93,6 +100,13 @@
                 console.error("❌ Error loading employee data:", error);
                 document.getElementById("employeeDetails").innerHTML = "<p>Error loading data.</p>";
             }
+        }
+
+        function saveRecord() {
+            let savedRecords = JSON.parse(localStorage.getItem("savedRecords")) || [];
+            savedRecords.push(employeeData);
+            localStorage.setItem("savedRecords", JSON.stringify(savedRecords));
+            alert("Record saved successfully!");
         }
 
         window.onload = loadEmployeeData;
@@ -138,18 +152,44 @@
             text-decoration: underline;
         }
 
-        .back-btn {
-            display: inline-block;
+        .button-group {
             margin-top: 20px;
+            text-align: center;
+        }
+
+        .view-btn, .back-btn, #saveBtn {
+            display: inline-block;
             padding: 10px 15px;
-            background: #007bff;
-            color: white;
+            margin: 5px;
             text-decoration: none;
             border-radius: 5px;
+            color: white;
+        }
+
+        .view-btn {
+            background: #28a745;
+        }
+
+        .view-btn:hover {
+            background: #218838;
+        }
+
+        .back-btn {
+            background: #007bff;
         }
 
         .back-btn:hover {
             background: #0056b3;
+        }
+
+        #saveBtn {
+            background: #ffc107;
+            border: none;
+            cursor: pointer;
+        }
+
+        #saveBtn:hover {
+            background: #e0a800;
         }
     </style>
 </body>
