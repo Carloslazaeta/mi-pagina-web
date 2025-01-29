@@ -49,13 +49,13 @@
                 list.innerHTML = ""; // Limpiar la lista antes de cargar los datos
                 allData = []; // Resetear los datos previos
 
-                console.log("Google Sheet Loaded:", rows); // Debug para ver las filas cargadas
+                console.log("Datos recibidos desde Google Sheets:", rows); // Debug en la consola
 
                 // Recorrer todas las filas desde la segunda fila (index > 0)
                 rows.forEach((row, index) => {
                     if (index === 0) return; // Ignorar la primera fila (encabezado)
 
-                    // Verificar que existan valores en las columnas B y C (Nombre y Apellido)
+                    // Validar que las columnas B y C (First Name y Last Name) tengan datos
                     let firstName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
                     let lastName = row.c[2] && row.c[2].v ? row.c[2].v.trim() : "";
 
