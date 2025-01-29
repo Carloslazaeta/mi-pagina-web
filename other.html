@@ -87,8 +87,8 @@
 
         function openProfile() {
     if (selectedName) {
-        // Redirige a profile.html con el nombre en la URL
-        window.open(`profile.html?name=${encodeURIComponent(selectedName)}`, "_blank", "width=600,height=400");
+        // Redirigir a profile.html en la misma ventana con el nombre en la URL
+        window.location.href = `profile.html?name=${encodeURIComponent(selectedName)}`;
     } else {
         alert("Please select a name first.");
     }
