@@ -29,17 +29,20 @@
     </main>
 
     <script>
-        // URL del Google Sheet publicado en formato CSV
-        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1v.../pub?output=csv";
+        // URL del Google Sheet en formato JSON (verifica que sea la URL correcta)
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
 
-        let allData = [];
+        let allData = []; // Lista para almacenar nombres
 
-        // Función para cargar datos desde Google Sheets (CSV)
+        // Función para cargar los datos desde Google Sheets
         async function loadGoogleSheetData() {
             try {
                 const response = await fetch(sheetURL);
                 const text = await response.text();
-                const rows = text.split("\n").slice(1); // Saltar encabezado
+                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Eliminar el formato extra del JSON
+
+                const rows = jsonData.table.rows;
+                console.log("🔍 Debug: Todas las filas recibidas", rows);
 
                 const list = document.getElementById("itemList");
                 if (!list) {
@@ -47,15 +50,17 @@
                     return;
                 }
 
-                list.innerHTML = "";
-                allData = [];
+                list.innerHTML = ""; // Limpiar lista antes de agregar los datos
+                allData = []; // Resetear datos previos
 
-                rows.forEach(row => {
-                    const columns = row.split(",");
-                    let firstName = columns[0]?.trim();
-                    let lastName = columns[1]?.trim();
+                // Recorrer todas las filas desde la segunda fila (ignorando el encabezado)
+                rows.forEach((row, index) => {
+                    if (!row.c || row.c.length < 3) return; // Saltar filas incompletas
 
-                    if (firstName && lastName) {
+                    let firstName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
+                    let lastName = row.c[2] && row.c[2].v ? row.c[2].v.trim() : "";
+
+                    if (firstName !== "" && lastName !== "") {
                         let fullName = `${firstName} ${lastName}`;
                         allData.push(fullName);
 
