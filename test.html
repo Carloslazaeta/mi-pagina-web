@@ -18,6 +18,18 @@
             <p>Fetching data...</p>
         </div>
 
+        <!-- Campos extra para el usuario -->
+        <div class="extra-fields">
+            <label for="position">Position Applied For:</label>
+            <input type="text" id="position" placeholder="Enter position...">
+
+            <label for="interviewDate">Interview Date:</label>
+            <input type="date" id="interviewDate">
+
+            <label for="notes">Notes:</label>
+            <textarea id="notes" placeholder="Enter any notes..."></textarea>
+        </div>
+
         <div class="button-group">
             <button id="saveBtn" onclick="saveRecord()">Save</button>
             <a href="saved.html" class="view-btn">View Saved Records</a>
@@ -33,7 +45,7 @@
             return urlParams.get(param);
         }
 
-        let employeeData = {}; // Guardará los datos actuales
+        let employeeData = {}; // Almacena los datos del empleado
 
         async function loadEmployeeData() {
             let selectedName = getQueryParam("name");
@@ -84,7 +96,7 @@
                                     <td class="value">${value}</td>
                                 </tr>`;
 
-                            employeeInfo[header] = foundRow[index].v; // Guardar los datos
+                            employeeInfo[header] = foundRow[index].v; // Guardar datos
                         }
                     });
                     detailsHTML += "</table>";
@@ -104,8 +116,15 @@
 
         function saveRecord() {
             let savedRecords = JSON.parse(localStorage.getItem("savedRecords")) || [];
+
+            // Agregar los campos extra a los datos guardados
+            employeeData.position = document.getElementById("position").value;
+            employeeData.interviewDate = document.getElementById("interviewDate").value;
+            employeeData.notes = document.getElementById("notes").value;
+
             savedRecords.push(employeeData);
             localStorage.setItem("savedRecords", JSON.stringify(savedRecords));
+
             alert("Record saved successfully!");
         }
 
@@ -140,6 +159,24 @@
         .label {
             font-weight: bold;
             width: 40%;
+        }
+
+        .extra-fields {
+            margin-top: 20px;
+        }
+
+        .extra-fields label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .extra-fields input, .extra-fields textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         .value a {
