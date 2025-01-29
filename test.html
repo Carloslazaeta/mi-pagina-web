@@ -8,225 +8,215 @@
 </head>
 <body>
     <header>
-        <h1>📝 Test Page</h1>
-        <p>Selected Employee Information:</p>
+        <h1>📝 Employee Profile</h1>
+        <p>Review and update employee information.</p>
     </header>
 
     <main class="profile-container">
-        <h2 id="selectedName">Loading...</h2>
-        <div id="employeeDetails" class="details-container">
+        <h2 id="profileName">Loading...</h2>
+        <div id="profileDetails">
             <p>Fetching data...</p>
         </div>
 
-        <!-- Campos extra para el usuario -->
-        <div class="extra-fields">
-            <label for="position">Position Applied For:</label>
-            <input type="text" id="position" placeholder="Enter position...">
+        <h3>Additional Fields</h3>
+        <form id="employeeForm">
+            <!-- Campos con opciones -->
+            <label>Status:</label>
+            <select id="status">
+                <option value="Pending">Pending</option>
+                <option value="Does not meet requirements">Does not meet requirements</option>
+                <option value="Complete">Complete</option>
+            </select>
 
-            <label for="interviewDate">Interview Date:</label>
-            <input type="date" id="interviewDate">
+            <label>Offer Letter & Handbook:</label>
+            <select id="offerLetter">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
 
-            <label for="notes">Notes:</label>
-            <textarea id="notes" placeholder="Enter any notes..."></textarea>
-        </div>
+            <label>Drug Test:</label>
+            <select id="drugTest">
+                <option value="Fail">Fail</option>
+                <option value="Pass">Pass</option>
+            </select>
+
+            <label>Drug Test Date:</label>
+            <input type="date" id="drugTestDate">
+
+            <label>Background Check Status:</label>
+            <select id="bgCheck">
+                <option value="Pending">Pending</option>
+                <option value="Pass">Pass</option>
+                <option value="Fail">Fail</option>
+            </select>
+
+            <label>Training Status:</label>
+            <select id="trainingStatus">
+                <option value="Pending">Pending</option>
+                <option value="Pass">Pass</option>
+                <option value="Fail">Fail</option>
+            </select>
+
+            <label>Training Date:</label>
+            <input type="date" id="trainingDate">
+
+            <label>ADP Payroll Onboarding:</label>
+            <select id="payroll">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+
+            <label>Employee Handbook:</label>
+            <input type="date" id="employeeHandbookDate">
+
+            <label>Sexual Harassment/Employee Handbook Acknowledgment:</label>
+            <select id="harassmentAck">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+
+            <label>JJK Application:</label>
+            <select id="jjkApp">
+                <option value="Pending">Pending</option>
+                <option value="Assing">Assign</option>
+            </select>
+
+            <label>JJK Application Date:</label>
+            <input type="date" id="jjkAppDate">
+
+            <label>MEC (Medical Examiner's Certificate):</label>
+            <select id="mecStatus">
+                <option value="Pending">Pending</option>
+                <option value="Pass">Pass</option>
+                <option value="Fail">Fail</option>
+            </select>
+
+            <label>Road Test:</label>
+            <select id="roadTest">
+                <option value="Pending">Pending</option>
+                <option value="Pass">Pass</option>
+                <option value="Fail">Fail</option>
+            </select>
+
+            <label>Road Test Date:</label>
+            <input type="date" id="roadTestDate">
+
+            <label>i9 Status:</label>
+            <select id="i9Status">
+                <option value="Pending">Pending</option>
+                <option value="Pass">Pass</option>
+                <option value="Fail">Fail</option>
+            </select>
+        </form>
 
         <div class="button-group">
-            <button id="saveBtn" onclick="saveRecord()">Save</button>
-            <a href="saved.html" class="view-btn">View Saved Records</a>
-            <a href="other.html" class="back-btn">⬅ Back to Other</a>
+            <button id="saveBtn" class="save-btn">Save</button>
+            <button id="cancelBtn" class="cancel-btn">Cancel</button>
         </div>
     </main>
 
     <script>
-        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-
+        // Obtener parámetros de la URL
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
 
-        let employeeData = {}; // Almacena los datos del empleado
-
-        async function loadEmployeeData() {
+        document.addEventListener("DOMContentLoaded", function () {
             let selectedName = getQueryParam("name");
+            document.getElementById("profileName").textContent = selectedName || "No name provided";
 
-            if (!selectedName) {
-                document.getElementById("employeeDetails").innerHTML = "<p>No name provided.</p>";
-                return;
-            }
+            // Botón Save - Simula el guardado en un archivo
+            document.getElementById("saveBtn").addEventListener("click", function () {
+                const data = {
+                    Name: selectedName,
+                    Status: document.getElementById("status").value,
+                    OfferLetter: document.getElementById("offerLetter").value,
+                    DrugTest: document.getElementById("drugTest").value,
+                    DrugTestDate: document.getElementById("drugTestDate").value,
+                    BackgroundCheck: document.getElementById("bgCheck").value,
+                    TrainingStatus: document.getElementById("trainingStatus").value,
+                    TrainingDate: document.getElementById("trainingDate").value,
+                    Payroll: document.getElementById("payroll").value,
+                    EmployeeHandbookDate: document.getElementById("employeeHandbookDate").value,
+                    HarassmentAck: document.getElementById("harassmentAck").value,
+                    JJKApplication: document.getElementById("jjkApp").value,
+                    JJKAppDate: document.getElementById("jjkAppDate").value,
+                    MECStatus: document.getElementById("mecStatus").value,
+                    RoadTest: document.getElementById("roadTest").value,
+                    RoadTestDate: document.getElementById("roadTestDate").value,
+                    i9Status: document.getElementById("i9Status").value
+                };
 
-            document.getElementById("selectedName").textContent = selectedName;
+                // Convertir en JSON
+                const jsonData = JSON.stringify(data, null, 2);
+                
+                // Crear un archivo de texto con los datos
+                const blob = new Blob([jsonData], { type: "application/json" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = `${selectedName}_profile.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                alert("Profile saved successfully!");
+            });
 
-            try {
-                const response = await fetch(sheetURL);
-                const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2));
-
-                const rows = jsonData.table.rows;
-                const headers = jsonData.table.cols.map(col => col.label);
-
-                let foundRow = null;
-
-                for (let i = 1; i < rows.length; i++) {
-                    let row = rows[i].c;
-                    let firstName = row[1]?.v?.trim() || "";
-                    let lastName = row[2]?.v?.trim() || "";
-                    let fullName = `${firstName} ${lastName}`.trim();
-
-                    if (fullName === selectedName) {
-                        foundRow = row;
-                        break;
-                    }
-                }
-
-                if (foundRow) {
-                    let detailsHTML = "<table>";
-                    let employeeInfo = { name: selectedName };
-
-                    headers.forEach((header, index) => {
-                        if (header && foundRow[index] && foundRow[index].v) {
-                            let value = foundRow[index].v;
-                            if (typeof value === "string" && value.startsWith("http")) {
-                                value = `<a href="${value}" target="_blank">Click here</a>`;
-                            }
-
-                            detailsHTML += `
-                                <tr>
-                                    <td class="label">${header}:</td>
-                                    <td class="value">${value}</td>
-                                </tr>`;
-
-                            employeeInfo[header] = foundRow[index].v; // Guardar datos
-                        }
-                    });
-                    detailsHTML += "</table>";
-
-                    document.getElementById("employeeDetails").innerHTML = detailsHTML;
-                    employeeData = employeeInfo; // Guardar en variable global
-
-                } else {
-                    document.getElementById("employeeDetails").innerHTML = "<p>No data found for this name.</p>";
-                }
-
-            } catch (error) {
-                console.error("❌ Error loading employee data:", error);
-                document.getElementById("employeeDetails").innerHTML = "<p>Error loading data.</p>";
-            }
-        }
-
-        function saveRecord() {
-            let savedRecords = JSON.parse(localStorage.getItem("savedRecords")) || [];
-
-            // Agregar los campos extra a los datos guardados
-            employeeData.position = document.getElementById("position").value;
-            employeeData.interviewDate = document.getElementById("interviewDate").value;
-            employeeData.notes = document.getElementById("notes").value;
-
-            savedRecords.push(employeeData);
-            localStorage.setItem("savedRecords", JSON.stringify(savedRecords));
-
-            alert("Record saved successfully!");
-        }
-
-        window.onload = loadEmployeeData;
+            // Botón Cancel - Cierra la ventana
+            document.getElementById("cancelBtn").addEventListener("click", function () {
+                window.close();
+            });
+        });
     </script>
 
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
         .profile-container {
             max-width: 600px;
             margin: auto;
+            background: white;
             padding: 20px;
-            background: #f9f9f9;
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
-        
-        .details-container {
-            margin-top: 20px;
-            text-align: left;
+        h2 {
+            text-align: center;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        form {
+            display: flex;
+            flex-direction: column;
         }
-
-        td {
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .label {
-            font-weight: bold;
-            width: 40%;
-        }
-
-        .extra-fields {
-            margin-top: 20px;
-        }
-
-        .extra-fields label {
-            display: block;
+        label {
             margin-top: 10px;
             font-weight: bold;
         }
-
-        .extra-fields input, .extra-fields textarea {
-            width: 100%;
+        input, select {
             padding: 8px;
             margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .value a {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .value a:hover {
-            text-decoration: underline;
-        }
-
-        .button-group {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .view-btn, .back-btn, #saveBtn {
-            display: inline-block;
-            padding: 10px 15px;
-            margin: 5px;
-            text-decoration: none;
             border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .save-btn {
+            background: green;
             color: white;
-        }
-
-        .view-btn {
-            background: #28a745;
-        }
-
-        .view-btn:hover {
-            background: #218838;
-        }
-
-        .back-btn {
-            background: #007bff;
-        }
-
-        .back-btn:hover {
-            background: #0056b3;
-        }
-
-        #saveBtn {
-            background: #ffc107;
+            padding: 10px;
             border: none;
             cursor: pointer;
         }
-
-        #saveBtn:hover {
-            background: #e0a800;
+        .cancel-btn {
+            background: red;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </body>
