@@ -9,33 +9,82 @@
 <body>
     <header>
         <h1>📝 Test Page</h1>
-        <p>Selected Employee:</p>
+        <p>Selected Employee Information:</p>
     </header>
 
     <main class="profile-container">
         <h2 id="selectedName">Loading...</h2>
+        <div id="employeeDetails">
+            <p>Fetching data...</p>
+        </div>
+
         <div>
             <a href="other.html" class="back-btn">⬅ Back to Other</a>
         </div>
     </main>
 
     <script>
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
 
-        function loadTestPage() {
+        async function loadEmployeeData() {
             let selectedName = getQueryParam("name");
 
             if (!selectedName) {
-                document.getElementById("selectedName").textContent = "No name provided.";
-            } else {
-                document.getElementById("selectedName").textContent = selectedName;
+                document.getElementById("employeeDetails").innerHTML = "<p>No name provided.</p>";
+                return;
+            }
+
+            document.getElementById("selectedName").textContent = selectedName;
+
+            try {
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47, text.length - 2));
+
+                const rows = jsonData.table.rows;
+                const headers = jsonData.table.cols.map(col => col.label); // Obtener los nombres de las columnas
+
+                let foundRow = null;
+
+                // Buscar la fila que coincide con el nombre seleccionado
+                for (let i = 1; i < rows.length; i++) {
+                    let row = rows[i].c;
+                    let firstName = row[1]?.v?.trim() || "";
+                    let lastName = row[2]?.v?.trim() || "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName === selectedName) {
+                        foundRow = row;
+                        break;
+                    }
+                }
+
+                if (foundRow) {
+                    let detailsHTML = "<ul>";
+                    headers.forEach((header, index) => {
+                        if (header && foundRow[index] && foundRow[index].v) {
+                            detailsHTML += `<li><strong>${header}:</strong> ${foundRow[index].v}</li>`;
+                        }
+                    });
+                    detailsHTML += "</ul>";
+
+                    document.getElementById("employeeDetails").innerHTML = detailsHTML;
+                } else {
+                    document.getElementById("employeeDetails").innerHTML = "<p>No data found for this name.</p>";
+                }
+
+            } catch (error) {
+                console.error("❌ Error loading employee data:", error);
+                document.getElementById("employeeDetails").innerHTML = "<p>Error loading data.</p>";
             }
         }
 
-        window.onload = loadTestPage;
+        window.onload = loadEmployeeData;
     </script>
 </body>
 </html>
