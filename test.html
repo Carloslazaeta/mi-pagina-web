@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>📝 Test Page</h1>
+        <p>Selected Employee:</p>
+    </header>
+
+    <main class="profile-container">
+        <h2 id="selectedName">Loading...</h2>
+        <div>
+            <a href="other.html" class="back-btn">⬅ Back to Other</a>
+        </div>
+    </main>
+
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        function loadTestPage() {
+            let selectedName = getQueryParam("name");
+
+            if (!selectedName) {
+                document.getElementById("selectedName").textContent = "No name provided.";
+            } else {
+                document.getElementById("selectedName").textContent = selectedName;
+            }
+        }
+
+        window.onload = loadTestPage;
+    </script>
+</body>
+</html>
