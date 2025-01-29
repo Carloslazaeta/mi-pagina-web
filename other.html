@@ -86,12 +86,13 @@
         }
 
         function openProfile() {
-            if (selectedName) {
-                window.open(`profile.html?name=${encodeURIComponent(selectedName)}`, "_blank", "width=600,height=400");
-            } else {
-                alert("Please select a name first.");
-            }
-        }
+    if (selectedName) {
+        // Redirige a profile.html con el nombre en la URL
+        window.open(`profile.html?name=${encodeURIComponent(selectedName)}`, "_blank", "width=600,height=400");
+    } else {
+        alert("Please select a name first.");
+    }
+}
 
         function filterList() {
             let query = document.getElementById("searchInput").value.toLowerCase();
