@@ -44,18 +44,17 @@
                 const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Limpiar el JSON
 
                 const rows = jsonData.table.rows;
-                const list = document.getElementById("itemList");
+                console.log("Datos recibidos de Google Sheets:", rows); // Debug para ver TODAS las filas
 
+                const list = document.getElementById("itemList");
                 list.innerHTML = ""; // Limpiar la lista antes de cargar los datos
                 allData = []; // Resetear los datos previos
-
-                console.log("Datos recibidos desde Google Sheets:", rows); // Debug en la consola
 
                 // Recorrer todas las filas desde la segunda fila (index > 0)
                 rows.forEach((row, index) => {
                     if (index === 0) return; // Ignorar la primera fila (encabezado)
 
-                    // Validar que las columnas B y C (First Name y Last Name) tengan datos
+                    // Verificar que existan valores en las columnas B y C (First Name y Last Name)
                     let firstName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
                     let lastName = row.c[2] && row.c[2].v ? row.c[2].v.trim() : "";
 
@@ -68,6 +67,8 @@
                         list.appendChild(listItem);
                     }
                 });
+
+                console.log("Nombres extraídos:", allData); // Debug para ver qué nombres están en la lista
 
                 if (allData.length === 0) {
                     list.innerHTML = "<li>No data available</li>";
