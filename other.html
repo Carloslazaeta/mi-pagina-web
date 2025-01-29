@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Other Links</title>
+    <title>Other Section</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,13 +18,13 @@
             <input type="text" id="searchInput" placeholder="Search for a name..." onkeyup="filterList()">
         </div>
 
-        <!-- ListBox con nombres -->
+        <!-- ListBox con los nombres cargados desde Google Sheets -->
         <div class="list-container">
             <ul id="itemList"></ul>
         </div>
 
-        <!-- Botón para mostrar el nombre seleccionado -->
-        <button id="greetButton" onclick="greetUser()">Say Hello</button>
+        <!-- Botón para ir al perfil -->
+        <button id="createProfileBtn" onclick="goToProfile()" disabled>Create Profile</button>
 
         <div>
             <a href="index.html" class="back-btn">⬅ Back to Home</a>
@@ -33,10 +33,10 @@
 
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+        let allData = []; // Guardará todos los nombres
+        let selectedName = ""; // Guardará el nombre seleccionado
 
-        let allData = []; 
-        let selectedName = ""; // Almacenar el nombre seleccionado
-
+        // Función para cargar datos desde Google Sheets
         async function loadGoogleSheetData() {
             try {
                 const response = await fetch(sheetURL);
@@ -44,51 +44,54 @@
                 const jsonData = JSON.parse(text.substring(47, text.length - 2));
 
                 const rows = jsonData.table.rows;
-                console.log("🔍 Debug: Todas las filas recibidas", rows);
-
                 const list = document.getElementById("itemList");
-                if (!list) {
-                    console.error("❌ Elemento 'itemList' no encontrado en el DOM");
-                    return;
-                }
-
                 list.innerHTML = "";
                 allData = [];
 
                 rows.forEach((row, index) => {
-                    if (!row.c) return;
+                    if (index === 0) return; // Ignorar encabezado
 
-                    let firstName = row.c[1] && row.c[1].v ? row.c[1].v.toString().trim() : "";
-                    let lastName = row.c[2] && row.c[2].v ? row.c[2].v.toString().trim() : "";
+                    let firstName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
+                    let lastName = row.c[2] && row.c[2].v ? row.c[2].v.trim() : "";
 
-                    if (firstName !== "" || lastName !== "") {
-                        let fullName = `${firstName} ${lastName}`.trim();
+                    if (firstName !== "" && lastName !== "") {
+                        let fullName = `${firstName} ${lastName}`;
                         allData.push(fullName);
 
                         let listItem = document.createElement("li");
                         listItem.textContent = fullName;
-                        listItem.ondblclick = () => selectName(fullName); // Evento de doble clic
+                        listItem.onclick = () => selectName(fullName, listItem);
                         list.appendChild(listItem);
                     }
                 });
 
-                console.log("✅ Nombres extraídos:", allData);
-
-                if (allData.length === 0) {
-                    list.innerHTML = "<li>No data available</li>";
-                }
-
             } catch (error) {
-                console.error("❌ Error loading Google Sheets data:", error);
+                console.error("Error loading Google Sheets data:", error);
                 document.getElementById("itemList").innerHTML = "<li>Error loading data</li>";
             }
         }
 
-        function selectName(name) {
-            selectedName = name; // Guardar nombre seleccionado
-            alert(`Selected: ${name}`); // Mostrar un aviso (opcional)
+        // Función para seleccionar un nombre
+        function selectName(name, element) {
+            // Remover selección previa
+            document.querySelectorAll("#itemList li").forEach(item => item.classList.remove("selected"));
+
+            // Aplicar selección al nuevo elemento
+            selectedName = name;
+            element.classList.add("selected");
+
+            // Habilitar botón de Create Profile
+            document.getElementById("createProfileBtn").disabled = false;
         }
 
+        // Función para ir a Profile.html con el nombre seleccionado
+        function goToProfile() {
+            if (selectedName) {
+                window.location.href = `Profile.html?name=${encodeURIComponent(selectedName)}`;
+            }
+        }
+
+        // Función para filtrar la lista
         function filterList() {
             let query = document.getElementById("searchInput").value.toLowerCase();
             let list = document.getElementById("itemList");
@@ -102,21 +105,30 @@
                 filteredData.forEach(name => {
                     let listItem = document.createElement("li");
                     listItem.textContent = name;
-                    listItem.ondblclick = () => selectName(name); // Cambiamos a doble clic
+                    listItem.onclick = () => selectName(name, listItem);
                     list.appendChild(listItem);
                 });
             }
         }
 
-        function greetUser() {
-            if (selectedName) {
-                alert(`Hello, ${selectedName}!`); // Mostrar mensaje con el nombre seleccionado
-            } else {
-                alert("Please double-click a name first."); // Si no hay selección
-            }
-        }
-
+        // Cargar los datos al abrir la página
         window.onload = loadGoogleSheetData;
     </script>
+
+    <style>
+        /* Estilos para resaltar el nombre seleccionado */
+        .selected {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Botón deshabilitado */
+        #createProfileBtn:disabled {
+            background-color: grey;
+            cursor: not-allowed;
+        }
+    </style>
+
 </body>
 </html>
