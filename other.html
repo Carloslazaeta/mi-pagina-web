@@ -20,9 +20,7 @@
 
         <!-- ListBox con los nombres cargados desde Google Sheets -->
         <div class="list-container">
-            <ul id="itemList">
-                <li>Loading data from Google Sheets...</li>
-            </ul>
+            <ul id="itemList"></ul>
         </div>
 
         <div>
@@ -31,36 +29,38 @@
     </main>
 
     <script>
-        // URL del Google Sheet publicado en formato JSON
+        // URL del Google Sheet en formato JSON
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
 
-        let allData = []; // Almacenará todos los nombres y apellidos
+        let allData = []; // Lista para almacenar nombres
 
-        // Función para cargar datos desde Google Sheets
         async function loadGoogleSheetData() {
             try {
                 const response = await fetch(sheetURL);
                 const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Limpiar el JSON
+                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Eliminar caracteres extra
 
                 const rows = jsonData.table.rows;
+                console.log("🔍 Debug: Todas las filas recibidas", rows);
+
                 const list = document.getElementById("itemList");
+                if (!list) {
+                    console.error("❌ Elemento 'itemList' no encontrado en el DOM");
+                    return;
+                }
 
-                list.innerHTML = ""; // Limpiar la lista antes de cargar los datos
-                allData = []; // Resetear los datos previos
+                list.innerHTML = ""; // Limpiar lista antes de agregar los datos
+                allData = []; // Resetear datos previos
 
-                console.log("Google Sheet Loaded:", rows); // Debug para ver las filas cargadas
-
-                // Recorrer todas las filas desde la segunda fila (index > 0)
+                // Recorrer todas las filas desde la segunda fila (ignorando encabezado)
                 rows.forEach((row, index) => {
-                    if (index === 0) return; // Ignorar la primera fila (encabezado)
+                    if (!row.c) return; // Si la fila está vacía, la ignoramos
 
-                    // Verificar que existan valores en las columnas B y C (Nombre y Apellido)
-                    let firstName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
-                    let lastName = row.c[2] && row.c[2].v ? row.c[2].v.trim() : "";
+                    let firstName = row.c[1] && row.c[1].v ? row.c[1].v.toString().trim() : "";
+                    let lastName = row.c[2] && row.c[2].v ? row.c[2].v.toString().trim() : "";
 
-                    if (firstName !== "" && lastName !== "") { // Solo agregar si hay datos
-                        let fullName = `${firstName} ${lastName}`;
+                    if (firstName !== "" || lastName !== "") { // Permitir nombres con solo una columna llena
+                        let fullName = `${firstName} ${lastName}`.trim();
                         allData.push(fullName);
 
                         let listItem = document.createElement("li");
@@ -69,21 +69,26 @@
                     }
                 });
 
+                console.log("✅ Nombres extraídos:", allData);
+
                 if (allData.length === 0) {
                     list.innerHTML = "<li>No data available</li>";
                 }
 
             } catch (error) {
-                console.error("Error loading Google Sheets data:", error);
-                document.getElementById("itemList").innerHTML = "<li>Error loading data</li>";
+                console.error("❌ Error loading Google Sheets data:", error);
+                const list = document.getElementById("itemList");
+                if (list) {
+                    list.innerHTML = "<li>Error loading data</li>";
+                }
             }
         }
 
-        // Función para filtrar la lista según el texto ingresado en la barra de búsqueda
+        // Filtrar resultados
         function filterList() {
             let query = document.getElementById("searchInput").value.toLowerCase();
             let list = document.getElementById("itemList");
-            list.innerHTML = ""; // Limpiar lista
+            list.innerHTML = "";
 
             let filteredData = allData.filter(name => name.toLowerCase().includes(query));
 
@@ -98,7 +103,7 @@
             }
         }
 
-        // Cargar los datos al abrir la página
+        // Cargar datos al iniciar
         window.onload = loadGoogleSheetData;
     </script>
 </body>
