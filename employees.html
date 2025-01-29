@@ -5,17 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employees</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0056b3;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .back-btn {
+            display: block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #6c757d;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-    <header>
+    <div class="container">
         <h1>👥 Employees Section</h1>
-        <p>Access employee-related links.</p>
-    </header>
+        <p>Select an employee to view their profile.</p>
 
-    <main class="button-container">
-        <div>
-            <a href="index.html" class="back-btn">⬅ Back to Home</a>
-        </div>
-    </main>
+        <!-- ListBox para mostrar perfiles guardados -->
+        <select id="profileList" size="5">
+            <option disabled>Loading profiles...</option>
+        </select>
+
+        <button class="btn" onclick="openProfile()">View Profile</button>
+
+        <a href="index.html" class="back-btn">⬅ Back to Home</a>
+    </div>
+
+    <script>
+        function loadProfiles() {
+            let profileList = document.getElementById("profileList");
+            profileList.innerHTML = ""; 
+
+            let keys = Object.keys(localStorage);
+            if (keys.length === 0) {
+                profileList.innerHTML = "<option disabled>No profiles saved</option>";
+                return;
+            }
+
+            keys.forEach(name => {
+                let option = document.createElement("option");
+                option.value = name;
+                option.textContent = name;
+                profileList.appendChild(option);
+            });
+        }
+
+        function openProfile() {
+            let profileList = document.getElementById("profileList");
+            let selectedName = profileList.value;
+
+            if (selectedName) {
+                window.open(`profile.html?name=${encodeURIComponent(selectedName)}`, "_blank", "width=600,height=400");
+            } else {
+                alert("Please select a profile.");
+            }
+        }
+
+        window.onload = loadProfiles;
+    </script>
 </body>
 </html>
