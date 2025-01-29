@@ -67,7 +67,7 @@
 
                         let listItem = document.createElement("li");
                         listItem.textContent = fullName;
-                        listItem.onclick = () => selectName(fullName); // Asignar evento de selección
+                        listItem.ondblclick = () => selectName(fullName); // Evento de doble clic
                         list.appendChild(listItem);
                     }
                 });
@@ -102,7 +102,7 @@
                 filteredData.forEach(name => {
                     let listItem = document.createElement("li");
                     listItem.textContent = name;
-                    listItem.onclick = () => selectName(name); // Volver a asignar el evento de selección
+                    listItem.ondblclick = () => selectName(name); // Cambiamos a doble clic
                     list.appendChild(listItem);
                 });
             }
@@ -112,7 +112,7 @@
             if (selectedName) {
                 alert(`Hello, ${selectedName}!`); // Mostrar mensaje con el nombre seleccionado
             } else {
-                alert("Please select a name first."); // Si no hay selección
+                alert("Please double-click a name first."); // Si no hay selección
             }
         }
 
