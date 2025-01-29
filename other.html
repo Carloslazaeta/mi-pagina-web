@@ -1,71 +1,111 @@
-<script>
-    // Nueva URL con consulta SELECT B, C para obtener solo nombres y apellidos
-    const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json&sheet=Form_Responses1&tq=SELECT B,C";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Other Links</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>🔗 Other Section</h1>
+        <p>Search for employees from Google Sheets.</p>
+    </header>
 
-    let allData = []; // Para almacenar los nombres obtenidos
+    <main class="button-container">
+        <!-- Barra de búsqueda -->
+        <div class="input-container">
+            <input type="text" id="searchInput" placeholder="Search for a name..." onkeyup="filterList()">
+        </div>
 
-    // Función para cargar los datos desde Google Sheets
-    async function loadGoogleSheetData() {
-        try {
-            const response = await fetch(sheetURL);
-            const text = await response.text();
-            const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Limpiar formato JSON
+        <!-- ListBox con los nombres cargados desde Google Sheets -->
+        <div class="list-container">
+            <ul id="itemList"></ul>
+        </div>
 
-            const rows = jsonData.table.rows;
-            console.log("🔍 Debug: Todas las filas recibidas", rows);
+        <div>
+            <a href="index.html" class="back-btn">⬅ Back to Home</a>
+        </div>
+    </main>
 
-            const list = document.getElementById("itemList");
-            list.innerHTML = ""; // Limpiar lista antes de agregar los datos
-            allData = []; // Resetear datos previos
+    <script>
+        // URL del Google Sheet en formato JSON con la consulta SELECT B,C
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json&sheet=Form_Responses1&tq=SELECT B,C";
 
-            // Recorremos todas las filas desde la segunda fila (ignorando el encabezado)
-            rows.forEach((row, index) => {
-                if (!row.c || row.c.length < 2) return; // Saltar filas incompletas
+        let allData = []; // Para almacenar los nombres obtenidos
 
-                let firstName = row.c[0] && row.c[0].v ? row.c[0].v.trim() : "";
-                let lastName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
+        // Función para cargar los datos desde Google Sheets
+        async function loadGoogleSheetData() {
+            try {
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Limpiar formato JSON
 
-                if (firstName !== "" && lastName !== "") {
-                    let fullName = `${firstName} ${lastName}`;
-                    allData.push(fullName);
+                const rows = jsonData.table.rows;
+                console.log("🔍 Debug: Todas las filas recibidas", rows);
 
-                    let listItem = document.createElement("li");
-                    listItem.textContent = fullName;
-                    list.appendChild(listItem);
+                const list = document.getElementById("itemList");
+                if (!list) {
+                    console.error("❌ Elemento 'itemList' no encontrado en el DOM");
+                    return;
                 }
-            });
 
-            console.log("✅ Nombres extraídos:", allData);
+                list.innerHTML = ""; // Limpiar lista antes de agregar los datos
+                allData = []; // Resetear datos previos
 
-            if (allData.length === 0) {
-                list.innerHTML = "<li>No data available</li>";
+                // Recorremos todas las filas desde la segunda fila (ignorando el encabezado)
+                rows.forEach((row, index) => {
+                    if (!row.c || row.c.length < 2) return; // Saltar filas incompletas
+
+                    let firstName = row.c[0] && row.c[0].v ? row.c[0].v.trim() : "";
+                    let lastName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
+
+                    if (firstName !== "" && lastName !== "") {
+                        let fullName = `${firstName} ${lastName}`;
+                        allData.push(fullName);
+
+                        let listItem = document.createElement("li");
+                        listItem.textContent = fullName;
+                        list.appendChild(listItem);
+                    }
+                });
+
+                console.log("✅ Nombres extraídos:", allData);
+
+                if (allData.length === 0) {
+                    list.innerHTML = "<li>No data available</li>";
+                }
+
+            } catch (error) {
+                console.error("❌ Error loading Google Sheets data:", error);
+                const list = document.getElementById("itemList");
+                if (list) {
+                    list.innerHTML = "<li>Error loading data</li>";
+                }
             }
-
-        } catch (error) {
-            console.error("❌ Error loading Google Sheets data:", error);
-            document.getElementById("itemList").innerHTML = "<li>Error loading data</li>";
         }
-    }
 
-    // Función para filtrar la lista según la barra de búsqueda
-    function filterList() {
-        let query = document.getElementById("searchInput").value.toLowerCase();
-        let list = document.getElementById("itemList");
-        list.innerHTML = "";
+        // Función para filtrar la lista según la barra de búsqueda
+        function filterList() {
+            let query = document.getElementById("searchInput").value.toLowerCase();
+            let list = document.getElementById("itemList");
+            list.innerHTML = "";
 
-        let filteredData = allData.filter(name => name.toLowerCase().includes(query));
+            let filteredData = allData.filter(name => name.toLowerCase().includes(query));
 
-        if (filteredData.length === 0) {
-            list.innerHTML = "<li>No results found</li>";
-        } else {
-            filteredData.forEach(name => {
-                let listItem = document.createElement("li");
-                listItem.textContent = name;
-                list.appendChild(listItem);
-            });
+            if (filteredData.length === 0) {
+                list.innerHTML = "<li>No results found</li>";
+            } else {
+                filteredData.forEach(name => {
+                    let listItem = document.createElement("li");
+                    listItem.textContent = name;
+                    list.appendChild(listItem);
+                });
+            }
         }
-    }
 
-    // Cargar los datos cuando la página se abre
-    window.onload = loadGoogleSheetData;
-</script>
+        // Cargar los datos cuando la página se abre
+        window.onload = loadGoogleSheetData;
+    </script>
+</body>
+</html>
