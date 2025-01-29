@@ -1,105 +1,77 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <header>
-        <h1>📝 Profile</h1>
-        <p>Employee Information</p>
-    </header>
+<script>
+    // URL del Google Sheet en formato JSON
+    const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
 
-    <main class="profile-container">
-        <h2 id="profileName">Loading...</h2>
-        <div id="profileDetails">
-            <p>Fetching data...</p>
-        </div>
+    // Obtener el parámetro de la URL
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
 
-        <div class="button-group">
-            <button id="createBtn" class="create-btn">Create</button>
-            <button id="cancelBtn" class="cancel-btn">Cancel</button>
-        </div>
-    </main>
-
-    <script>
-        // Google Sheets JSON URL
-        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-
-        // Get selected name from URL
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
+    async function loadProfileData() {
+        let selectedName = getQueryParam("name");
+        if (!selectedName) {
+            document.getElementById("profileDetails").innerHTML = "<p>No se proporcionó un nombre</p>";
+            return;
         }
 
-        async function loadProfileData() {
-            let selectedName = getQueryParam("name");
-            if (!selectedName) {
-                document.getElementById("profileDetails").innerHTML = "<p>No name provided</p>";
-                return;
+        document.getElementById("profileName").textContent = selectedName;
+
+        try {
+            const response = await fetch(sheetURL);
+            const text = await response.text();
+            const jsonData = JSON.parse(text.substring(47, text.length - 2));
+
+            const rows = jsonData.table.rows;
+            const headers = jsonData.table.cols.map(col => col.label); // Obtener los nombres de las columnas
+
+            console.log("📊 Debug: Cabeceras detectadas", headers);
+
+            let foundRow = null;
+
+            // Buscar la fila que coincide con el nombre seleccionado
+            for (let i = 1; i < rows.length; i++) {
+                let row = rows[i].c;
+                let firstName = row[1]?.v?.trim() || "";
+                let lastName = row[2]?.v?.trim() || "";
+                let fullName = `${firstName} ${lastName}`.trim();
+
+                if (fullName === selectedName) {
+                    foundRow = row;
+                    break;
+                }
             }
 
-            try {
-                const response = await fetch(sheetURL);
-                const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2));
-
-                const rows = jsonData.table.rows;
-                const headers = jsonData.table.cols.map(col => col.label);
-
-                console.log("📊 Debug: Headers found", headers);
-
-                let foundRow = null;
-
-                // Find the row that matches the selected name
-                for (let i = 1; i < rows.length; i++) {
-                    let row = rows[i].c;
-                    let firstName = row[1]?.v?.trim() || "";
-                    let lastName = row[2]?.v?.trim() || "";
-                    let fullName = `${firstName} ${lastName}`.trim();
-
-                    if (fullName === selectedName) {
-                        foundRow = row;
-                        break;
+            if (foundRow) {
+                let detailsHTML = "<ul>";
+                headers.forEach((header, index) => {
+                    if (header && foundRow[index]?.v) {
+                        detailsHTML += `<li><strong>${header}:</strong> ${foundRow[index].v}</li>`;
                     }
-                }
+                });
+                detailsHTML += "</ul>";
 
-                if (foundRow) {
-                    document.getElementById("profileName").textContent = selectedName;
-
-                    let detailsHTML = "<ul>";
-                    headers.forEach((header, index) => {
-                        if (header && foundRow[index]?.v) {
-                            detailsHTML += `<li><strong>${header}:</strong> ${foundRow[index].v}</li>`;
-                        }
-                    });
-                    detailsHTML += "</ul>";
-
-                    document.getElementById("profileDetails").innerHTML = detailsHTML;
-                } else {
-                    document.getElementById("profileDetails").innerHTML = "<p>No data found for this name.</p>";
-                }
-
-            } catch (error) {
-                console.error("❌ Error loading profile data:", error);
-                document.getElementById("profileDetails").innerHTML = "<p>Error loading data</p>";
+                document.getElementById("profileDetails").innerHTML = detailsHTML;
+            } else {
+                document.getElementById("profileDetails").innerHTML = "<p>No se encontraron datos para este nombre.</p>";
             }
+
+        } catch (error) {
+            console.error("❌ Error al cargar los datos del perfil:", error);
+            document.getElementById("profileDetails").innerHTML = "<p>Error al cargar los datos</p>";
         }
+    }
 
-        // Close window on cancel
-        document.getElementById("cancelBtn").addEventListener("click", () => {
-            window.close();
-        });
+    // Cerrar la ventana al presionar "Cancelar"
+    document.getElementById("cancelBtn").addEventListener("click", () => {
+        window.close();
+    });
 
-        // Confirm profile creation
-        document.getElementById("createBtn").addEventListener("click", () => {
-            alert("Profile created for " + document.getElementById("profileName").textContent);
-        });
+    // Confirmar la creación del perfil
+    document.getElementById("createBtn").addEventListener("click", () => {
+        alert("Perfil creado para " + document.getElementById("profileName").textContent);
+    });
 
-        // Load profile on page open
-        window.onload = loadProfileData;
-    </script>
-</body>
-</html>
+    // Cargar los datos del perfil al abrir la página
+    window.onload = loadProfileData;
+</script>

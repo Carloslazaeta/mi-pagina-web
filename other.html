@@ -90,12 +90,12 @@
         }
 
         function openProfile() {
-            if (selectedName) {
-                window.open(`profile.html?name=${encodeURIComponent(selectedName)}`, "_blank", "width=600,height=400");
-            } else {
-                alert("Please select a name first.");
-            }
-        }
+    if (selectedName) {
+        window.open(`profile.html?name=${encodeURIComponent(selectedName)}`, "_blank");
+    } else {
+        alert("Por favor, selecciona un nombre primero.");
+    }
+}
 
         function filterList() {
             let query = document.getElementById("searchInput").value.toLowerCase();
