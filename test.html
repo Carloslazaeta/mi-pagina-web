@@ -14,99 +14,136 @@
 
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
-        <div id="profileDetails">
-            <p>Fetching data...</p>
+
+        <!-- Sección de datos extraídos del Google Sheet -->
+        <div id="profileDetails" class="data-container">
+            <h3>📋 Employee Data from Google Sheets</h3>
+            <table id="dataTable">
+                <tbody></tbody>
+            </table>
         </div>
 
-        <h3>Additional Fields</h3>
+        <!-- Sección de nuevos campos para edición -->
+        <h3>📝 Additional Fields</h3>
         <form id="employeeForm">
-            <!-- Campos con opciones -->
-            <label>Status:</label>
-            <select id="status">
-                <option value="Pending">Pending</option>
-                <option value="Does not meet requirements">Does not meet requirements</option>
-                <option value="Complete">Complete</option>
-            </select>
+            <div class="form-group">
+                <label>Status:</label>
+                <select id="status">
+                    <option value="Pending">Pending</option>
+                    <option value="Does not meet requirements">Does not meet requirements</option>
+                    <option value="Complete">Complete</option>
+                </select>
+            </div>
 
-            <label>Offer Letter & Handbook:</label>
-            <select id="offerLetter">
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
+            <div class="form-group">
+                <label>Offer Letter & Handbook:</label>
+                <select id="offerLetter">
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
 
-            <label>Drug Test:</label>
-            <select id="drugTest">
-                <option value="Fail">Fail</option>
-                <option value="Pass">Pass</option>
-            </select>
+            <div class="form-group">
+                <label>Drug Test:</label>
+                <select id="drugTest">
+                    <option value="Fail">Fail</option>
+                    <option value="Pass">Pass</option>
+                </select>
+            </div>
 
-            <label>Drug Test Date:</label>
-            <input type="date" id="drugTestDate">
+            <div class="form-group">
+                <label>Drug Test Date:</label>
+                <input type="date" id="drugTestDate">
+            </div>
 
-            <label>Background Check Status:</label>
-            <select id="bgCheck">
-                <option value="Pending">Pending</option>
-                <option value="Pass">Pass</option>
-                <option value="Fail">Fail</option>
-            </select>
+            <div class="form-group">
+                <label>Background Check Status:</label>
+                <select id="bgCheck">
+                    <option value="Pending">Pending</option>
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select>
+            </div>
 
-            <label>Training Status:</label>
-            <select id="trainingStatus">
-                <option value="Pending">Pending</option>
-                <option value="Pass">Pass</option>
-                <option value="Fail">Fail</option>
-            </select>
+            <div class="form-group">
+                <label>Training Status:</label>
+                <select id="trainingStatus">
+                    <option value="Pending">Pending</option>
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select>
+            </div>
 
-            <label>Training Date:</label>
-            <input type="date" id="trainingDate">
+            <div class="form-group">
+                <label>Training Date:</label>
+                <input type="date" id="trainingDate">
+            </div>
 
-            <label>ADP Payroll Onboarding:</label>
-            <select id="payroll">
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
+            <div class="form-group">
+                <label>ADP Payroll Onboarding:</label>
+                <select id="payroll">
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
 
-            <label>Employee Handbook:</label>
-            <input type="date" id="employeeHandbookDate">
+            <div class="form-group">
+                <label>Employee Handbook:</label>
+                <input type="date" id="employeeHandbookDate">
+            </div>
 
-            <label>Sexual Harassment/Employee Handbook Acknowledgment:</label>
-            <select id="harassmentAck">
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
+            <div class="form-group">
+                <label>Sexual Harassment/Employee Handbook Acknowledgment:</label>
+                <select id="harassmentAck">
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
 
-            <label>JJK Application:</label>
-            <select id="jjkApp">
-                <option value="Pending">Pending</option>
-                <option value="Assing">Assign</option>
-            </select>
+            <div class="form-group">
+                <label>JJK Application:</label>
+                <select id="jjkApp">
+                    <option value="Pending">Pending</option>
+                    <option value="Assign">Assign</option>
+                </select>
+            </div>
 
-            <label>JJK Application Date:</label>
-            <input type="date" id="jjkAppDate">
+            <div class="form-group">
+                <label>JJK Application Date:</label>
+                <input type="date" id="jjkAppDate">
+            </div>
 
-            <label>MEC (Medical Examiner's Certificate):</label>
-            <select id="mecStatus">
-                <option value="Pending">Pending</option>
-                <option value="Pass">Pass</option>
-                <option value="Fail">Fail</option>
-            </select>
+            <div class="form-group">
+                <label>MEC (Medical Examiner's Certificate):</label>
+                <select id="mecStatus">
+                    <option value="Pending">Pending</option>
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select>
+            </div>
 
-            <label>Road Test:</label>
-            <select id="roadTest">
-                <option value="Pending">Pending</option>
-                <option value="Pass">Pass</option>
-                <option value="Fail">Fail</option>
-            </select>
+            <div class="form-group">
+                <label>Road Test:</label>
+                <select id="roadTest">
+                    <option value="Pending">Pending</option>
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select>
+            </div>
 
-            <label>Road Test Date:</label>
-            <input type="date" id="roadTestDate">
+            <div class="form-group">
+                <label>Road Test Date:</label>
+                <input type="date" id="roadTestDate">
+            </div>
 
-            <label>i9 Status:</label>
-            <select id="i9Status">
-                <option value="Pending">Pending</option>
-                <option value="Pass">Pass</option>
-                <option value="Fail">Fail</option>
-            </select>
+            <div class="form-group">
+                <label>i9 Status:</label>
+                <select id="i9Status">
+                    <option value="Pending">Pending</option>
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select>
+            </div>
         </form>
 
         <div class="button-group">
@@ -116,107 +153,85 @@
     </main>
 
     <script>
-        // Obtener parámetros de la URL
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
+        async function loadProfileData() {
             let selectedName = getQueryParam("name");
             document.getElementById("profileName").textContent = selectedName || "No name provided";
 
-            // Botón Save - Simula el guardado en un archivo
-            document.getElementById("saveBtn").addEventListener("click", function () {
-                const data = {
-                    Name: selectedName,
-                    Status: document.getElementById("status").value,
-                    OfferLetter: document.getElementById("offerLetter").value,
-                    DrugTest: document.getElementById("drugTest").value,
-                    DrugTestDate: document.getElementById("drugTestDate").value,
-                    BackgroundCheck: document.getElementById("bgCheck").value,
-                    TrainingStatus: document.getElementById("trainingStatus").value,
-                    TrainingDate: document.getElementById("trainingDate").value,
-                    Payroll: document.getElementById("payroll").value,
-                    EmployeeHandbookDate: document.getElementById("employeeHandbookDate").value,
-                    HarassmentAck: document.getElementById("harassmentAck").value,
-                    JJKApplication: document.getElementById("jjkApp").value,
-                    JJKAppDate: document.getElementById("jjkAppDate").value,
-                    MECStatus: document.getElementById("mecStatus").value,
-                    RoadTest: document.getElementById("roadTest").value,
-                    RoadTestDate: document.getElementById("roadTestDate").value,
-                    i9Status: document.getElementById("i9Status").value
-                };
+            try {
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47, text.length - 2));
 
-                // Convertir en JSON
-                const jsonData = JSON.stringify(data, null, 2);
-                
-                // Crear un archivo de texto con los datos
-                const blob = new Blob([jsonData], { type: "application/json" });
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(blob);
-                a.download = `${selectedName}_profile.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                alert("Profile saved successfully!");
-            });
+                const rows = jsonData.table.rows;
+                const headers = jsonData.table.cols.map(col => col.label);
 
-            // Botón Cancel - Cierra la ventana
-            document.getElementById("cancelBtn").addEventListener("click", function () {
-                window.close();
-            });
-        });
+                let foundRow = null;
+
+                for (let i = 1; i < rows.length; i++) {
+                    let row = rows[i].c;
+                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
+                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName === selectedName) {
+                        foundRow = row;
+                        break;
+                    }
+                }
+
+                if (foundRow) {
+                    let tableHTML = "";
+                    headers.forEach((header, index) => {
+                        if (header && foundRow[index] && foundRow[index].v) {
+                            tableHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
+                        }
+                    });
+                    document.querySelector("#dataTable tbody").innerHTML = tableHTML;
+                } else {
+                    document.querySelector("#dataTable tbody").innerHTML = "<tr><td colspan='2'>No data found</td></tr>";
+                }
+
+            } catch (error) {
+                console.error("❌ Error loading profile data:", error);
+                document.querySelector("#dataTable tbody").innerHTML = "<tr><td colspan='2'>Error loading data</td></tr>";
+            }
+        }
+
+        window.onload = loadProfileData;
     </script>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
-        }
         .profile-container {
-            max-width: 600px;
+            max-width: 800px;
             margin: auto;
-            background: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            background: white;
         }
-        h2 {
-            text-align: center;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-top: 10px;
-            font-weight: bold;
-        }
-        input, select {
+        td {
             padding: 8px;
-            margin-top: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
         }
-        .button-group {
-            text-align: center;
-            margin-top: 20px;
+        .form-group {
+            margin: 10px 0;
         }
         .save-btn {
             background: green;
             color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
         }
         .cancel-btn {
             background: red;
             color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
         }
     </style>
 </body>
