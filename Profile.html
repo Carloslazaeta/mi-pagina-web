@@ -14,13 +14,14 @@
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
 
-        <div>
-            <a href="other.html" class="back-btn">⬅ Back</a>
+        <!-- Botones -->
+        <div class="button-group">
+            <button onclick="createAction()">Create</button>
+            <button onclick="window.close()">Cancel</button>
         </div>
     </main>
 
     <script>
-        // Obtener el nombre de la URL
         function getQueryParam(param) {
             let urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
@@ -31,6 +32,38 @@
             let name = getQueryParam("name");
             document.getElementById("profileName").textContent = name ? `Profile: ${name}` : "No profile selected";
         });
+
+        function createAction() {
+            alert("Profile created successfully!");
+            window.close();
+        }
     </script>
+
+    <style>
+        .profile-container {
+            text-align: center;
+            padding: 20px;
+        }
+        .button-group {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        button:first-child {
+            background-color: green;
+            color: white;
+        }
+        button:last-child {
+            background-color: red;
+            color: white;
+        }
+    </style>
+
 </body>
 </html>

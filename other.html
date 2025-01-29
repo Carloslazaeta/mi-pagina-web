@@ -23,8 +23,8 @@
             <ul id="itemList"></ul>
         </div>
 
-        <!-- Botón para ir al perfil -->
-        <button id="createProfileBtn" onclick="goToProfile()" disabled>Create Profile</button>
+        <!-- Botón para abrir perfil en otra ventana -->
+        <button id="createProfileBtn" onclick="openProfileWindow()" disabled>Create Profile</button>
 
         <div>
             <a href="index.html" class="back-btn">⬅ Back to Home</a>
@@ -33,10 +33,10 @@
 
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-        let allData = []; // Guardará todos los nombres
-        let selectedName = ""; // Guardará el nombre seleccionado
+        let allData = [];
+        let selectedName = "";
 
-        // Función para cargar datos desde Google Sheets
+        // Cargar datos desde Google Sheets
         async function loadGoogleSheetData() {
             try {
                 const response = await fetch(sheetURL);
@@ -49,8 +49,8 @@
                 allData = [];
 
                 rows.forEach((row, index) => {
-                    if (!row.c || row.c.length < 3) return; // Ignorar filas vacías o con menos de 3 columnas
-                    if (index === 0) return; // Ignorar encabezado
+                    if (!row.c || row.c.length < 3) return;
+                    if (index === 0) return;
 
                     let firstName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
                     let lastName = row.c[2] && row.c[2].v ? row.c[2].v.trim() : "";
@@ -69,34 +69,29 @@
                 if (allData.length === 0) {
                     list.innerHTML = "<li>No data available</li>";
                 }
-
             } catch (error) {
                 console.error("Error loading Google Sheets data:", error);
                 document.getElementById("itemList").innerHTML = "<li>Error loading data</li>";
             }
         }
 
-        // Función para seleccionar un nombre
+        // Seleccionar un nombre y resaltarlo
         function selectName(name, element) {
-            // Remover selección previa
             document.querySelectorAll("#itemList li").forEach(item => item.classList.remove("selected"));
-
-            // Aplicar selección al nuevo elemento
             selectedName = name;
             element.classList.add("selected");
-
-            // Habilitar botón de Create Profile
             document.getElementById("createProfileBtn").disabled = false;
         }
 
-        // Función para ir a Profile.html con el nombre seleccionado
-        function goToProfile() {
+        // Abrir Profile.html en otra ventana con el nombre seleccionado
+        function openProfileWindow() {
             if (selectedName) {
-                window.location.href = `Profile.html?name=${encodeURIComponent(selectedName)}`;
+                let url = `Profile.html?name=${encodeURIComponent(selectedName)}`;
+                window.open(url, "_blank", "width=600,height=400");
             }
         }
 
-        // Función para filtrar la lista
+        // Filtrar la lista
         function filterList() {
             let query = document.getElementById("searchInput").value.toLowerCase();
             let list = document.getElementById("itemList");
@@ -116,19 +111,15 @@
             }
         }
 
-        // Cargar los datos al abrir la página
         window.onload = loadGoogleSheetData;
     </script>
 
     <style>
-        /* Estilos para resaltar el nombre seleccionado */
         .selected {
             background-color: #007bff;
             color: white;
             font-weight: bold;
         }
-
-        /* Botón deshabilitado */
         #createProfileBtn:disabled {
             background-color: grey;
             cursor: not-allowed;
