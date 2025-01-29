@@ -29,17 +29,16 @@
     </main>
 
     <script>
-        // URL del Google Sheet en formato JSON (verifica que sea la URL correcta)
+        // URL del Google Sheet en formato JSON
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
 
         let allData = []; // Lista para almacenar nombres
 
-        // Función para cargar los datos desde Google Sheets
         async function loadGoogleSheetData() {
             try {
                 const response = await fetch(sheetURL);
                 const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Eliminar el formato extra del JSON
+                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Eliminar caracteres extra
 
                 const rows = jsonData.table.rows;
                 console.log("🔍 Debug: Todas las filas recibidas", rows);
@@ -53,15 +52,15 @@
                 list.innerHTML = ""; // Limpiar lista antes de agregar los datos
                 allData = []; // Resetear datos previos
 
-                // Recorrer todas las filas desde la segunda fila (ignorando el encabezado)
+                // Recorrer todas las filas desde la segunda fila (ignorando encabezado)
                 rows.forEach((row, index) => {
-                    if (!row.c || row.c.length < 3) return; // Saltar filas incompletas
+                    if (!row.c) return; // Si la fila está vacía, la ignoramos
 
-                    let firstName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
-                    let lastName = row.c[2] && row.c[2].v ? row.c[2].v.trim() : "";
+                    let firstName = row.c[1] && row.c[1].v ? row.c[1].v.toString().trim() : "";
+                    let lastName = row.c[2] && row.c[2].v ? row.c[2].v.toString().trim() : "";
 
-                    if (firstName !== "" && lastName !== "") {
-                        let fullName = `${firstName} ${lastName}`;
+                    if (firstName !== "" || lastName !== "") { // Permitir nombres con solo una columna llena
+                        let fullName = `${firstName} ${lastName}`.trim();
                         allData.push(fullName);
 
                         let listItem = document.createElement("li");
@@ -85,7 +84,7 @@
             }
         }
 
-        // Función para filtrar la lista según el texto ingresado en la barra de búsqueda
+        // Filtrar resultados
         function filterList() {
             let query = document.getElementById("searchInput").value.toLowerCase();
             let list = document.getElementById("itemList");
@@ -104,7 +103,7 @@
             }
         }
 
-        // Cargar los datos cuando la página se abre
+        // Cargar datos al iniciar
         window.onload = loadGoogleSheetData;
     </script>
 </body>
