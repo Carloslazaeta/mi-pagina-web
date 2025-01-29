@@ -34,7 +34,7 @@
         // URL del Google Sheet publicado en formato JSON
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
 
-        let allData = []; // Almacenará todos los nombres y apellidos para la búsqueda
+        let allData = []; // Almacenará todos los nombres y apellidos
 
         // Función para cargar datos desde Google Sheets
         async function loadGoogleSheetData() {
@@ -50,13 +50,16 @@
                 allData = []; // Resetear los datos previos
 
                 rows.forEach((row, index) => {
-                    // Validamos que haya contenido en las columnas B y C
-                    let firstName = row.c[1] ? row.c[1].v.trim() : ""; // Columna B (First Name)
-                    let lastName = row.c[2] ? row.c[2].v.trim() : "";  // Columna C (Last Name)
+                    // Ignorar la primera fila (títulos de columnas)
+                    if (index === 0) return;
 
-                    if (firstName !== "" && lastName !== "") { // Solo agregamos si hay datos
+                    // Verificamos que las columnas B y C (First Name y Last Name) contengan datos
+                    let firstName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
+                    let lastName = row.c[2] && row.c[2].v ? row.c[2].v.trim() : "";
+
+                    if (firstName !== "" && lastName !== "") { // Solo agregar si hay datos
                         let fullName = `${firstName} ${lastName}`;
-                        allData.push(fullName); // Guardamos en el array
+                        allData.push(fullName);
 
                         let listItem = document.createElement("li");
                         listItem.textContent = fullName;
