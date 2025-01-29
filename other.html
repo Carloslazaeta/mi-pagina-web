@@ -49,6 +49,7 @@
                 allData = [];
 
                 rows.forEach((row, index) => {
+                    if (!row.c || row.c.length < 3) return; // Ignorar filas vacías o con menos de 3 columnas
                     if (index === 0) return; // Ignorar encabezado
 
                     let firstName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
@@ -64,6 +65,10 @@
                         list.appendChild(listItem);
                     }
                 });
+
+                if (allData.length === 0) {
+                    list.innerHTML = "<li>No data available</li>";
+                }
 
             } catch (error) {
                 console.error("Error loading Google Sheets data:", error);
