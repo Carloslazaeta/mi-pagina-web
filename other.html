@@ -50,16 +50,23 @@
                 allData = []; // Resetear los datos previos
 
                 rows.forEach((row, index) => {
-                    // Verifica que haya datos en las columnas B (1) y C (2)
-                    if (row.c && row.c.length > 2 && row.c[1] && row.c[2]) {
-                        let fullName = `${row.c[1].v.trim()} ${row.c[2].v.trim()}`; // Nombre + Apellido
-                        allData.push(fullName); // Guardar en el array global
+                    // Validamos que haya contenido en las columnas B y C
+                    let firstName = row.c[1] ? row.c[1].v.trim() : ""; // Columna B (First Name)
+                    let lastName = row.c[2] ? row.c[2].v.trim() : "";  // Columna C (Last Name)
+
+                    if (firstName !== "" && lastName !== "") { // Solo agregamos si hay datos
+                        let fullName = `${firstName} ${lastName}`;
+                        allData.push(fullName); // Guardamos en el array
 
                         let listItem = document.createElement("li");
                         listItem.textContent = fullName;
                         list.appendChild(listItem);
                     }
                 });
+
+                if (allData.length === 0) {
+                    list.innerHTML = "<li>No data available</li>";
+                }
 
             } catch (error) {
                 console.error("Error loading Google Sheets data:", error);
