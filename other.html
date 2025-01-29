@@ -29,20 +29,17 @@
     </main>
 
     <script>
-        // URL del Google Sheet en formato JSON con la consulta SELECT B,C
-        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json&sheet=Form_Responses1&tq=SELECT B,C";
+        // URL del Google Sheet publicado en formato CSV
+        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1v.../pub?output=csv";
 
-        let allData = []; // Para almacenar los nombres obtenidos
+        let allData = [];
 
-        // Función para cargar los datos desde Google Sheets
+        // Función para cargar datos desde Google Sheets (CSV)
         async function loadGoogleSheetData() {
             try {
                 const response = await fetch(sheetURL);
                 const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Limpiar formato JSON
-
-                const rows = jsonData.table.rows;
-                console.log("🔍 Debug: Todas las filas recibidas", rows);
+                const rows = text.split("\n").slice(1); // Saltar encabezado
 
                 const list = document.getElementById("itemList");
                 if (!list) {
@@ -50,17 +47,15 @@
                     return;
                 }
 
-                list.innerHTML = ""; // Limpiar lista antes de agregar los datos
-                allData = []; // Resetear datos previos
+                list.innerHTML = "";
+                allData = [];
 
-                // Recorremos todas las filas desde la segunda fila (ignorando el encabezado)
-                rows.forEach((row, index) => {
-                    if (!row.c || row.c.length < 2) return; // Saltar filas incompletas
+                rows.forEach(row => {
+                    const columns = row.split(",");
+                    let firstName = columns[0]?.trim();
+                    let lastName = columns[1]?.trim();
 
-                    let firstName = row.c[0] && row.c[0].v ? row.c[0].v.trim() : "";
-                    let lastName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
-
-                    if (firstName !== "" && lastName !== "") {
+                    if (firstName && lastName) {
                         let fullName = `${firstName} ${lastName}`;
                         allData.push(fullName);
 
@@ -85,7 +80,7 @@
             }
         }
 
-        // Función para filtrar la lista según la barra de búsqueda
+        // Función para filtrar la lista según el texto ingresado en la barra de búsqueda
         function filterList() {
             let query = document.getElementById("searchInput").value.toLowerCase();
             let list = document.getElementById("itemList");
