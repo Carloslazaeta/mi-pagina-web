@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Other Section</title>
+    <title>Other Links</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -20,11 +20,10 @@
 
         <!-- ListBox con los nombres cargados desde Google Sheets -->
         <div class="list-container">
-            <ul id="itemList"></ul>
+            <ul id="itemList">
+                <li>Loading data from Google Sheets...</li>
+            </ul>
         </div>
-
-        <!-- Botón para abrir perfil en otra ventana -->
-        <button id="createProfileBtn" onclick="openProfileWindow()" disabled>Create Profile</button>
 
         <div>
             <a href="index.html" class="back-btn">⬅ Back to Home</a>
@@ -32,36 +31,40 @@
     </main>
 
     <script>
+        // URL del Google Sheet publicado en formato JSON
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-        let allData = [];
-        let selectedName = "";
 
-        // Cargar datos desde Google Sheets
+        let allData = []; // Almacenará todos los nombres y apellidos
+
+        // Función para cargar datos desde Google Sheets
         async function loadGoogleSheetData() {
             try {
                 const response = await fetch(sheetURL);
                 const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2));
+                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Limpiar el JSON
 
                 const rows = jsonData.table.rows;
                 const list = document.getElementById("itemList");
-                list.innerHTML = "";
-                allData = [];
 
+                list.innerHTML = ""; // Limpiar la lista antes de cargar los datos
+                allData = []; // Resetear los datos previos
+
+                console.log("Google Sheet Loaded:", rows); // Debug para ver las filas cargadas
+
+                // Recorrer todas las filas desde la segunda fila (index > 0)
                 rows.forEach((row, index) => {
-                    if (!row.c || row.c.length < 3) return;
-                    if (index === 0) return;
+                    if (index === 0) return; // Ignorar la primera fila (encabezado)
 
+                    // Verificar que existan valores en las columnas B y C (Nombre y Apellido)
                     let firstName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
                     let lastName = row.c[2] && row.c[2].v ? row.c[2].v.trim() : "";
 
-                    if (firstName !== "" && lastName !== "") {
+                    if (firstName !== "" && lastName !== "") { // Solo agregar si hay datos
                         let fullName = `${firstName} ${lastName}`;
                         allData.push(fullName);
 
                         let listItem = document.createElement("li");
                         listItem.textContent = fullName;
-                        listItem.onclick = () => selectName(fullName, listItem);
                         list.appendChild(listItem);
                     }
                 });
@@ -69,33 +72,18 @@
                 if (allData.length === 0) {
                     list.innerHTML = "<li>No data available</li>";
                 }
+
             } catch (error) {
                 console.error("Error loading Google Sheets data:", error);
                 document.getElementById("itemList").innerHTML = "<li>Error loading data</li>";
             }
         }
 
-        // Seleccionar un nombre y resaltarlo
-        function selectName(name, element) {
-            document.querySelectorAll("#itemList li").forEach(item => item.classList.remove("selected"));
-            selectedName = name;
-            element.classList.add("selected");
-            document.getElementById("createProfileBtn").disabled = false;
-        }
-
-        // Abrir Profile.html en otra ventana con el nombre seleccionado
-        function openProfileWindow() {
-            if (selectedName) {
-                let url = `Profile.html?name=${encodeURIComponent(selectedName)}`;
-                window.open(url, "_blank", "width=600,height=400");
-            }
-        }
-
-        // Filtrar la lista
+        // Función para filtrar la lista según el texto ingresado en la barra de búsqueda
         function filterList() {
             let query = document.getElementById("searchInput").value.toLowerCase();
             let list = document.getElementById("itemList");
-            list.innerHTML = "";
+            list.innerHTML = ""; // Limpiar lista
 
             let filteredData = allData.filter(name => name.toLowerCase().includes(query));
 
@@ -105,26 +93,14 @@
                 filteredData.forEach(name => {
                     let listItem = document.createElement("li");
                     listItem.textContent = name;
-                    listItem.onclick = () => selectName(name, listItem);
                     list.appendChild(listItem);
                 });
             }
         }
 
+        // Cargar los datos al abrir la página
         window.onload = loadGoogleSheetData;
     </script>
-
-    <style>
-        .selected {
-            background-color: #007bff;
-            color: white;
-            font-weight: bold;
-        }
-        #createProfileBtn:disabled {
-            background-color: grey;
-            cursor: not-allowed;
-        }
-    </style>
-
 </body>
 </html>
+
