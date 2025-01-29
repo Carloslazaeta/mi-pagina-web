@@ -134,6 +134,11 @@
 
         async function loadProfileData() {
             let selectedName = getQueryParam("name");
+            let storedData = localStorage.getItem(selectedName);
+            if (storedData) {
+                populateFields(JSON.parse(storedData));
+                return;
+            }
 
             try {
                 const response = await fetch(sheetURL);
@@ -175,47 +180,29 @@
             }
         }
 
+        function populateFields(data) {
+            for (let key in data) {
+                let field = document.getElementById(key);
+                if (field) field.value = data[key];
+            }
+        }
+
+        document.getElementById("saveBtn").addEventListener("click", function () {
+            let selectedName = getQueryParam("name");
+            let formData = {};
+            document.querySelectorAll("#employeeForm input, #employeeForm select").forEach(input => {
+                formData[input.id] = input.value;
+            });
+
+            localStorage.setItem(selectedName, JSON.stringify(formData));
+            alert("Profile saved successfully!");
+        });
+
+        document.getElementById("cancelBtn").addEventListener("click", function () {
+            window.close();
+        });
+
         window.onload = loadProfileData;
     </script>
-
-    <style>
-        .container {
-            max-width: 900px;
-            margin: auto;
-            padding: 20px;
-            background: white;
-        }
-        .data-section, .form-section {
-            margin-bottom: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        td {
-            padding: 8px;
-            border-bottom: 1px solid #ccc;
-            text-align: left;
-        }
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .button-group {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .save-btn {
-            background: green;
-            color: white;
-            padding: 10px;
-        }
-        .cancel-btn {
-            background: red;
-            color: white;
-            padding: 10px;
-        }
-    </style>
 </body>
 </html>
