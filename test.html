@@ -14,7 +14,7 @@
 
     <main class="profile-container">
         <h2 id="selectedName">Loading...</h2>
-        <div id="employeeDetails">
+        <div id="employeeDetails" class="details-container">
             <p>Fetching data...</p>
         </div>
 
@@ -65,13 +65,24 @@
                 }
 
                 if (foundRow) {
-                    let detailsHTML = "<ul>";
+                    let detailsHTML = "<table>";
                     headers.forEach((header, index) => {
                         if (header && foundRow[index] && foundRow[index].v) {
-                            detailsHTML += `<li><strong>${header}:</strong> ${foundRow[index].v}</li>`;
+                            let value = foundRow[index].v;
+
+                            // Si el valor es un enlace, lo mostramos como "Click here"
+                            if (typeof value === "string" && value.startsWith("http")) {
+                                value = `<a href="${value}" target="_blank">Click here</a>`;
+                            }
+
+                            detailsHTML += `
+                                <tr>
+                                    <td class="label">${header}:</td>
+                                    <td class="value">${value}</td>
+                                </tr>`;
                         }
                     });
-                    detailsHTML += "</ul>";
+                    detailsHTML += "</table>";
 
                     document.getElementById("employeeDetails").innerHTML = detailsHTML;
                 } else {
@@ -86,5 +97,60 @@
 
         window.onload = loadEmployeeData;
     </script>
+
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .details-container {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .label {
+            font-weight: bold;
+            width: 40%;
+        }
+
+        .value a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .value a:hover {
+            text-decoration: underline;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-btn:hover {
+            background: #0056b3;
+        }
+    </style>
 </body>
 </html>
