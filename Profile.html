@@ -25,10 +25,10 @@
     </main>
 
     <script>
-        // URL del Google Sheet en formato JSON
+        // Google Sheets JSON URL
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
 
-        // Obtener el nombre seleccionado desde la URL
+        // Get selected name from URL
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
@@ -44,20 +44,20 @@
             try {
                 const response = await fetch(sheetURL);
                 const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Limpiar el JSON
+                const jsonData = JSON.parse(text.substring(47, text.length - 2));
 
                 const rows = jsonData.table.rows;
-                const headers = jsonData.table.cols.map(col => col.label); // Obtener nombres de columnas
+                const headers = jsonData.table.cols.map(col => col.label);
 
-                console.log("📊 Debug: Cabeceras detectadas", headers);
+                console.log("📊 Debug: Headers found", headers);
 
                 let foundRow = null;
 
-                // Buscar la fila que coincida con el nombre seleccionado
+                // Find the row that matches the selected name
                 for (let i = 1; i < rows.length; i++) {
                     let row = rows[i].c;
-                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
-                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
+                    let firstName = row[1]?.v?.trim() || "";
+                    let lastName = row[2]?.v?.trim() || "";
                     let fullName = `${firstName} ${lastName}`.trim();
 
                     if (fullName === selectedName) {
@@ -68,10 +68,10 @@
 
                 if (foundRow) {
                     document.getElementById("profileName").textContent = selectedName;
-                    
+
                     let detailsHTML = "<ul>";
                     headers.forEach((header, index) => {
-                        if (header && foundRow[index] && foundRow[index].v) {
+                        if (header && foundRow[index]?.v) {
                             detailsHTML += `<li><strong>${header}:</strong> ${foundRow[index].v}</li>`;
                         }
                     });
@@ -88,17 +88,17 @@
             }
         }
 
-        // Acción del botón "Cancel"
-        document.getElementById("cancelBtn").addEventListener("click", function() {
+        // Close window on cancel
+        document.getElementById("cancelBtn").addEventListener("click", () => {
             window.close();
         });
 
-        // Acción del botón "Create"
-        document.getElementById("createBtn").addEventListener("click", function() {
+        // Confirm profile creation
+        document.getElementById("createBtn").addEventListener("click", () => {
             alert("Profile created for " + document.getElementById("profileName").textContent);
         });
 
-        // Cargar los datos cuando la página abra
+        // Load profile on page open
         window.onload = loadProfileData;
     </script>
 </body>
