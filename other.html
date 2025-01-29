@@ -49,13 +49,13 @@
                 list.innerHTML = ""; // Limpiar la lista antes de cargar los datos
                 allData = []; // Resetear los datos previos
 
+                // Recorrer todas las filas desde la segunda fila (index > 0)
                 rows.forEach((row, index) => {
-                    // Ignorar la primera fila (títulos de columnas)
-                    if (index === 0) return;
+                    if (index === 0) return; // Ignorar la primera fila (encabezado)
 
-                    // Verificamos que las columnas B y C (First Name y Last Name) contengan datos
-                    let firstName = row.c[1] && row.c[1].v ? row.c[1].v.trim() : "";
-                    let lastName = row.c[2] && row.c[2].v ? row.c[2].v.trim() : "";
+                    // Verificar que existan valores en las columnas B (First Name) y C (Last Name)
+                    let firstName = row.c[1] ? row.c[1].v.trim() : "";
+                    let lastName = row.c[2] ? row.c[2].v.trim() : "";
 
                     if (firstName !== "" && lastName !== "") { // Solo agregar si hay datos
                         let fullName = `${firstName} ${lastName}`;
