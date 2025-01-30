@@ -15,10 +15,12 @@
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
         
-        <!-- Sección de Datos del Google Sheets -->
+        <!-- Sección de Datos del Google Sheets (Origen) -->
         <div id="googleSheetData">
             <h3>Employee Details</h3>
-            <div id="profileDetails"></div>
+            <table id="profileDetails">
+                <tr><td colspan="2">Fetching data...</td></tr>
+            </table>
         </div>
 
         <!-- Sección de Información Adicional -->
@@ -103,53 +105,6 @@
                         </select>
                     </td>
                 </tr>
-                <tr>
-                    <td><label>JJK Application:</label></td>
-                    <td>
-                        <select id="jjkApplication">
-                            <option value="Pending">Pending</option>
-                            <option value="Assigned">Assigned</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>JJK Application Date:</label></td>
-                    <td><input type="date" id="jjkApplicationDate"></td>
-                </tr>
-                <tr>
-                    <td><label>MEC (Medical Examiner's Certificate):</label></td>
-                    <td>
-                        <select id="mecCertificate">
-                            <option value="Pending">Pending</option>
-                            <option value="Pass">Pass</option>
-                            <option value="Fail">Fail</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>Road Test:</label></td>
-                    <td>
-                        <select id="roadTest">
-                            <option value="Pending">Pending</option>
-                            <option value="Pass">Pass</option>
-                            <option value="Fail">Fail</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>Road Test Date:</label></td>
-                    <td><input type="date" id="roadTestDate"></td>
-                </tr>
-                <tr>
-                    <td><label>i9 Status:</label></td>
-                    <td>
-                        <select id="i9Status">
-                            <option value="Pending">Pending</option>
-                            <option value="Pass">Pass</option>
-                            <option value="Fail">Fail</option>
-                        </select>
-                    </td>
-                </tr>
             </table>
         </div>
 
@@ -160,10 +115,72 @@
     </main>
 
     <script>
+        // URL del Google Sheet de ORIGEN
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+
+        // Obtener el nombre seleccionado desde la URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        async function loadProfileData() {
+            let selectedName = getQueryParam("name");
+            if (!selectedName) {
+                document.getElementById("profileDetails").innerHTML = "<tr><td>No name provided</td></tr>";
+                return;
+            }
+
+            try {
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Limpiar el JSON
+
+                const rows = jsonData.table.rows;
+                const headers = jsonData.table.cols.map(col => col.label); // Obtener nombres de columnas
+
+                let foundRow = null;
+
+                // Buscar la fila que coincida con el nombre seleccionado
+                for (let i = 1; i < rows.length; i++) {
+                    let row = rows[i].c;
+                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
+                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName === selectedName) {
+                        foundRow = row;
+                        break;
+                    }
+                }
+
+                if (foundRow) {
+                    document.getElementById("profileName").textContent = selectedName;
+                    
+                    let detailsHTML = "";
+                    headers.forEach((header, index) => {
+                        if (header && foundRow[index] && foundRow[index].v) {
+                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
+                        }
+                    });
+
+                    document.getElementById("profileDetails").innerHTML = detailsHTML;
+                } else {
+                    document.getElementById("profileDetails").innerHTML = "<tr><td>No data found for this name.</td></tr>";
+                }
+
+            } catch (error) {
+                console.error("❌ Error loading profile data:", error);
+                document.getElementById("profileDetails").innerHTML = "<tr><td>Error loading data</td></tr>";
+            }
+        }
+
+        // Acción del botón "Cancel"
         document.getElementById("cancelBtn").addEventListener("click", function () {
             window.close();
         });
 
+        // Cargar los datos cuando la página abra
         window.onload = loadProfileData;
     </script>
 
