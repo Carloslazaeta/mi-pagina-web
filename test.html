@@ -54,15 +54,10 @@
 
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-        const saveURL = "https://script.google.com/macros/s/AKfycby_SwOS0YuS9trVRSGrHo5MchPgTu607SDHa2lKQG2z7sXoN1LhqDUUZQ9sNtyMGrmt/exec";
-
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
+        const saveURL = "https://script.google.com/macros/s/AKfycbw6m8F376biPYknCI3ZlQdSx50Wi2KulqJPiDScctArSw6ChtAgOEabo9ivBNyF6r0e/exec";
 
         async function loadProfileData() {
-            let selectedName = getQueryParam("name");
+            let selectedName = new URLSearchParams(window.location.search).get("name");
             if (!selectedName) {
                 document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
                 return;
@@ -78,12 +73,8 @@
 
                 let foundRow = null;
 
-                for (let i = 1; i < rows.length; i++) {
-                    let row = rows[i].c;
-                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
-                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
-                    let fullName = `${firstName} ${lastName}`.trim();
-
+                for (let row of rows) {
+                    let fullName = (row.c[1]?.v + " " + row.c[2]?.v).trim();
                     if (fullName === selectedName) {
                         foundRow = row;
                         break;
@@ -92,12 +83,9 @@
 
                 if (foundRow) {
                     document.getElementById("profileName").textContent = selectedName;
-                    let detailsHTML = "";
-                    headers.forEach((header, index) => {
-                        if (header && foundRow[index] && foundRow[index].v) {
-                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
-                        }
-                    });
+                    let detailsHTML = headers.map((header, index) =>
+                        `<tr><td><strong>${header}:</strong></td><td>${foundRow.c[index]?.v || ""}</td></tr>`
+                    ).join("");
 
                     document.getElementById("profileDetails").innerHTML = detailsHTML;
                 } else {
@@ -108,17 +96,25 @@
             }
         }
 
-        document.getElementById("saveBtn").addEventListener("click", function() {
+        document.getElementById("saveBtn").addEventListener("click", function () {
+            const formData = {
+                firstName: document.getElementById("profileName").textContent.split(" ")[0] || "",
+                lastName: document.getElementById("profileName").textContent.split(" ")[1] || "",
+                status: document.getElementById("status").value,
+                drugTest: document.getElementById("drugTest").value,
+                trainingStatus: document.getElementById("trainingStatus").value,
+            };
+
             fetch(saveURL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: document.getElementById("profileName").textContent })
+                body: JSON.stringify(formData)
             }).then(response => response.json())
-            .then(data => alert("Profile saved successfully!"))
+            .then(data => alert(data.message))
             .catch(error => console.error("Error saving profile:", error));
         });
 
-        document.getElementById("cancelBtn").addEventListener("click", function() {
+        document.getElementById("cancelBtn").addEventListener("click", function () {
             window.close();
         });
 
