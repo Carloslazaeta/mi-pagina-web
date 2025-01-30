@@ -27,53 +27,22 @@
         <div id="additionalFields">
             <h3>Additional Information</h3>
             <table>
-                <tr>
-                    <td><label>Status:</label></td>
-                    <td>
-                        <select id="status">
-                            <option value="Pending">Pending</option>
-                            <option value="Does not meet requirements">Does not meet requirements</option>
-                            <option value="Complete">Complete</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>Drug Test:</label></td>
-                    <td>
-                        <select id="drugTest">
-                            <option value="Fail">Fail</option>
-                            <option value="Pass">Pass</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>Background Check:</label></td>
-                    <td>
-                        <select id="backgroundCheck">
-                            <option value="Pending">Pending</option>
-                            <option value="Pass">Pass</option>
-                            <option value="Fail">Fail</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>Road Test:</label></td>
-                    <td>
-                        <select id="roadTest">
-                            <option value="Pending">Pending</option>
-                            <option value="Pass">Pass</option>
-                            <option value="Fail">Fail</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>Email:</label></td>
-                    <td><a href="#" id="emailLink">Click Here</a></td>
-                </tr>
-                <tr>
-                    <td><label>Phone:</label></td>
-                    <td><a href="#" id="phoneLink">Click Here</a></td>
-                </tr>
+                <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Does not meet requirements">Does not meet requirements</option><option value="Complete">Complete</option></select></td></tr>
+                <tr><td><label>Offer Letter & Handbook:</label></td><td><select id="offerLetter"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
+                <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>Drug Test Date:</label></td><td><input type="date" id="drugTestDate"></td></tr>
+                <tr><td><label>Background Check:</label></td><td><select id="backgroundCheck"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
+                <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
+                <tr><td><label>Training Date:</label></td><td><input type="date" id="trainingDate"></td></tr>
+                <tr><td><label>ADP Payroll Onboarding:</label></td><td><select id="adpPayroll"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
+                <tr><td><label>Employee Handbook:</label></td><td><input type="date" id="employeeHandbook"></td></tr>
+                <tr><td><label>Handbook Acknowledgment:</label></td><td><select id="handbookAcknowledgment"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
+                <tr><td><label>JJK Application:</label></td><td><select id="jjkApplication"><option value="Pending">Pending</option><option value="Assign">Assign</option></select></td></tr>
+                <tr><td><label>JJK Application Date:</label></td><td><input type="date" id="jjkApplicationDate"></td></tr>
+                <tr><td><label>MEC (Medical Examiner's Certificate):</label></td><td><select id="mecCertificate"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
+                <tr><td><label>Road Test:</label></td><td><select id="roadTest"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
+                <tr><td><label>Road Test Date:</label></td><td><input type="date" id="roadTestDate"></td></tr>
+                <tr><td><label>i9 Status:</label></td><td><select id="i9Status"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
             </table>
         </div>
 
@@ -85,6 +54,7 @@
 
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+        const saveURL = "https://script.google.com/macros/s/AKfycbw1234-your-script-url-here/exec";
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -126,16 +96,7 @@
                     let detailsHTML = "";
                     headers.forEach((header, index) => {
                         if (header && foundRow[index] && foundRow[index].v) {
-                            let value = foundRow[index].v;
-                            if (header.includes("Email")) {
-                                document.getElementById("emailLink").href = `mailto:${value}`;
-                                document.getElementById("emailLink").textContent = "Click Here";
-                            } else if (header.includes("Phone")) {
-                                document.getElementById("phoneLink").href = `tel:${value}`;
-                                document.getElementById("phoneLink").textContent = "Click Here";
-                            } else {
-                                detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${value}</td></tr>`;
-                            }
+                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
                         }
                     });
 
@@ -146,7 +107,6 @@
 
             } catch (error) {
                 console.error("❌ Error loading profile data:", error);
-                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>Error loading data</td></tr>";
             }
         }
 
@@ -162,10 +122,6 @@
         .profile-container { width: 60%; margin: auto; padding: 20px; background: white; text-align: left; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         td { padding: 8px; border-bottom: 1px solid #ddd; }
-        td:first-child { font-weight: bold; width: 40%; }
-        .button-group { margin-top: 20px; text-align: center; }
-        a { color: #007bff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
     </style>
 
 </body>
