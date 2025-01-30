@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Page</title>
+    <title>Profile</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,21 +14,18 @@
 
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
-        <div id="profileDetails">
-            <p>Fetching data...</p>
-        </div>
+        <div id="profileDetails"></div>
 
         <div class="button-group">
             <button id="saveBtn" class="save-btn">Save</button>
-            <button id="cancelBtn" class="cancel-btn" onclick="window.close()">Cancel</button>
+            <button id="cancelBtn" class="cancel-btn">Cancel</button>
         </div>
     </main>
 
     <script>
-        // URL del Google Sheet en formato JSON
-        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+        const sourceSheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+        const saveScriptURL = "https://script.google.com/macros/s/AKfycb.../exec";  // Reemplázalo con el URL correcto de tu Google Apps Script
 
-        // Obtener el nombre desde la URL
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
@@ -42,18 +39,14 @@
             }
 
             try {
-                const response = await fetch(sheetURL);
+                const response = await fetch(sourceSheetURL);
                 const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2)); 
-
+                const jsonData = JSON.parse(text.substring(47, text.length - 2));
                 const rows = jsonData.table.rows;
-                const headers = jsonData.table.cols.map(col => col.label); 
-
-                console.log("📊 Debug: Cabeceras detectadas", headers);
+                const headers = jsonData.table.cols.map(col => col.label);
 
                 let foundRow = null;
 
-                // Buscar la fila del nombre seleccionado
                 for (let i = 1; i < rows.length; i++) {
                     let row = rows[i].c;
                     let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
@@ -68,14 +61,18 @@
 
                 if (foundRow) {
                     document.getElementById("profileName").textContent = selectedName;
-                    
-                    let detailsHTML = "<ul>";
+
+                    let detailsHTML = "<table>";
                     headers.forEach((header, index) => {
                         if (header && foundRow[index] && foundRow[index].v) {
-                            detailsHTML += `<li><strong>${header}:</strong> ${foundRow[index].v}</li>`;
+                            let value = foundRow[index].v;
+                            if (value.toString().startsWith("http")) {
+                                value = `<a href="${value}" target="_blank">Click Here</a>`;
+                            }
+                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${value}</td></tr>`;
                         }
                     });
-                    detailsHTML += "</ul>";
+                    detailsHTML += "</table>";
 
                     document.getElementById("profileDetails").innerHTML = detailsHTML;
                 } else {
@@ -88,7 +85,39 @@
             }
         }
 
-        // Cargar datos al iniciar
+        document.getElementById("saveBtn").addEventListener("click", async function () {
+            let selectedName = document.getElementById("profileName").textContent;
+            if (!selectedName || selectedName === "Loading...") {
+                alert("No data to save.");
+                return;
+            }
+
+            let rows = document.querySelectorAll("#profileDetails table tr");
+            let data = {};
+            rows.forEach(row => {
+                let key = row.cells[0].innerText.replace(":", "").trim();
+                let value = row.cells[1].innerText.trim();
+                data[key] = value;
+            });
+
+            try {
+                let response = await fetch(saveScriptURL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                });
+                let result = await response.text();
+                alert(result);
+            } catch (error) {
+                console.error("❌ Error saving data:", error);
+                alert("Error saving data.");
+            }
+        });
+
+        document.getElementById("cancelBtn").addEventListener("click", function () {
+            window.close();
+        });
+
         window.onload = loadProfileData;
     </script>
 
@@ -108,6 +137,19 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 5px;
             text-align: left;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        td:first-child {
+            font-weight: bold;
+            width: 40%;
         }
         .button-group {
             margin-top: 20px;
