@@ -69,42 +69,6 @@
                         </select>
                     </td>
                 </tr>
-                <tr>
-                    <td><label>Training Status:</label></td>
-                    <td>
-                        <select id="trainingStatus">
-                            <option value="Pending">Pending</option>
-                            <option value="Pass">Pass</option>
-                            <option value="Fail">Fail</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>Training Date:</label></td>
-                    <td><input type="date" id="trainingDate"></td>
-                </tr>
-                <tr>
-                    <td><label>ADP Payroll Onboarding:</label></td>
-                    <td>
-                        <select id="adpOnboarding">
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>Employee Handbook:</label></td>
-                    <td><input type="date" id="employeeHandbookDate"></td>
-                </tr>
-                <tr>
-                    <td><label>Handbook Acknowledgment:</label></td>
-                    <td>
-                        <select id="handbookAcknowledgment">
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                    </td>
-                </tr>
             </table>
         </div>
 
@@ -160,7 +124,14 @@
                     let detailsHTML = "";
                     headers.forEach((header, index) => {
                         if (header && foundRow[index] && foundRow[index].v) {
-                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
+                            let value = foundRow[index].v;
+                            
+                            // Si el valor es un link, convertirlo en un hyperlink
+                            if (typeof value === "string" && value.startsWith("http")) {
+                                value = `<a href="${value}" target="_blank">Click Here</a>`;
+                            }
+
+                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${value}</td></tr>`;
                         }
                     });
 
@@ -191,6 +162,8 @@
         td { padding: 8px; border-bottom: 1px solid #ddd; }
         td:first-child { font-weight: bold; width: 40%; }
         .button-group { margin-top: 20px; text-align: center; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
     </style>
 
 </body>
