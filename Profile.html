@@ -3,70 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Page</title>
+    <title>Profile</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        .profile-container {
-            text-align: center;
-            margin-top: 50px;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        h1 {
-            color: #007bff;
-        }
-
-        .profile-name {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            margin-top: 10px;
-        }
-
-        .back-btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #ff5733;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background 0.3s ease;
-        }
-
-        .back-btn:hover {
-            background: #c70039;
-        }
-    </style>
 </head>
 <body>
-    <div class="profile-container">
-        <h1>Profile Page</h1>
-        <p class="profile-name" id="profileName">Loading...</p>
-        <a href="other.html" class="back-btn">⬅ Back to List</a>
-    </div>
+    <header>
+        <h1>📄 Profile Details</h1>
+        <p>Employee Information</p>
+    </header>
+
+    <main class="profile-container">
+        <h2 id="profileName">Loading...</h2>
+
+        <!-- Sección de Datos desde Google Sheets (Origen) -->
+        <div id="googleSheetData">
+            <h3>Employee Details</h3>
+            <table id="profileDetails">
+                <tr><td colspan="2">Fetching data...</td></tr>
+            </table>
+        </div>
+
+        <!-- Sección de Información Adicional -->
+        <div id="additionalFields">
+            <h3>Additional Information</h3>
+            <table>
+                <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Does not meet requirements">Does not meet requirements</option><option value="Complete">Complete</option></select></td></tr>
+                <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>Drug Test Date:</label></td><td><input type="date" id="drugTestDate"></td></tr>
+                <tr><td><label>Background Check:</label></td><td><select id="backgroundCheck"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
+                <tr><td><label>Road Test Date:</label></td><td><input type="date" id="roadTestDate"></td></tr>
+            </table>
+        </div>
+
+        <div class="button-group">
+            <button id="saveBtn" class="save-btn">Save</button>
+            <button id="cancelBtn" class="cancel-btn">Cancel</button>
+        </div>
+    </main>
 
     <script>
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+        const saveURL = "PASTE_YOUR_SCRIPT_URL_HERE"; // 🔹 Pega aquí la URL del script de Google Apps Script
+
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
-            let name = getQueryParam("name");
-            if (name) {
-                document.getElementById("profileName").textContent = name;
+        async function loadProfileData() {
+            let selectedName = getQueryParam("name");
+            if (!selectedName) {
+                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
+                return;
+            }
+
+            try {
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47, text.length - 2));
+
+                const rows = jsonData.table.rows;
+                const headers = jsonData.table.cols.map(col => col.label);
+
+                let foundRow = null;
+
+                for (let i = 1; i < rows.length; i++) {
+                    let row = rows[i].c;
+                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
+                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName === selectedName) {
+                        foundRow = row;
+                        break;
+                    }
+                }
+
+                if (foundRow) {
+                    document.getElementById("profileName").textContent = selectedName;
+
+                    let detailsHTML = "";
+                    headers.forEach((header, index) => {
+                        if (header && foundRow[index] && foundRow[index].v) {
+                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
+                        }
+                    });
+
+                    document.getElementById("profileDetails").innerHTML = detailsHTML;
+                } else {
+                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
+                }
+
+            } catch (error) {
+                console.error("❌ Error loading profile data:", error);
+            }
+        }
+
+        document.getElementById("saveBtn").addEventListener("click", async function () {
+            let selectedName = document.getElementById("profileName").textContent;
+            let status = document.getElementById("status").value;
+            let drugTest = document.getElementById("drugTest").value;
+            let drugTestDate = document.getElementById("drugTestDate").value;
+            let backgroundCheck = document.getElementById("backgroundCheck").value;
+            let roadTestDate = document.getElementById("roadTestDate").value;
+
+            let data = {
+                firstName: selectedName.split(" ")[0],
+                lastName: selectedName.split(" ")[1] || "",
+                status: status,
+                drugTest: drugTest,
+                drugTestDate: drugTestDate,
+                backgroundCheck: backgroundCheck,
+                roadTestDate: roadTestDate
+            };
+
+            let response = await fetch(saveURL, {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: { "Content-Type": "application/json" }
+            });
+
+            let result = await response.text();
+            if (result === "Success") {
+                alert("Profile saved successfully!");
             } else {
-                document.getElementById("profileName").textContent = "No name selected.";
+                alert("Error saving profile.");
             }
         });
+
+        document.getElementById("cancelBtn").addEventListener("click", function () {
+            window.close();
+        });
+
+        window.onload = loadProfileData;
     </script>
+
 </body>
 </html>
