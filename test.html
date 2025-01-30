@@ -3,140 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Page</title>
+    <title>Employee Profile</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f8f9fa;
-        }
-        h1, h3 {
-            text-align: left;
-            color: #0056b3;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-        }
-        .save-btn, .cancel-btn {
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .cancel-btn {
-            background-color: red;
-        }
-        .save-btn:hover, .cancel-btn:hover {
-            opacity: 0.8;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
-        <h1>📝 Employee Profile</h1>
+        <h1>📋 Employee Profile</h1>
+        <table id="dataTable">
+            <tbody>
+                <tr><td colspan="2">Loading data...</td></tr>
+            </tbody>
+        </table>
 
-        <!-- Sección de datos extraídos del Google Sheet -->
-        <section>
-            <h3>📋 Employee Data from Google Sheets</h3>
-            <table id="dataTable">
-                <tbody>
-                    <tr><td colspan="2">Loading data...</td></tr>
-                </tbody>
-            </table>
-        </section>
-
-        <!-- Sección de nuevos campos para edición -->
-        <section>
-            <h3>📝 Additional Fields</h3>
-            <form id="employeeForm">
-                <label>Status:</label>
-                <select id="status">
-                    <option value="Pending">Pending</option>
-                    <option value="Does not meet requirements">Does not meet requirements</option>
-                    <option value="Complete">Complete</option>
-                </select>
-
-                <label>Offer Letter & Handbook:</label>
-                <select id="offerLetter">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                </select>
-
-                <label>Drug Test:</label>
-                <select id="drugTest">
-                    <option value="Fail">Fail</option>
-                    <option value="Pass">Pass</option>
-                </select>
-
-                <label>Drug Test Date:</label>
-                <input type="date" id="drugTestDate">
-
-                <label>Background Check Status:</label>
-                <select id="bgCheck">
-                    <option value="Pending">Pending</option>
-                    <option value="Pass">Pass</option>
-                    <option value="Fail">Fail</option>
-                </select>
-
-                <label>Training Status:</label>
-                <select id="trainingStatus">
-                    <option value="Pending">Pending</option>
-                    <option value="Pass">Pass</option>
-                    <option value="Fail">Fail</option>
-                </select>
-
-                <label>Training Date:</label>
-                <input type="date" id="trainingDate">
-
-                <label>ADP Payroll Onboarding:</label>
-                <select id="payroll">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                </select>
-            </form>
-        </section>
-
-        <div class="button-group">
-            <button id="saveBtn" class="save-btn">Save</button>
-            <button id="cancelBtn" class="cancel-btn">Cancel</button>
+        <div class="btn-group">
+            <button class="btn save-btn" id="saveBtn">Save</button>
+            <button class="btn cancel-btn" id="cancelBtn">Cancel</button>
         </div>
     </div>
 
     <script>
-        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+        const sheetURL = "https://docs.google.com/spreadsheets/d/1B8jCn33MrHjRRvD4AwS6A9BnmhuZ0zho8aA3Nk6KZN4/gviz/tq?tqx=out:json";
+        const scriptURL = "TU_APPS_SCRIPT_URL";  // 🔹 REEMPLAZAR CON TU GOOGLE APPS SCRIPT URL
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -145,6 +32,10 @@
 
         async function loadProfileData() {
             let selectedName = getQueryParam("name");
+            if (!selectedName) {
+                document.getElementById("dataTable").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
+                return;
+            }
 
             try {
                 const response = await fetch(sheetURL);
@@ -155,11 +46,10 @@
                 const headers = jsonData.table.cols.map(col => col.label);
 
                 let foundRow = null;
-
                 for (let i = 1; i < rows.length; i++) {
                     let row = rows[i].c;
-                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
-                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
+                    let firstName = row[1] ? row[1].v.trim() : "";
+                    let lastName = row[2] ? row[2].v.trim() : "";
                     let fullName = `${firstName} ${lastName}`.trim();
 
                     if (fullName === selectedName) {
@@ -170,6 +60,8 @@
 
                 if (foundRow) {
                     let tableHTML = "<tr><th>Field</th><th>Value</th></tr>";
+                    let formData = {};
+
                     headers.forEach((header, index) => {
                         if (header && foundRow[index] && foundRow[index].v) {
                             let value = foundRow[index].v.toString();
@@ -177,9 +69,12 @@
                                 value = `<a href="${value}" target="_blank">Click here</a>`;
                             }
                             tableHTML += `<tr><td><strong>${header}:</strong></td><td>${value}</td></tr>`;
+                            formData[header] = value;
                         }
                     });
+
                     document.querySelector("#dataTable tbody").innerHTML = tableHTML;
+                    document.getElementById("saveBtn").onclick = () => saveToGoogleSheet(formData);
                 } else {
                     document.querySelector("#dataTable tbody").innerHTML = "<tr><td colspan='2'>No data found</td></tr>";
                 }
@@ -190,16 +85,25 @@
             }
         }
 
-        document.getElementById("saveBtn").addEventListener("click", function () {
-            let selectedName = getQueryParam("name");
-            let formData = {};
-            document.querySelectorAll("#employeeForm input, #employeeForm select").forEach(input => {
-                formData[input.id] = input.value;
-            });
+        async function saveToGoogleSheet(formData) {
+            try {
+                let response = await fetch(scriptURL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formData),
+                });
 
-            localStorage.setItem(selectedName, JSON.stringify(formData));
-            alert("Profile saved successfully!");
-        });
+                let result = await response.text();
+                if (result === "Success") {
+                    alert("Profile saved successfully to Google Sheets!");
+                } else {
+                    alert("Error saving profile.");
+                }
+            } catch (error) {
+                console.error("❌ Error saving data:", error);
+                alert("Error saving profile.");
+            }
+        }
 
         document.getElementById("cancelBtn").addEventListener("click", function () {
             window.close();

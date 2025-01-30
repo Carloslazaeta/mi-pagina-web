@@ -5,59 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employees</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            text-align: center;
-        }
-        .container {
-            max-width: 500px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #0056b3;
-        }
-        select {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-        .btn {
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-top: 10px;
-            width: 100%;
-        }
-        .btn:hover {
-            opacity: 0.8;
-        }
-        .back-btn {
-            display: block;
-            margin-top: 20px;
-            text-decoration: none;
-            color: #fff;
-            background-color: #6c757d;
-            padding: 10px;
-            border-radius: 5px;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
         <h1>👥 Employees Section</h1>
         <p>Select an employee to view their profile.</p>
 
-        <!-- ListBox para mostrar perfiles guardados desde Google Sheets -->
         <select id="profileList" size="5">
             <option disabled>Loading profiles...</option>
         </select>
@@ -68,52 +21,30 @@
     </div>
 
     <script>
-        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+        const sheetURL = "https://docs.google.com/spreadsheets/d/1B8jCn33MrHjRRvD4AwS6A9BnmhuZ0zho8aA3Nk6KZN4/gviz/tq?tqx=out:json";
 
         async function loadProfiles() {
-            try {
-                let response = await fetch(sheetURL);
-                let text = await response.text();
-                let jsonData = JSON.parse(text.substring(47, text.length - 2));
-                let rows = jsonData.table.rows;
-                let profileList = document.getElementById("profileList");
+            let response = await fetch(sheetURL);
+            let text = await response.text();
+            let jsonData = JSON.parse(text.substring(47, text.length - 2));
+            let rows = jsonData.table.rows;
+            let profileList = document.getElementById("profileList");
 
-                profileList.innerHTML = "";
+            profileList.innerHTML = "";
+            rows.forEach((row, index) => {
+                if (index === 0) return;
 
-                rows.forEach((row, index) => {
-                    if (index === 0) return; // Ignorar encabezado
-
-                    let firstName = row.c[1] ? row.c[1].v : "";
-                    let lastName = row.c[2] ? row.c[2].v : "";
-                    let fullName = `${firstName} ${lastName}`.trim();
-
-                    if (fullName) {
-                        let option = document.createElement("option");
-                        option.value = fullName;
-                        option.textContent = fullName;
-                        profileList.appendChild(option);
-                    }
-                });
-
-                if (profileList.options.length === 0) {
-                    profileList.innerHTML = "<option disabled>No profiles saved</option>";
-                }
-
-            } catch (error) {
-                console.error("Error loading profiles:", error);
-                document.getElementById("profileList").innerHTML = "<option disabled>Error loading data</option>";
-            }
+                let fullName = row.c[1].v + " " + row.c[2].v;
+                let option = document.createElement("option");
+                option.value = fullName;
+                option.textContent = fullName;
+                profileList.appendChild(option);
+            });
         }
 
         function openTestPage() {
-            let profileList = document.getElementById("profileList");
-            let selectedName = profileList.value;
-
-            if (selectedName) {
-                window.open(`test.html?name=${encodeURIComponent(selectedName)}`, "_blank", "width=800,height=600");
-            } else {
-                alert("Please select a profile.");
-            }
+            let selectedName = document.getElementById("profileList").value;
+            if (selectedName) window.open(`test.html?name=${encodeURIComponent(selectedName)}`);
         }
 
         window.onload = loadProfiles;
