@@ -23,7 +23,6 @@
 
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/1B8jCn33MrHjRRvD4AwS6A9BnmhuZ0zho8aA3Nk6KZN4/gviz/tq?tqx=out:json";
-        const scriptURL = "TU_APPS_SCRIPT_URL";  // 🔹 REEMPLAZAR CON TU GOOGLE APPS SCRIPT URL
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -60,21 +59,13 @@
 
                 if (foundRow) {
                     let tableHTML = "<tr><th>Field</th><th>Value</th></tr>";
-                    let formData = {};
-
                     headers.forEach((header, index) => {
                         if (header && foundRow[index] && foundRow[index].v) {
-                            let value = foundRow[index].v.toString();
-                            if (value.startsWith("http")) {
-                                value = `<a href="${value}" target="_blank">Click here</a>`;
-                            }
-                            tableHTML += `<tr><td><strong>${header}:</strong></td><td>${value}</td></tr>`;
-                            formData[header] = value;
+                            tableHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
                         }
                     });
 
                     document.querySelector("#dataTable tbody").innerHTML = tableHTML;
-                    document.getElementById("saveBtn").onclick = () => saveToGoogleSheet(formData);
                 } else {
                     document.querySelector("#dataTable tbody").innerHTML = "<tr><td colspan='2'>No data found</td></tr>";
                 }
@@ -82,26 +73,6 @@
             } catch (error) {
                 console.error("❌ Error loading profile data:", error);
                 document.querySelector("#dataTable tbody").innerHTML = "<tr><td colspan='2'>Error loading data</td></tr>";
-            }
-        }
-
-        async function saveToGoogleSheet(formData) {
-            try {
-                let response = await fetch(scriptURL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(formData),
-                });
-
-                let result = await response.text();
-                if (result === "Success") {
-                    alert("Profile saved successfully to Google Sheets!");
-                } else {
-                    alert("Error saving profile.");
-                }
-            } catch (error) {
-                console.error("❌ Error saving data:", error);
-                alert("Error saving profile.");
             }
         }
 

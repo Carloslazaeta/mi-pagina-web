@@ -13,15 +13,18 @@
     </header>
 
     <main class="button-container">
+        <!-- Barra de búsqueda -->
         <div class="input-container">
             <input type="text" id="searchInput" placeholder="Search for a name..." onkeyup="filterList()">
         </div>
 
+        <!-- ListBox con los nombres cargados desde Google Sheets -->
         <div class="list-container">
             <ul id="itemList"></ul>
         </div>
 
-        <button id="testPageBtn" onclick="openTestPage()" disabled>Go to Test</button>
+        <!-- Botón para abrir Test.html -->
+        <button id="createProfileBtn" onclick="openTestPage()" disabled>Create Profile</button>
 
         <div>
             <a href="index.html" class="back-btn">⬅ Back to Home</a>
@@ -29,7 +32,8 @@
     </main>
 
     <script>
-        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+        const sheetURL = "https://docs.google.com/spreadsheets/d/1B8jCn33MrHjRRvD4AwS6A9BnmhuZ0zho8aA3Nk6KZN4/gviz/tq?tqx=out:json";
+
         let allData = [];
         let selectedName = "";
 
@@ -41,15 +45,15 @@
 
                 const rows = jsonData.table.rows;
                 const list = document.getElementById("itemList");
-
                 list.innerHTML = "";
                 allData = [];
 
                 rows.forEach((row, index) => {
                     if (!row.c) return;
+                    if (index === 0) return; // Ignorar encabezado
 
-                    let firstName = row.c[1]?.v?.trim() || "";
-                    let lastName = row.c[2]?.v?.trim() || "";
+                    let firstName = row.c[1] ? row.c[1].v.toString().trim() : "";
+                    let lastName = row.c[2] ? row.c[2].v.toString().trim() : "";
 
                     if (firstName !== "" || lastName !== "") {
                         let fullName = `${firstName} ${lastName}`.trim();
@@ -65,6 +69,7 @@
                 if (allData.length === 0) {
                     list.innerHTML = "<li>No data available</li>";
                 }
+
             } catch (error) {
                 console.error("❌ Error loading Google Sheets data:", error);
                 document.getElementById("itemList").innerHTML = "<li>Error loading data</li>";
@@ -75,14 +80,33 @@
             document.querySelectorAll("#itemList li").forEach(item => item.classList.remove("selected"));
             selectedName = name;
             element.classList.add("selected");
-            document.getElementById("testPageBtn").disabled = false;
+            document.getElementById("createProfileBtn").disabled = false;
         }
 
         function openTestPage() {
             if (selectedName) {
-                window.location.href = `test.html?name=${encodeURIComponent(selectedName)}`;
+                window.open(`test.html?name=${encodeURIComponent(selectedName)}`, "_blank");
             } else {
                 alert("Please select a name first.");
+            }
+        }
+
+        function filterList() {
+            let query = document.getElementById("searchInput").value.toLowerCase();
+            let list = document.getElementById("itemList");
+            list.innerHTML = "";
+
+            let filteredData = allData.filter(name => name.toLowerCase().includes(query));
+
+            if (filteredData.length === 0) {
+                list.innerHTML = "<li>No results found</li>";
+            } else {
+                filteredData.forEach(name => {
+                    let listItem = document.createElement("li");
+                    listItem.textContent = name;
+                    listItem.onclick = () => selectName(name, listItem);
+                    list.appendChild(listItem);
+                });
             }
         }
 
@@ -95,10 +119,11 @@
             color: white;
             font-weight: bold;
         }
-        #testPageBtn:disabled {
+        #createProfileBtn:disabled {
             background-color: grey;
             cursor: not-allowed;
         }
     </style>
+
 </body>
 </html>
