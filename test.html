@@ -85,7 +85,12 @@
                     let detailsHTML = "";
                     headers.forEach((header, index) => {
                         if (header && foundRow[index] && foundRow[index].v) {
-                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
+                            let value = foundRow[index].v;
+                            if (value.startsWith("http")) {
+                                detailsHTML += `<tr><td><strong>${header}:</strong></td><td><a href="${value}" target="_blank">Click Here</a></td></tr>`;
+                            } else {
+                                detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${value}</td></tr>`;
+                            }
                         }
                     });
 
@@ -137,6 +142,13 @@
 
         window.onload = loadProfileData;
     </script>
+
+    <style>
+        body { text-align: center; background-color: #f4f4f4; }
+        .profile-container { width: 60%; margin: auto; padding: 20px; background: white; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; }
+    </style>
 
 </body>
 </html>
