@@ -28,6 +28,8 @@
             <h3>Additional Information</h3>
             <table>
                 <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Does not meet requirements">Does not meet requirements</option><option value="Complete">Complete</option></select></td></tr>
+                <tr><td><label>Email:</label></td><td><a href="#" id="emailLink">Click Here</a></td></tr>
+                <tr><td><label>Phone:</label></td><td><a href="#" id="phoneLink">Click Here</a></td></tr>
                 <tr><td><label>Offer Letter & Handbook:</label></td><td><select id="offerLetter"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
                 <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
                 <tr><td><label>Drug Test Date:</label></td><td><input type="date" id="drugTestDate"></td></tr>
@@ -54,7 +56,6 @@
 
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-        const saveURL = "https://script.google.com/macros/s/AKfycbw1234-your-script-url-here/exec";
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -96,13 +97,20 @@
                     let detailsHTML = "";
                     headers.forEach((header, index) => {
                         if (header && foundRow[index] && foundRow[index].v) {
-                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
+                            let value = foundRow[index].v;
+                            if (header.includes("Email")) {
+                                document.getElementById("emailLink").href = `mailto:${value}`;
+                                document.getElementById("emailLink").textContent = "Click Here";
+                            } else if (header.includes("Phone")) {
+                                document.getElementById("phoneLink").href = `tel:${value}`;
+                                document.getElementById("phoneLink").textContent = "Click Here";
+                            } else {
+                                detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${value}</td></tr>`;
+                            }
                         }
                     });
 
                     document.getElementById("profileDetails").innerHTML = detailsHTML;
-                } else {
-                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
                 }
 
             } catch (error) {
@@ -116,13 +124,6 @@
 
         window.onload = loadProfileData;
     </script>
-
-    <style>
-        body { text-align: center; background-color: #f4f4f4; }
-        .profile-container { width: 60%; margin: auto; padding: 20px; background: white; text-align: left; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        td { padding: 8px; border-bottom: 1px solid #ddd; }
-    </style>
 
 </body>
 </html>
