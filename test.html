@@ -1,28 +1,134 @@
-<script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycb...tuURL.../exec"; // Reemplaza con tu URL
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>📄 Profile Details</h1>
+        <p>Employee Information</p>
+    </header>
 
-    function saveProfile() {
-        let profileData = {
-            Name: document.getElementById("name").textContent,
-            Email: document.getElementById("email").textContent,
-            InterviewDate: document.getElementById("interview_date").textContent,
-            AgeVerification: document.getElementById("age").textContent
-            // Agrega más campos aquí si es necesario
-        };
+    <main class="profile-container">
+        <h2 id="profileName">Loading...</h2>
+        <div id="profileDetails">
+            <p>Fetching data...</p>
+        </div>
 
-        fetch(scriptURL, {
-            method: 'POST',
-            body: JSON.stringify(profileData),
-            headers: { "Content-Type": "application/json" }
-        })
-        .then(response => response.text())
-        .then(data => {
-            alert("Profile saved successfully!");
-            console.log("Server Response:", data);
-        })
-        .catch(error => {
-            alert("Error saving profile.");
-            console.error("Error:", error);
-        });
-    }
-</script>
+        <div class="button-group">
+            <button id="saveBtn" class="save-btn">Save</button>
+            <button id="cancelBtn" class="cancel-btn" onclick="window.close()">Cancel</button>
+        </div>
+    </main>
+
+    <script>
+        // URL del Google Sheet en formato JSON
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+
+        // Obtener el nombre desde la URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        async function loadProfileData() {
+            let selectedName = getQueryParam("name");
+            if (!selectedName) {
+                document.getElementById("profileDetails").innerHTML = "<p>No name provided</p>";
+                return;
+            }
+
+            try {
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47, text.length - 2)); 
+
+                const rows = jsonData.table.rows;
+                const headers = jsonData.table.cols.map(col => col.label); 
+
+                console.log("📊 Debug: Cabeceras detectadas", headers);
+
+                let foundRow = null;
+
+                // Buscar la fila del nombre seleccionado
+                for (let i = 1; i < rows.length; i++) {
+                    let row = rows[i].c;
+                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
+                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName === selectedName) {
+                        foundRow = row;
+                        break;
+                    }
+                }
+
+                if (foundRow) {
+                    document.getElementById("profileName").textContent = selectedName;
+                    
+                    let detailsHTML = "<ul>";
+                    headers.forEach((header, index) => {
+                        if (header && foundRow[index] && foundRow[index].v) {
+                            detailsHTML += `<li><strong>${header}:</strong> ${foundRow[index].v}</li>`;
+                        }
+                    });
+                    detailsHTML += "</ul>";
+
+                    document.getElementById("profileDetails").innerHTML = detailsHTML;
+                } else {
+                    document.getElementById("profileDetails").innerHTML = "<p>No data found for this name.</p>";
+                }
+
+            } catch (error) {
+                console.error("❌ Error loading profile data:", error);
+                document.getElementById("profileDetails").innerHTML = "<p>Error loading data</p>";
+            }
+        }
+
+        // Cargar datos al iniciar
+        window.onload = loadProfileData;
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .profile-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            text-align: left;
+        }
+        .button-group {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .save-btn, .cancel-btn {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .save-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .cancel-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+
+</body>
+</html>
