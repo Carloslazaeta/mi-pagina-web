@@ -14,8 +14,8 @@
 
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
-        
-        <!-- Sección de Datos del Google Sheets (Origen) -->
+
+        <!-- Sección de Datos desde Google Sheets (origen) -->
         <div id="googleSheetData">
             <h3>Employee Details</h3>
             <table id="profileDetails">
@@ -38,15 +38,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><label>Offer Letter & Handbook:</label></td>
-                    <td>
-                        <select id="offerLetter">
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
                     <td><label>Drug Test:</label></td>
                     <td>
                         <select id="drugTest">
@@ -56,72 +47,9 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><label>Drug Test Date:</label></td>
-                    <td><input type="date" id="drugTestDate"></td>
-                </tr>
-                <tr>
-                    <td><label>Background Check Status:</label></td>
+                    <td><label>Background Check:</label></td>
                     <td>
                         <select id="backgroundCheck">
-                            <option value="Pending">Pending</option>
-                            <option value="Pass">Pass</option>
-                            <option value="Fail">Fail</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>Training Status:</label></td>
-                    <td>
-                        <select id="trainingStatus">
-                            <option value="Pending">Pending</option>
-                            <option value="Pass">Pass</option>
-                            <option value="Fail">Fail</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>Training Date:</label></td>
-                    <td><input type="date" id="trainingDate"></td>
-                </tr>
-                <tr>
-                    <td><label>ADP Payroll Onboarding:</label></td>
-                    <td>
-                        <select id="payrollOnboarding">
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>Employee Handbook:</label></td>
-                    <td><input type="date" id="employeeHandbook"></td>
-                </tr>
-                <tr>
-                    <td><label>Sexual Harassment/Employee Handbook Acknowledgment:</label></td>
-                    <td>
-                        <select id="handbookAcknowledgment">
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>JJK Application:</label></td>
-                    <td>
-                        <select id="jjkApplication">
-                            <option value="Pending">Pending</option>
-                            <option value="Assign">Assign</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label>JJK Application Date:</label></td>
-                    <td><input type="date" id="jjkApplicationDate"></td>
-                </tr>
-                <tr>
-                    <td><label>MEC (Medical Examiner's Certificate):</label></td>
-                    <td>
-                        <select id="mecCertificate">
                             <option value="Pending">Pending</option>
                             <option value="Pass">Pass</option>
                             <option value="Fail">Fail</option>
@@ -139,18 +67,12 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><label>Road Test Date:</label></td>
-                    <td><input type="date" id="roadTestDate"></td>
+                    <td><label>Email:</label></td>
+                    <td><a href="#" id="emailLink">Click Here</a></td>
                 </tr>
                 <tr>
-                    <td><label>i9 Status:</label></td>
-                    <td>
-                        <select id="i9Status">
-                            <option value="Pending">Pending</option>
-                            <option value="Pass">Pass</option>
-                            <option value="Fail">Fail</option>
-                        </select>
-                    </td>
+                    <td><label>Phone:</label></td>
+                    <td><a href="#" id="phoneLink">Click Here</a></td>
                 </tr>
             </table>
         </div>
@@ -162,12 +84,76 @@
     </main>
 
     <script>
-        // Acción del botón "Cancel"
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        async function loadProfileData() {
+            let selectedName = getQueryParam("name");
+            if (!selectedName) {
+                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
+                return;
+            }
+
+            try {
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47, text.length - 2));
+
+                const rows = jsonData.table.rows;
+                const headers = jsonData.table.cols.map(col => col.label);
+
+                let foundRow = null;
+
+                for (let i = 1; i < rows.length; i++) {
+                    let row = rows[i].c;
+                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
+                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName === selectedName) {
+                        foundRow = row;
+                        break;
+                    }
+                }
+
+                if (foundRow) {
+                    document.getElementById("profileName").textContent = selectedName;
+
+                    let detailsHTML = "";
+                    headers.forEach((header, index) => {
+                        if (header && foundRow[index] && foundRow[index].v) {
+                            let value = foundRow[index].v;
+                            if (header.includes("Email")) {
+                                document.getElementById("emailLink").href = `mailto:${value}`;
+                                document.getElementById("emailLink").textContent = "Click Here";
+                            } else if (header.includes("Phone")) {
+                                document.getElementById("phoneLink").href = `tel:${value}`;
+                                document.getElementById("phoneLink").textContent = "Click Here";
+                            } else {
+                                detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${value}</td></tr>`;
+                            }
+                        }
+                    });
+
+                    document.getElementById("profileDetails").innerHTML = detailsHTML;
+                } else {
+                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
+                }
+
+            } catch (error) {
+                console.error("❌ Error loading profile data:", error);
+                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>Error loading data</td></tr>";
+            }
+        }
+
         document.getElementById("cancelBtn").addEventListener("click", function () {
             window.close();
         });
 
-        // Cargar datos al abrir la página
         window.onload = loadProfileData;
     </script>
 
