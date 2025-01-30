@@ -7,47 +7,35 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>👥 Employees Section</h1>
-        <p>Select an employee to view their profile.</p>
+    <header>
+        <h1>👥 Employees</h1>
+    </header>
 
-        <select id="profileList" size="5">
-            <option disabled>Loading profiles...</option>
-        </select>
+    <main class="profile-container">
+        <h3>Saved Profiles</h3>
+        <ul id="employeeList"></ul>
+    </main>
 
-        <button class="btn" onclick="openTestPage()">View Profile</button>
-
-        <a href="index.html" class="back-btn">⬅ Back to Home</a>
-    </div>
-
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script src="firebase.js"></script>
     <script>
-        const sheetURL = "https://docs.google.com/spreadsheets/d/1B8jCn33MrHjRRvD4AwS6A9BnmhuZ0zho8aA3Nk6KZN4/gviz/tq?tqx=out:json";
+        function loadEmployees() {
+            const employeeList = document.getElementById("employeeList");
+            const profilesRef = database.ref("profiles");
 
-        async function loadProfiles() {
-            let response = await fetch(sheetURL);
-            let text = await response.text();
-            let jsonData = JSON.parse(text.substring(47, text.length - 2));
-            let rows = jsonData.table.rows;
-            let profileList = document.getElementById("profileList");
-
-            profileList.innerHTML = "";
-            rows.forEach((row, index) => {
-                if (index === 0) return;
-
-                let fullName = row.c[1].v + " " + row.c[2].v;
-                let option = document.createElement("option");
-                option.value = fullName;
-                option.textContent = fullName;
-                profileList.appendChild(option);
+            profilesRef.once("value", (snapshot) => {
+                employeeList.innerHTML = "";
+                snapshot.forEach((childSnapshot) => {
+                    let employeeName = childSnapshot.key;
+                    let li = document.createElement("li");
+                    li.innerHTML = `<a href="test.html?name=${encodeURIComponent(employeeName)}">${employeeName}</a>`;
+                    employeeList.appendChild(li);
+                });
             });
         }
 
-        function openTestPage() {
-            let selectedName = document.getElementById("profileList").value;
-            if (selectedName) window.open(`test.html?name=${encodeURIComponent(selectedName)}`);
-        }
-
-        window.onload = loadProfiles;
+        window.onload = loadEmployees;
     </script>
 </body>
 </html>

@@ -15,7 +15,7 @@
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
 
-        <!-- Sección de Datos desde Google Sheets (Origen) -->
+        <!-- Employee Details -->
         <div id="googleSheetData">
             <h3>Employee Details</h3>
             <table id="profileDetails">
@@ -23,7 +23,7 @@
             </table>
         </div>
 
-        <!-- Sección de Información Adicional -->
+        <!-- Additional Information -->
         <div id="additionalFields">
             <h3>Additional Information</h3>
             <table>
@@ -34,15 +34,6 @@
                 <tr><td><label>Background Check:</label></td><td><select id="backgroundCheck"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
                 <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
                 <tr><td><label>Training Date:</label></td><td><input type="date" id="trainingDate"></td></tr>
-                <tr><td><label>ADP Payroll Onboarding:</label></td><td><select id="adpPayroll"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
-                <tr><td><label>Employee Handbook:</label></td><td><input type="date" id="employeeHandbook"></td></tr>
-                <tr><td><label>Handbook Acknowledgment:</label></td><td><select id="handbookAcknowledgment"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
-                <tr><td><label>JJK Application:</label></td><td><select id="jjkApplication"><option value="Pending">Pending</option><option value="Assign">Assign</option></select></td></tr>
-                <tr><td><label>JJK Application Date:</label></td><td><input type="date" id="jjkApplicationDate"></td></tr>
-                <tr><td><label>MEC (Medical Examiner's Certificate):</label></td><td><select id="mecCertificate"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
-                <tr><td><label>Road Test:</label></td><td><select id="roadTest"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
-                <tr><td><label>Road Test Date:</label></td><td><input type="date" id="roadTestDate"></td></tr>
-                <tr><td><label>i9 Status:</label></td><td><select id="i9Status"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
             </table>
         </div>
 
@@ -52,63 +43,56 @@
         </div>
     </main>
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script src="firebase.js"></script>
     <script>
-        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-        const saveURL = "https://script.google.com/macros/s/AKfycbw1234-your-script-url-here/exec"; // Reemplaza con la URL del script de Google Apps Script
-
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
 
-        async function loadProfileData() {
+        function loadProfileData() {
             let selectedName = getQueryParam("name");
             if (!selectedName) {
                 document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
                 return;
             }
 
-            try {
-                const response = await fetch(sheetURL);
-                const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2));
-
-                const rows = jsonData.table.rows;
-                const headers = jsonData.table.cols.map(col => col.label);
-
-                let foundRow = null;
-
-                for (let i = 1; i < rows.length; i++) {
-                    let row = rows[i].c;
-                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
-                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
-                    let fullName = `${firstName} ${lastName}`.trim();
-
-                    if (fullName === selectedName) {
-                        foundRow = row;
-                        break;
-                    }
-                }
-
-                if (foundRow) {
+            const profileRef = database.ref("profiles/" + selectedName);
+            profileRef.once("value", (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
                     document.getElementById("profileName").textContent = selectedName;
-
-                    let detailsHTML = "";
-                    headers.forEach((header, index) => {
-                        if (header && foundRow[index] && foundRow[index].v) {
-                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
-                        }
-                    });
-
-                    document.getElementById("profileDetails").innerHTML = detailsHTML;
-                } else {
-                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
+                    document.getElementById("status").value = data.status || "Pending";
+                    document.getElementById("drugTest").value = data.drugTest || "Fail";
+                    document.getElementById("drugTestDate").value = data.drugTestDate || "";
+                    document.getElementById("backgroundCheck").value = data.backgroundCheck || "Pending";
+                    document.getElementById("trainingStatus").value = data.trainingStatus || "Pending";
+                    document.getElementById("trainingDate").value = data.trainingDate || "";
                 }
-
-            } catch (error) {
-                console.error("❌ Error loading profile data:", error);
-            }
+            });
         }
+
+        document.getElementById("saveBtn").addEventListener("click", function () {
+            let selectedName = document.getElementById("profileName").textContent;
+            const formData = {
+                status: document.getElementById("status").value,
+                drugTest: document.getElementById("drugTest").value,
+                drugTestDate: document.getElementById("drugTestDate").value,
+                backgroundCheck: document.getElementById("backgroundCheck").value,
+                trainingStatus: document.getElementById("trainingStatus").value,
+                trainingDate: document.getElementById("trainingDate").value,
+            };
+
+            database.ref("profiles/" + selectedName).set(formData)
+                .then(() => {
+                    alert("Profile saved successfully!");
+                })
+                .catch((error) => {
+                    console.error("Error saving profile:", error);
+                });
+        });
 
         document.getElementById("cancelBtn").addEventListener("click", function () {
             window.close();
@@ -116,13 +100,5 @@
 
         window.onload = loadProfileData;
     </script>
-
-    <style>
-        body { text-align: center; background-color: #f4f4f4; }
-        .profile-container { width: 60%; margin: auto; padding: 20px; background: white; text-align: left; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        td { padding: 8px; border-bottom: 1px solid #ddd; }
-    </style>
-
 </body>
 </html>
