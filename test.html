@@ -53,49 +53,76 @@
     </main>
 
     <script>
-const saveURL = "https://script.google.com/macros/s/AKfycbwTfUwvflY0KFzOku6j_9fukuvJWuYd4JJ2SKRu9EdF8GUR0NqGRk2gmgwf4ZTL4fNVq/exec";
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+        const saveURL = "https://script.google.com/macros/s/AKfycby_SwOS0YuS9trVRSGrHo5MchPgTu607SDHa2lKQG2z7sXoN1LhqDUUZQ9sNtyMGrmt/exec";
 
-document.getElementById("saveBtn").addEventListener("click", function() {
-    const formData = {
-        firstName: document.getElementById("profileName").textContent.split(" ")[0] || "",
-        lastName: document.getElementById("profileName").textContent.split(" ")[1] || "",
-        email: document.getElementById("email").value || "",
-        phone: document.getElementById("phone").value || "",
-        interviewDate: document.getElementById("interviewDate").value || "",
-        status: document.getElementById("status").value,
-        drugTest: document.getElementById("drugTest").value,
-        drugTestDate: document.getElementById("drugTestDate").value,
-        backgroundCheck: document.getElementById("backgroundCheck").value,
-        trainingStatus: document.getElementById("trainingStatus").value,
-        trainingDate: document.getElementById("trainingDate").value,
-        adpPayroll: document.getElementById("adpPayroll").value,
-        employeeHandbook: document.getElementById("employeeHandbook").value,
-        handbookAcknowledgment: document.getElementById("handbookAcknowledgment").value,
-        jjkApplication: document.getElementById("jjkApplication").value,
-        jjkApplicationDate: document.getElementById("jjkApplicationDate").value,
-        mecCertificate: document.getElementById("mecCertificate").value,
-        roadTest: document.getElementById("roadTest").value,
-        roadTestDate: document.getElementById("roadTestDate").value,
-        i9Status: document.getElementById("i9Status").value
-    };
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
 
-    fetch(saveURL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(formData)
-    }).then(() => {
-        alert("Profile saved successfully!");
-    }).catch(error => {
-        console.error("Error saving profile:", error);
-    });
-});
+        async function loadProfileData() {
+            let selectedName = getQueryParam("name");
+            if (!selectedName) {
+                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
+                return;
+            }
+
+            try {
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47, text.length - 2));
+
+                const rows = jsonData.table.rows;
+                const headers = jsonData.table.cols.map(col => col.label);
+
+                let foundRow = null;
+
+                for (let i = 1; i < rows.length; i++) {
+                    let row = rows[i].c;
+                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
+                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName === selectedName) {
+                        foundRow = row;
+                        break;
+                    }
+                }
+
+                if (foundRow) {
+                    document.getElementById("profileName").textContent = selectedName;
+                    let detailsHTML = "";
+                    headers.forEach((header, index) => {
+                        if (header && foundRow[index] && foundRow[index].v) {
+                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
+                        }
+                    });
+
+                    document.getElementById("profileDetails").innerHTML = detailsHTML;
+                } else {
+                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
+                }
+            } catch (error) {
+                console.error("❌ Error loading profile data:", error);
+            }
+        }
+
+        document.getElementById("saveBtn").addEventListener("click", function() {
+            fetch(saveURL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: document.getElementById("profileName").textContent })
+            }).then(response => response.json())
+            .then(data => alert("Profile saved successfully!"))
+            .catch(error => console.error("Error saving profile:", error));
+        });
 
         document.getElementById("cancelBtn").addEventListener("click", function() {
             window.close();
         });
+
+        window.onload = loadProfileData;
     </script>
 </body>
 </html>
