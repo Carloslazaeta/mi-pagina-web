@@ -18,6 +18,9 @@
             <input type="text" id="searchInput" placeholder="Search for a name..." onkeyup="filterList()">
         </div>
 
+        <!-- Botón para abrir Test.html -->
+        <button id="createProfileBtn" onclick="openTestPage()" disabled>Create Profile</button>
+
         <!-- ListBox con los nombres cargados desde Google Sheets -->
         <div class="list-container">
             <ul id="itemList"></ul>
@@ -31,23 +34,23 @@
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
         let allData = [];
+        let selectedName = "";
 
         async function loadGoogleSheetData() {
             try {
                 const response = await fetch(sheetURL);
                 const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Limpiar JSON
+                const jsonData = JSON.parse(text.substring(47, text.length - 2));
 
                 const rows = jsonData.table.rows;
-                console.log("🔍 Debug: Todas las filas recibidas", rows);
-
                 const list = document.getElementById("itemList");
+
                 if (!list) {
                     console.error("❌ Elemento 'itemList' no encontrado en el DOM");
                     return;
                 }
 
-                list.innerHTML = ""; // Limpiar antes de agregar datos
+                list.innerHTML = "";
                 allData = [];
 
                 // Recorrer todas las filas ignorando encabezado
@@ -63,6 +66,7 @@
 
                         let listItem = document.createElement("li");
                         listItem.textContent = fullName;
+                        listItem.onclick = () => selectName(fullName, listItem);
                         list.appendChild(listItem);
                     }
                 });
@@ -74,6 +78,22 @@
             } catch (error) {
                 console.error("❌ Error loading Google Sheets data:", error);
                 document.getElementById("itemList").innerHTML = "<li>Error loading data</li>";
+            }
+        }
+
+        function selectName(name, element) {
+            document.querySelectorAll("#itemList li").forEach(item => item.classList.remove("selected"));
+
+            selectedName = name;
+            element.classList.add("selected");
+            document.getElementById("createProfileBtn").disabled = false;
+        }
+
+        function openTestPage() {
+            if (selectedName) {
+                window.location.href = `test.html?name=${encodeURIComponent(selectedName)}`;
+            } else {
+                alert("Please select a name first.");
             }
         }
 
@@ -90,6 +110,7 @@
                 filteredData.forEach(name => {
                     let listItem = document.createElement("li");
                     listItem.textContent = name;
+                    listItem.onclick = () => selectName(name, listItem);
                     list.appendChild(listItem);
                 });
             }
@@ -107,6 +128,16 @@
         #createProfileBtn:disabled {
             background-color: grey;
             cursor: not-allowed;
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .input-container, .list-container {
+            width: 100%;
+            max-width: 400px;
+            text-align: left;
         }
     </style>
 
