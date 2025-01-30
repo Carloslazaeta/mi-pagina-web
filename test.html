@@ -54,7 +54,7 @@
 
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-        const saveURL = "https://script.google.com/macros/s/AKfycbw1234-your-script-url-here/exec";
+        const saveURL = "https://script.google.com/macros/s/AKfycbw1234-your-script-url-here/exec"; // Reemplaza con la URL del script de Google Apps Script
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -82,7 +82,7 @@
                     let row = rows[i].c;
                     let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
                     let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
-                    let fullName = ${firstName} ${lastName}.trim();
+                    let fullName = `${firstName} ${lastName}`.trim();
 
                     if (fullName === selectedName) {
                         foundRow = row;
@@ -96,7 +96,7 @@
                     let detailsHTML = "";
                     headers.forEach((header, index) => {
                         if (header && foundRow[index] && foundRow[index].v) {
-                            detailsHTML += <tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>;
+                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
                         }
                     });
 
