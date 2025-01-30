@@ -28,10 +28,21 @@
             <h3>Additional Information</h3>
             <table>
                 <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Does not meet requirements">Does not meet requirements</option><option value="Complete">Complete</option></select></td></tr>
+                <tr><td><label>Offer Letter & Handbook:</label></td><td><select id="offerLetter"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
                 <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
                 <tr><td><label>Drug Test Date:</label></td><td><input type="date" id="drugTestDate"></td></tr>
                 <tr><td><label>Background Check:</label></td><td><select id="backgroundCheck"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
+                <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
+                <tr><td><label>Training Date:</label></td><td><input type="date" id="trainingDate"></td></tr>
+                <tr><td><label>ADP Payroll Onboarding:</label></td><td><select id="adpPayroll"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
+                <tr><td><label>Employee Handbook:</label></td><td><input type="date" id="employeeHandbook"></td></tr>
+                <tr><td><label>Handbook Acknowledgment:</label></td><td><select id="handbookAcknowledgment"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
+                <tr><td><label>JJK Application:</label></td><td><select id="jjkApplication"><option value="Pending">Pending</option><option value="Assign">Assign</option></select></td></tr>
+                <tr><td><label>JJK Application Date:</label></td><td><input type="date" id="jjkApplicationDate"></td></tr>
+                <tr><td><label>MEC (Medical Examiner's Certificate):</label></td><td><select id="mecCertificate"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
+                <tr><td><label>Road Test:</label></td><td><select id="roadTest"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
                 <tr><td><label>Road Test Date:</label></td><td><input type="date" id="roadTestDate"></td></tr>
+                <tr><td><label>i9 Status:</label></td><td><select id="i9Status"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
             </table>
         </div>
 
@@ -43,7 +54,7 @@
 
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-        const saveURL = "PASTE_YOUR_SCRIPT_URL_HERE"; // 🔹 Pega aquí la URL del script de Google Apps Script
+        const saveURL = "https://script.google.com/macros/s/AKfycbw1234-your-script-url-here/exec";
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -71,7 +82,7 @@
                     let row = rows[i].c;
                     let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
                     let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
-                    let fullName = `${firstName} ${lastName}`.trim();
+                    let fullName = ${firstName} ${lastName}.trim();
 
                     if (fullName === selectedName) {
                         foundRow = row;
@@ -85,12 +96,7 @@
                     let detailsHTML = "";
                     headers.forEach((header, index) => {
                         if (header && foundRow[index] && foundRow[index].v) {
-                            let value = foundRow[index].v;
-                            if (value.startsWith("http")) {
-                                detailsHTML += `<tr><td><strong>${header}:</strong></td><td><a href="${value}" target="_blank">Click Here</a></td></tr>`;
-                            } else {
-                                detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${value}</td></tr>`;
-                            }
+                            detailsHTML += <tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>;
                         }
                     });
 
@@ -103,38 +109,6 @@
                 console.error("❌ Error loading profile data:", error);
             }
         }
-
-        document.getElementById("saveBtn").addEventListener("click", async function () {
-            let selectedName = document.getElementById("profileName").textContent;
-            let status = document.getElementById("status").value;
-            let drugTest = document.getElementById("drugTest").value;
-            let drugTestDate = document.getElementById("drugTestDate").value;
-            let backgroundCheck = document.getElementById("backgroundCheck").value;
-            let roadTestDate = document.getElementById("roadTestDate").value;
-
-            let data = {
-                firstName: selectedName.split(" ")[0],
-                lastName: selectedName.split(" ")[1] || "",
-                status: status,
-                drugTest: drugTest,
-                drugTestDate: drugTestDate,
-                backgroundCheck: backgroundCheck,
-                roadTestDate: roadTestDate
-            };
-
-            let response = await fetch(saveURL, {
-                method: "POST",
-                body: JSON.stringify(data),
-                headers: { "Content-Type": "application/json" }
-            });
-
-            let result = await response.text();
-            if (result === "Success") {
-                alert("Profile saved successfully!");
-            } else {
-                alert("Error saving profile.");
-            }
-        });
 
         document.getElementById("cancelBtn").addEventListener("click", function () {
             window.close();
