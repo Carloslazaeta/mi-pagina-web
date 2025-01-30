@@ -14,7 +14,105 @@
 
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
-        <div id="profileDetails"></div>
+        
+        <!-- Sección de Datos del Google Sheets -->
+        <div id="googleSheetData">
+            <h3>Employee Details</h3>
+            <div id="profileDetails"></div>
+        </div>
+
+        <!-- Sección de Nuevos Campos -->
+        <div id="additionalFields">
+            <h3>Additional Information</h3>
+            <form id="additionalForm">
+                <label>Status:</label>
+                <select id="status">
+                    <option value="Pending">Pending</option>
+                    <option value="Does not meet requirements">Does not meet requirements</option>
+                    <option value="Complete">Complete</option>
+                </select>
+
+                <label>Offer Letter & Handbook:</label>
+                <select id="offerLetter">
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+
+                <label>Drug Test:</label>
+                <select id="drugTest">
+                    <option value="Fail">Fail</option>
+                    <option value="Pass">Pass</option>
+                </select>
+
+                <label>Drug Test Date:</label>
+                <input type="date" id="drugTestDate">
+
+                <label>Background Check Status:</label>
+                <select id="backgroundCheck">
+                    <option value="Pending">Pending</option>
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select>
+
+                <label>Training Status:</label>
+                <select id="trainingStatus">
+                    <option value="Pending">Pending</option>
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select>
+
+                <label>Training Date:</label>
+                <input type="date" id="trainingDate">
+
+                <label>ADP Payroll Onboarding:</label>
+                <select id="adpOnboarding">
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+
+                <label>Employee Handbook:</label>
+                <input type="date" id="employeeHandbookDate">
+
+                <label>Handbook Acknowledgment:</label>
+                <select id="handbookAcknowledgment">
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+
+                <label>JJK Application:</label>
+                <select id="jjkApplication">
+                    <option value="Pending">Pending</option>
+                    <option value="Assigned">Assigned</option>
+                </select>
+
+                <label>JJK Application Date:</label>
+                <input type="date" id="jjkApplicationDate">
+
+                <label>MEC (Medical Examiner's Certificate):</label>
+                <select id="mecCertificate">
+                    <option value="Pending">Pending</option>
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select>
+
+                <label>Road Test:</label>
+                <select id="roadTest">
+                    <option value="Pending">Pending</option>
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select>
+
+                <label>Road Test Date:</label>
+                <input type="date" id="roadTestDate">
+
+                <label>i9 Status:</label>
+                <select id="i9Status">
+                    <option value="Pending">Pending</option>
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select>
+            </form>
+        </div>
 
         <div class="button-group">
             <button id="saveBtn" class="save-btn">Save</button>
@@ -24,7 +122,7 @@
 
     <script>
         const sourceSheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-        const saveScriptURL = "https://script.google.com/macros/s/AKfycb.../exec";  // Reemplázalo con el URL correcto de tu Google Apps Script
+        const saveScriptURL = "https://script.google.com/macros/s/AKfycb.../exec";  // Reemplaza con tu Google Apps Script
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -75,8 +173,6 @@
                     detailsHTML += "</table>";
 
                     document.getElementById("profileDetails").innerHTML = detailsHTML;
-                } else {
-                    document.getElementById("profileDetails").innerHTML = "<p>No data found for this name.</p>";
                 }
 
             } catch (error) {
@@ -84,35 +180,6 @@
                 document.getElementById("profileDetails").innerHTML = "<p>Error loading data</p>";
             }
         }
-
-        document.getElementById("saveBtn").addEventListener("click", async function () {
-            let selectedName = document.getElementById("profileName").textContent;
-            if (!selectedName || selectedName === "Loading...") {
-                alert("No data to save.");
-                return;
-            }
-
-            let rows = document.querySelectorAll("#profileDetails table tr");
-            let data = {};
-            rows.forEach(row => {
-                let key = row.cells[0].innerText.replace(":", "").trim();
-                let value = row.cells[1].innerText.trim();
-                data[key] = value;
-            });
-
-            try {
-                let response = await fetch(saveScriptURL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data),
-                });
-                let result = await response.text();
-                alert(result);
-            } catch (error) {
-                console.error("❌ Error saving data:", error);
-                alert("Error saving data.");
-            }
-        });
 
         document.getElementById("cancelBtn").addEventListener("click", function () {
             window.close();
@@ -122,54 +189,12 @@
     </script>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            text-align: center;
-        }
-        .profile-container {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            text-align: left;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        td {
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-        td:first-child {
-            font-weight: bold;
-            width: 40%;
-        }
-        .button-group {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .save-btn, .cancel-btn {
-            padding: 10px 15px;
-            margin: 5px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .save-btn {
-            background-color: #28a745;
-            color: white;
-        }
-        .cancel-btn {
-            background-color: #dc3545;
-            color: white;
-        }
+        body { text-align: center; background-color: #f4f4f4; }
+        .profile-container { width: 60%; margin: auto; padding: 20px; background: white; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; }
+        td:first-child { font-weight: bold; width: 40%; }
+        .button-group { margin-top: 20px; text-align: center; }
     </style>
 
 </body>
