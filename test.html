@@ -15,7 +15,7 @@
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
 
-        <!-- Employee Details from Google Sheets -->
+        <!-- Sección de Datos desde Google Sheets (Origen) -->
         <div id="googleSheetData">
             <h3>Employee Details</h3>
             <table id="profileDetails">
@@ -23,7 +23,7 @@
             </table>
         </div>
 
-        <!-- Additional Information -->
+        <!-- Sección de Información Adicional -->
         <div id="additionalFields">
             <h3>Additional Information</h3>
             <table>
@@ -54,10 +54,15 @@
 
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-        const saveURL = "https://script.google.com/macros/s/AKfycbw6m8F376biPYknCI3ZlQdSx50Wi2KulqJPiDScctArSw6ChtAgOEabo9ivBNyF6r0e/exec";
+        const saveURL = "https://script.google.com/macros/s/AKfycbw1234-your-script-url-here/exec"; // Reemplaza con la URL del script de Google Apps Script
+
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
 
         async function loadProfileData() {
-            let selectedName = new URLSearchParams(window.location.search).get("name");
+            let selectedName = getQueryParam("name");
             if (!selectedName) {
                 document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
                 return;
@@ -73,8 +78,12 @@
 
                 let foundRow = null;
 
-                for (let row of rows) {
-                    let fullName = (row.c[1]?.v + " " + row.c[2]?.v).trim();
+                for (let i = 1; i < rows.length; i++) {
+                    let row = rows[i].c;
+                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
+                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
                     if (fullName === selectedName) {
                         foundRow = row;
                         break;
@@ -83,36 +92,23 @@
 
                 if (foundRow) {
                     document.getElementById("profileName").textContent = selectedName;
-                    let detailsHTML = headers.map((header, index) =>
-                        `<tr><td><strong>${header}:</strong></td><td>${foundRow.c[index]?.v || ""}</td></tr>`
-                    ).join("");
+
+                    let detailsHTML = "";
+                    headers.forEach((header, index) => {
+                        if (header && foundRow[index] && foundRow[index].v) {
+                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
+                        }
+                    });
 
                     document.getElementById("profileDetails").innerHTML = detailsHTML;
                 } else {
                     document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
                 }
+
             } catch (error) {
                 console.error("❌ Error loading profile data:", error);
             }
         }
-
-        document.getElementById("saveBtn").addEventListener("click", function () {
-            const formData = {
-                firstName: document.getElementById("profileName").textContent.split(" ")[0] || "",
-                lastName: document.getElementById("profileName").textContent.split(" ")[1] || "",
-                status: document.getElementById("status").value,
-                drugTest: document.getElementById("drugTest").value,
-                trainingStatus: document.getElementById("trainingStatus").value,
-            };
-
-            fetch(saveURL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
-            }).then(response => response.json())
-            .then(data => alert(data.message))
-            .catch(error => console.error("Error saving profile:", error));
-        });
 
         document.getElementById("cancelBtn").addEventListener("click", function () {
             window.close();
@@ -120,5 +116,13 @@
 
         window.onload = loadProfileData;
     </script>
+
+    <style>
+        body { text-align: center; background-color: #f4f4f4; }
+        .profile-container { width: 60%; margin: auto; padding: 20px; background: white; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; }
+    </style>
+
 </body>
 </html>
