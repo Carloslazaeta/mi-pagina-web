@@ -21,97 +21,136 @@
             <div id="profileDetails"></div>
         </div>
 
-        <!-- Sección de Nuevos Campos -->
+        <!-- Sección de Información Adicional -->
         <div id="additionalFields">
             <h3>Additional Information</h3>
-            <form id="additionalForm">
-                <label>Status:</label>
-                <select id="status">
-                    <option value="Pending">Pending</option>
-                    <option value="Does not meet requirements">Does not meet requirements</option>
-                    <option value="Complete">Complete</option>
-                </select>
-
-                <label>Offer Letter & Handbook:</label>
-                <select id="offerLetter">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                </select>
-
-                <label>Drug Test:</label>
-                <select id="drugTest">
-                    <option value="Fail">Fail</option>
-                    <option value="Pass">Pass</option>
-                </select>
-
-                <label>Drug Test Date:</label>
-                <input type="date" id="drugTestDate">
-
-                <label>Background Check Status:</label>
-                <select id="backgroundCheck">
-                    <option value="Pending">Pending</option>
-                    <option value="Pass">Pass</option>
-                    <option value="Fail">Fail</option>
-                </select>
-
-                <label>Training Status:</label>
-                <select id="trainingStatus">
-                    <option value="Pending">Pending</option>
-                    <option value="Pass">Pass</option>
-                    <option value="Fail">Fail</option>
-                </select>
-
-                <label>Training Date:</label>
-                <input type="date" id="trainingDate">
-
-                <label>ADP Payroll Onboarding:</label>
-                <select id="adpOnboarding">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                </select>
-
-                <label>Employee Handbook:</label>
-                <input type="date" id="employeeHandbookDate">
-
-                <label>Handbook Acknowledgment:</label>
-                <select id="handbookAcknowledgment">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                </select>
-
-                <label>JJK Application:</label>
-                <select id="jjkApplication">
-                    <option value="Pending">Pending</option>
-                    <option value="Assigned">Assigned</option>
-                </select>
-
-                <label>JJK Application Date:</label>
-                <input type="date" id="jjkApplicationDate">
-
-                <label>MEC (Medical Examiner's Certificate):</label>
-                <select id="mecCertificate">
-                    <option value="Pending">Pending</option>
-                    <option value="Pass">Pass</option>
-                    <option value="Fail">Fail</option>
-                </select>
-
-                <label>Road Test:</label>
-                <select id="roadTest">
-                    <option value="Pending">Pending</option>
-                    <option value="Pass">Pass</option>
-                    <option value="Fail">Fail</option>
-                </select>
-
-                <label>Road Test Date:</label>
-                <input type="date" id="roadTestDate">
-
-                <label>i9 Status:</label>
-                <select id="i9Status">
-                    <option value="Pending">Pending</option>
-                    <option value="Pass">Pass</option>
-                    <option value="Fail">Fail</option>
-                </select>
-            </form>
+            <table>
+                <tr>
+                    <td><label>Status:</label></td>
+                    <td>
+                        <select id="status">
+                            <option value="Pending">Pending</option>
+                            <option value="Does not meet requirements">Does not meet requirements</option>
+                            <option value="Complete">Complete</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label>Offer Letter & Handbook:</label></td>
+                    <td>
+                        <select id="offerLetter">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label>Drug Test:</label></td>
+                    <td>
+                        <select id="drugTest">
+                            <option value="Fail">Fail</option>
+                            <option value="Pass">Pass</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label>Drug Test Date:</label></td>
+                    <td><input type="date" id="drugTestDate"></td>
+                </tr>
+                <tr>
+                    <td><label>Background Check Status:</label></td>
+                    <td>
+                        <select id="backgroundCheck">
+                            <option value="Pending">Pending</option>
+                            <option value="Pass">Pass</option>
+                            <option value="Fail">Fail</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label>Training Status:</label></td>
+                    <td>
+                        <select id="trainingStatus">
+                            <option value="Pending">Pending</option>
+                            <option value="Pass">Pass</option>
+                            <option value="Fail">Fail</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label>Training Date:</label></td>
+                    <td><input type="date" id="trainingDate"></td>
+                </tr>
+                <tr>
+                    <td><label>ADP Payroll Onboarding:</label></td>
+                    <td>
+                        <select id="adpOnboarding">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label>Employee Handbook:</label></td>
+                    <td><input type="date" id="employeeHandbookDate"></td>
+                </tr>
+                <tr>
+                    <td><label>Handbook Acknowledgment:</label></td>
+                    <td>
+                        <select id="handbookAcknowledgment">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label>JJK Application:</label></td>
+                    <td>
+                        <select id="jjkApplication">
+                            <option value="Pending">Pending</option>
+                            <option value="Assigned">Assigned</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label>JJK Application Date:</label></td>
+                    <td><input type="date" id="jjkApplicationDate"></td>
+                </tr>
+                <tr>
+                    <td><label>MEC (Medical Examiner's Certificate):</label></td>
+                    <td>
+                        <select id="mecCertificate">
+                            <option value="Pending">Pending</option>
+                            <option value="Pass">Pass</option>
+                            <option value="Fail">Fail</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label>Road Test:</label></td>
+                    <td>
+                        <select id="roadTest">
+                            <option value="Pending">Pending</option>
+                            <option value="Pass">Pass</option>
+                            <option value="Fail">Fail</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label>Road Test Date:</label></td>
+                    <td><input type="date" id="roadTestDate"></td>
+                </tr>
+                <tr>
+                    <td><label>i9 Status:</label></td>
+                    <td>
+                        <select id="i9Status">
+                            <option value="Pending">Pending</option>
+                            <option value="Pass">Pass</option>
+                            <option value="Fail">Fail</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
         </div>
 
         <div class="button-group">
@@ -121,66 +160,6 @@
     </main>
 
     <script>
-        const sourceSheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-        const saveScriptURL = "https://script.google.com/macros/s/AKfycb.../exec";  // Reemplaza con tu Google Apps Script
-
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
-
-        async function loadProfileData() {
-            let selectedName = getQueryParam("name");
-            if (!selectedName) {
-                document.getElementById("profileDetails").innerHTML = "<p>No name provided</p>";
-                return;
-            }
-
-            try {
-                const response = await fetch(sourceSheetURL);
-                const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2));
-                const rows = jsonData.table.rows;
-                const headers = jsonData.table.cols.map(col => col.label);
-
-                let foundRow = null;
-
-                for (let i = 1; i < rows.length; i++) {
-                    let row = rows[i].c;
-                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
-                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
-                    let fullName = `${firstName} ${lastName}`.trim();
-
-                    if (fullName === selectedName) {
-                        foundRow = row;
-                        break;
-                    }
-                }
-
-                if (foundRow) {
-                    document.getElementById("profileName").textContent = selectedName;
-
-                    let detailsHTML = "<table>";
-                    headers.forEach((header, index) => {
-                        if (header && foundRow[index] && foundRow[index].v) {
-                            let value = foundRow[index].v;
-                            if (value.toString().startsWith("http")) {
-                                value = `<a href="${value}" target="_blank">Click Here</a>`;
-                            }
-                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${value}</td></tr>`;
-                        }
-                    });
-                    detailsHTML += "</table>";
-
-                    document.getElementById("profileDetails").innerHTML = detailsHTML;
-                }
-
-            } catch (error) {
-                console.error("❌ Error loading profile data:", error);
-                document.getElementById("profileDetails").innerHTML = "<p>Error loading data</p>";
-            }
-        }
-
         document.getElementById("cancelBtn").addEventListener("click", function () {
             window.close();
         });
