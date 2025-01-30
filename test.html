@@ -53,43 +53,45 @@
     </main>
 
     <script>
-        const saveURL = "https://script.google.com/macros/s/AKfycbwTfUwvflY0KFzOku6j_9fukuvJWuYd4JJ2SKRu9EdF8GUR0NqGRk2gmgwf4ZTL4fNVq/exec";
+const saveURL = "https://script.google.com/macros/s/AKfycbwTfUwvflY0KFzOku6j_9fukuvJWuYd4JJ2SKRu9EdF8GUR0NqGRk2gmgwf4ZTL4fNVq/exec";
 
-        document.getElementById("saveBtn").addEventListener("click", function() {
-            const formData = {
-                firstName: document.getElementById("profileName").textContent.split(" ")[0] || "",
-                lastName: document.getElementById("profileName").textContent.split(" ")[1] || "",
-                status: document.getElementById("status").value,
-                offerLetter: document.getElementById("offerLetter").value,
-                drugTest: document.getElementById("drugTest").value,
-                drugTestDate: document.getElementById("drugTestDate").value,
-                backgroundCheck: document.getElementById("backgroundCheck").value,
-                trainingStatus: document.getElementById("trainingStatus").value,
-                trainingDate: document.getElementById("trainingDate").value,
-                adpPayroll: document.getElementById("adpPayroll").value,
-                employeeHandbook: document.getElementById("employeeHandbook").value,
-                handbookAcknowledgment: document.getElementById("handbookAcknowledgment").value,
-                jjkApplication: document.getElementById("jjkApplication").value,
-                jjkApplicationDate: document.getElementById("jjkApplicationDate").value,
-                mecCertificate: document.getElementById("mecCertificate").value,
-                roadTest: document.getElementById("roadTest").value,
-                roadTestDate: document.getElementById("roadTestDate").value,
-                i9Status: document.getElementById("i9Status").value
-            };
+document.getElementById("saveBtn").addEventListener("click", function() {
+    const formData = {
+        firstName: document.getElementById("profileName").textContent.split(" ")[0] || "",
+        lastName: document.getElementById("profileName").textContent.split(" ")[1] || "",
+        email: document.getElementById("email").value || "",
+        phone: document.getElementById("phone").value || "",
+        interviewDate: document.getElementById("interviewDate").value || "",
+        status: document.getElementById("status").value,
+        drugTest: document.getElementById("drugTest").value,
+        drugTestDate: document.getElementById("drugTestDate").value,
+        backgroundCheck: document.getElementById("backgroundCheck").value,
+        trainingStatus: document.getElementById("trainingStatus").value,
+        trainingDate: document.getElementById("trainingDate").value,
+        adpPayroll: document.getElementById("adpPayroll").value,
+        employeeHandbook: document.getElementById("employeeHandbook").value,
+        handbookAcknowledgment: document.getElementById("handbookAcknowledgment").value,
+        jjkApplication: document.getElementById("jjkApplication").value,
+        jjkApplicationDate: document.getElementById("jjkApplicationDate").value,
+        mecCertificate: document.getElementById("mecCertificate").value,
+        roadTest: document.getElementById("roadTest").value,
+        roadTestDate: document.getElementById("roadTestDate").value,
+        i9Status: document.getElementById("i9Status").value
+    };
 
-            fetch(saveURL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formData)
-            }).then(() => {
-                alert("Profile saved successfully!");
-            }).catch(error => {
-                console.error("Error saving profile:", error);
-            });
-        });
+    fetch(saveURL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+    }).then(() => {
+        alert("Profile saved successfully!");
+    }).catch(error => {
+        console.error("Error saving profile:", error);
+    });
+});
 
         document.getElementById("cancelBtn").addEventListener("click", function() {
             window.close();
