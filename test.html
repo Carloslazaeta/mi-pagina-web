@@ -15,7 +15,7 @@
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
 
-        <!-- Employee Details from Google Sheets -->
+        <!-- Sección de Datos desde Google Sheets (Origen) -->
         <div id="googleSheetData">
             <h3>Employee Details</h3>
             <table id="profileDetails">
@@ -23,7 +23,7 @@
             </table>
         </div>
 
-        <!-- Additional Information -->
+        <!-- Sección de Información Adicional -->
         <div id="additionalFields">
             <h3>Additional Information</h3>
             <table>
@@ -54,7 +54,7 @@
 
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
-        const saveURL = "https://script.google.com/macros/s/AKfycbw6m8F376bipPyKnCl3ZIQdSx50Wi2KulqJPiDScctArSw6ChtAgOEabo9ivBNyF6r0e/exec"; // URL del script de destino
+        const saveURL = "https://script.google.com/macros/s/AKfycbw1234-your-script-url-here/exec"; // Reemplaza con la URL del script de Google Apps Script
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -80,8 +80,8 @@
 
                 for (let i = 1; i < rows.length; i++) {
                     let row = rows[i].c;
-                    let firstName = row[1]?.v || "";
-                    let lastName = row[2]?.v || "";
+                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
+                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
                     let fullName = `${firstName} ${lastName}`.trim();
 
                     if (fullName === selectedName) {
@@ -92,6 +92,15 @@
 
                 if (foundRow) {
                     document.getElementById("profileName").textContent = selectedName;
+
+                    let detailsHTML = "";
+                    headers.forEach((header, index) => {
+                        if (header && foundRow[index] && foundRow[index].v) {
+                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
+                        }
+                    });
+
+                    document.getElementById("profileDetails").innerHTML = detailsHTML;
                 } else {
                     document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
                 }
