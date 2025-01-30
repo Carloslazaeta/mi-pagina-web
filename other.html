@@ -23,37 +23,39 @@
             <ul id="itemList"></ul>
         </div>
 
-        <!-- Botón para abrir Test.html -->
-        <button id="createProfileBtn" onclick="openTestPage()" disabled>Create Profile</button>
-
         <div>
             <a href="index.html" class="back-btn">⬅ Back to Home</a>
         </div>
     </main>
 
     <script>
-        const sheetURL = "https://docs.google.com/spreadsheets/d/1B8jCn33MrHjRRvD4AwS6A9BnmhuZ0zho8aA3Nk6KZN4/gviz/tq?tqx=out:json";
-
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
         let allData = [];
-        let selectedName = "";
 
         async function loadGoogleSheetData() {
             try {
                 const response = await fetch(sheetURL);
                 const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2));
+                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Limpiar JSON
 
                 const rows = jsonData.table.rows;
+                console.log("🔍 Debug: Todas las filas recibidas", rows);
+
                 const list = document.getElementById("itemList");
-                list.innerHTML = "";
+                if (!list) {
+                    console.error("❌ Elemento 'itemList' no encontrado en el DOM");
+                    return;
+                }
+
+                list.innerHTML = ""; // Limpiar antes de agregar datos
                 allData = [];
 
+                // Recorrer todas las filas ignorando encabezado
                 rows.forEach((row, index) => {
                     if (!row.c) return;
-                    if (index === 0) return; // Ignorar encabezado
 
-                    let firstName = row.c[1] ? row.c[1].v.toString().trim() : "";
-                    let lastName = row.c[2] ? row.c[2].v.toString().trim() : "";
+                    let firstName = row.c[1] && row.c[1].v ? row.c[1].v.toString().trim() : "";
+                    let lastName = row.c[2] && row.c[2].v ? row.c[2].v.toString().trim() : "";
 
                     if (firstName !== "" || lastName !== "") {
                         let fullName = `${firstName} ${lastName}`.trim();
@@ -61,7 +63,6 @@
 
                         let listItem = document.createElement("li");
                         listItem.textContent = fullName;
-                        listItem.onclick = () => selectName(fullName, listItem);
                         list.appendChild(listItem);
                     }
                 });
@@ -73,21 +74,6 @@
             } catch (error) {
                 console.error("❌ Error loading Google Sheets data:", error);
                 document.getElementById("itemList").innerHTML = "<li>Error loading data</li>";
-            }
-        }
-
-        function selectName(name, element) {
-            document.querySelectorAll("#itemList li").forEach(item => item.classList.remove("selected"));
-            selectedName = name;
-            element.classList.add("selected");
-            document.getElementById("createProfileBtn").disabled = false;
-        }
-
-        function openTestPage() {
-            if (selectedName) {
-                window.open(`test.html?name=${encodeURIComponent(selectedName)}`, "_blank");
-            } else {
-                alert("Please select a name first.");
             }
         }
 
@@ -104,7 +90,6 @@
                 filteredData.forEach(name => {
                     let listItem = document.createElement("li");
                     listItem.textContent = name;
-                    listItem.onclick = () => selectName(name, listItem);
                     list.appendChild(listItem);
                 });
             }
