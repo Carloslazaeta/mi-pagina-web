@@ -57,7 +57,7 @@
         <h1>👥 Employees Section</h1>
         <p>Select an employee to view their profile.</p>
 
-        <!-- ListBox para mostrar perfiles guardados -->
+        <!-- ListBox para mostrar perfiles guardados desde Google Sheets -->
         <select id="profileList" size="5">
             <option disabled>Loading profiles...</option>
         </select>
@@ -68,22 +68,41 @@
     </div>
 
     <script>
-        function loadProfiles() {
-            let profileList = document.getElementById("profileList");
-            profileList.innerHTML = ""; 
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
 
-            let keys = Object.keys(localStorage);
-            if (keys.length === 0) {
-                profileList.innerHTML = "<option disabled>No profiles saved</option>";
-                return;
+        async function loadProfiles() {
+            try {
+                let response = await fetch(sheetURL);
+                let text = await response.text();
+                let jsonData = JSON.parse(text.substring(47, text.length - 2));
+                let rows = jsonData.table.rows;
+                let profileList = document.getElementById("profileList");
+
+                profileList.innerHTML = "";
+
+                rows.forEach((row, index) => {
+                    if (index === 0) return; // Ignorar encabezado
+
+                    let firstName = row.c[1] ? row.c[1].v : "";
+                    let lastName = row.c[2] ? row.c[2].v : "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName) {
+                        let option = document.createElement("option");
+                        option.value = fullName;
+                        option.textContent = fullName;
+                        profileList.appendChild(option);
+                    }
+                });
+
+                if (profileList.options.length === 0) {
+                    profileList.innerHTML = "<option disabled>No profiles saved</option>";
+                }
+
+            } catch (error) {
+                console.error("Error loading profiles:", error);
+                document.getElementById("profileList").innerHTML = "<option disabled>Error loading data</option>";
             }
-
-            keys.forEach(name => {
-                let option = document.createElement("option");
-                option.value = name;
-                option.textContent = name;
-                profileList.appendChild(option);
-            });
         }
 
         function openTestPage() {
