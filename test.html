@@ -30,6 +30,7 @@
                 <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Does not meet requirements">Does not meet requirements</option><option value="Complete">Complete</option></select></td></tr>
                 <tr><td><label>Email:</label></td><td><a href="#" id="emailLink">Click Here</a></td></tr>
                 <tr><td><label>Phone:</label></td><td><a href="#" id="phoneLink">Click Here</a></td></tr>
+                <tr><td><label>Google Drive Link:</label></td><td><a href="#" id="driveLink" target="_blank">Click Here</a></td></tr>
                 <tr><td><label>Offer Letter & Handbook:</label></td><td><select id="offerLetter"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
                 <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
                 <tr><td><label>Drug Test Date:</label></td><td><input type="date" id="drugTestDate"></td></tr>
@@ -100,10 +101,10 @@
                             let value = foundRow[index].v;
                             if (header.includes("Email")) {
                                 document.getElementById("emailLink").href = `mailto:${value}`;
-                                document.getElementById("emailLink").textContent = "Click Here";
                             } else if (header.includes("Phone")) {
                                 document.getElementById("phoneLink").href = `tel:${value}`;
-                                document.getElementById("phoneLink").textContent = "Click Here";
+                            } else if (header.includes("Google Drive")) {
+                                document.getElementById("driveLink").href = value;
                             } else {
                                 detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${value}</td></tr>`;
                             }
