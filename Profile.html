@@ -16,6 +16,7 @@
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
 
+        <!-- Employee Details -->
         <div id="googleSheetData">
             <h3>Employee Details</h3>
             <table id="profileDetails">
@@ -23,49 +24,64 @@
             </table>
         </div>
 
+        <!-- Additional Information -->
+        <div id="additionalFields">
+            <h3>Additional Information</h3>
+            <table>
+                <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
+                <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
+            </table>
+        </div>
+
         <div class="button-group">
-            <button id="cancelBtn" class="cancel-btn">Close</button>
+            <button id="saveBtn" class="save-btn">Save</button>
+            <button id="cancelBtn" class="cancel-btn">Cancel</button>
         </div>
     </main>
 
     <script type="module">
-        import { database, ref, get, child } from "./firebase.js";
+        import { loadProfileData, saveProfile } from "./firebase.js";
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
 
-        async function loadProfileData() {
+        async function loadProfile() {
             let selectedName = getQueryParam("name");
             if (!selectedName) {
                 document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
                 return;
             }
 
-            const profileRef = ref(database, "profiles/" + selectedName);
-            try {
-                const snapshot = await get(child(profileRef, "/"));
-                if (snapshot.exists()) {
-                    document.getElementById("profileName").textContent = selectedName;
-                    let detailsHTML = "";
-                    for (const [key, value] of Object.entries(snapshot.val())) {
-                        detailsHTML += `<tr><td><strong>${key}:</strong></td><td>${value}</td></tr>`;
-                    }
-                    document.getElementById("profileDetails").innerHTML = detailsHTML;
-                } else {
-                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found.</td></tr>";
-                }
-            } catch (error) {
-                console.error("❌ Error loading profile data:", error);
+            const profileData = await loadProfileData(selectedName);
+            if (profileData) {
+                document.getElementById("profileName").textContent = selectedName;
+                document.getElementById("status").value = profileData.status || "Pending";
+                document.getElementById("drugTest").value = profileData.drugTest || "Fail";
+                document.getElementById("trainingStatus").value = profileData.trainingStatus || "Pending";
             }
         }
 
-        document.getElementById("cancelBtn").addEventListener("click", function () {
+        document.getElementById("saveBtn").addEventListener("click", () => {
+            let selectedName = getQueryParam("name");
+            if (!selectedName) return;
+
+            const profileData = {
+                status: document.getElementById("status").value,
+                drugTest: document.getElementById("drugTest").value,
+                trainingStatus: document.getElementById("trainingStatus").value
+            };
+
+            saveProfile(selectedName, profileData);
+        });
+
+        document.getElementById("cancelBtn").addEventListener("click", () => {
             window.close();
         });
 
-        window.onload = loadProfileData;
+        window.onload = loadProfile;
     </script>
 </body>
 </html>
