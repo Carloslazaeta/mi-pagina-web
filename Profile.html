@@ -13,35 +13,40 @@
     <script type="module">
         import { database, ref, set } from "./firebase.js";
     
-        document.getElementById("saveBtn").addEventListener("click", function() {
-            const profileName = document.getElementById("profileName").textContent;
-            const status = document.getElementById("status").value;
-            const drugTest = document.getElementById("drugTest").value;
-            const drugTestDate = document.getElementById("drugTestDate").value;
-            const backgroundCheck = document.getElementById("backgroundCheck").value;
-    
-            if (!profileName) {
-                alert("No profile selected!");
+        document.getElementById("saveBtn").addEventListener("click", function () {
+            let name = document.getElementById("profileName").textContent;
+            if (!name || name === "Loading...") {
+                alert("No profile name found!");
                 return;
             }
     
-            // Reference to Firebase database
-            const profileRef = ref(database, "profiles/" + profileName);
-    
-            // Save data to Firebase
+            const profileRef = ref(database, "profiles/" + name);
             set(profileRef, {
-                status,
-                drugTest,
-                drugTestDate,
-                backgroundCheck
-            })
-            .then(() => {
+                status: document.getElementById("status").value,
+                offerLetter: document.getElementById("offerLetter").value,
+                drugTest: document.getElementById("drugTest").value,
+                drugTestDate: document.getElementById("drugTestDate").value,
+                backgroundCheck: document.getElementById("backgroundCheck").value,
+                trainingStatus: document.getElementById("trainingStatus").value,
+                trainingDate: document.getElementById("trainingDate").value,
+                adpPayroll: document.getElementById("adpPayroll").value,
+                employeeHandbook: document.getElementById("employeeHandbook").value,
+                handbookAcknowledgment: document.getElementById("handbookAcknowledgment").value,
+                jjkApplication: document.getElementById("jjkApplication").value,
+                jjkApplicationDate: document.getElementById("jjkApplicationDate").value,
+                mecCertificate: document.getElementById("mecCertificate").value,
+                roadTest: document.getElementById("roadTest").value,
+                roadTestDate: document.getElementById("roadTestDate").value,
+                i9Status: document.getElementById("i9Status").value
+            }).then(() => {
                 alert("Profile saved successfully!");
-            })
-            .catch((error) => {
-                console.error("Error saving profile:", error);
+            }).catch((error) => {
+                alert("Error saving profile: " + error.message);
             });
         });
+    
+        document.getElementById("cancelBtn").addEventListener("click", function () {
+            window.location.href = "employees.html"; // Redirige a la lista de empleados
+        });
     </script>
-    </body>
-</html>
+    

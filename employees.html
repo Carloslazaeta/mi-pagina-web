@@ -21,20 +21,22 @@
 
         function loadEmployees() {
             const employeeList = document.getElementById("employeeList");
-            const dbRef = ref(database);
+            const profilesRef = ref(database, "profiles");
 
-            get(child(dbRef, "profiles")).then((snapshot) => {
+            get(profilesRef).then((snapshot) => {
+                employeeList.innerHTML = "";
                 if (snapshot.exists()) {
-                    employeeList.innerHTML = "";
                     snapshot.forEach((childSnapshot) => {
                         let employeeName = childSnapshot.key;
                         let li = document.createElement("li");
-                        li.innerHTML = `<a href="test.html?name=${encodeURIComponent(employeeName)}">${employeeName}</a>`;
+                        li.innerHTML = `<a href="profile.html?name=${encodeURIComponent(employeeName)}">${employeeName}</a>`;
                         employeeList.appendChild(li);
                     });
+                } else {
+                    employeeList.innerHTML = "<li>No profiles found</li>";
                 }
             }).catch((error) => {
-                console.error("Error loading employees:", error);
+                console.error("Error loading profiles:", error);
             });
         }
 
