@@ -13,44 +13,29 @@
 
     <main class="profile-container">
         <h3>Saved Profiles</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="employeeList">
-                <tr><td colspan="2">Loading profiles...</td></tr>
-            </tbody>
-        </table>
+        <ul id="employeeList"></ul>
     </main>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-    <script src="firebase.js"></script>
-    <script>
-        function loadEmployees() {
+    <script type="module">
+        import { database, ref, get, child } from "./firebase.js";
+
+        async function loadEmployees() {
             const employeeList = document.getElementById("employeeList");
-            const dbRef = firebase.database().ref("profiles");
+            const dbRef = ref(database);
 
-            dbRef.once("value", (snapshot) => {
-                employeeList.innerHTML = "";
-                snapshot.forEach((childSnapshot) => {
+            const snapshot = await get(child(dbRef, "profiles"));
+
+            employeeList.innerHTML = "";
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
                     let employeeName = childSnapshot.key;
-                    let row = document.createElement("tr");
-
-                    row.innerHTML = `
-                        <td>${employeeName}</td>
-                        <td><a href="test.html?name=${encodeURIComponent(employeeName)}">View Profile</a></td>
-                    `;
-
-                    employeeList.appendChild(row);
+                    let li = document.createElement("li");
+                    li.innerHTML = `<a href="test.html?name=${encodeURIComponent(employeeName)}">${employeeName}</a>`;
+                    employeeList.appendChild(li);
                 });
-            }).catch(error => {
-                console.error("Error loading profiles:", error);
-                employeeList.innerHTML = `<tr><td colspan="2">Error loading profiles</td></tr>`;
-            });
+            } else {
+                employeeList.innerHTML = "<p>No employees found.</p>";
+            }
         }
 
         window.onload = loadEmployees;
