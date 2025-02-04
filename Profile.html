@@ -11,46 +11,37 @@
     <ul id="profilesList">Loading...</ul>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-        // Firebase configuration (usa la correcta)
-        const firebaseConfig = {
-            apiKey: "TU_API_KEY",
-            authDomain: "employeeprofiles-75652.firebaseapp.com",
-            databaseURL: "https://employeeprofiles-75652-default-rtdb.firebaseio.com",
-            projectId: "employeeprofiles-75652",
-            storageBucket: "employeeprofiles-75652.appspot.com",
-            messagingSenderId: "436210594516",
-            appId: "1:436210594516:web:4d19dcc66d42929d86c141"
-        };
-
-        // Inicializa Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        // Obtiene los perfiles guardados
-        function loadProfiles() {
-            const profilesRef = ref(database, 'employees/');
-            onValue(profilesRef, (snapshot) => {
-                const data = snapshot.val();
-                const profilesList = document.getElementById("profilesList");
-                profilesList.innerHTML = ""; // Limpia la lista
-
-                if (data) {
-                    Object.keys(data).forEach(key => {
-                        let li = document.createElement("li");
-                        li.textContent = key; // Nombre del perfil
-                        li.onclick = () => alert(JSON.stringify(data[key], null, 2)); // Mostrar detalles
-                        profilesList.appendChild(li);
-                    });
-                } else {
-                    profilesList.innerHTML = "<p>No profiles found</p>";
-                }
+        import { database, ref, set } from "./firebase.js";
+    
+        document.getElementById("saveBtn").addEventListener("click", function() {
+            const profileName = document.getElementById("profileName").textContent;
+            const status = document.getElementById("status").value;
+            const drugTest = document.getElementById("drugTest").value;
+            const drugTestDate = document.getElementById("drugTestDate").value;
+            const backgroundCheck = document.getElementById("backgroundCheck").value;
+    
+            if (!profileName) {
+                alert("No profile selected!");
+                return;
+            }
+    
+            // Reference to Firebase database
+            const profileRef = ref(database, "profiles/" + profileName);
+    
+            // Save data to Firebase
+            set(profileRef, {
+                status,
+                drugTest,
+                drugTestDate,
+                backgroundCheck
+            })
+            .then(() => {
+                alert("Profile saved successfully!");
+            })
+            .catch((error) => {
+                console.error("Error saving profile:", error);
             });
-        }
-
-        window.onload = loadProfiles;
+        });
     </script>
-</body>
+    </body>
 </html>

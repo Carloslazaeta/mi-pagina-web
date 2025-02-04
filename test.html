@@ -30,59 +30,36 @@
             <button id="cancelBtn" class="cancel-btn">Cancel</button>
         </div>
     </main>
-
     <script type="module">
-        import { database, ref, set, get, child } from "./firebase.js";
-
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
+        import { database, ref, get, child } from "./firebase.js";
+    
+        function loadProfileData() {
+            const profileName = new URLSearchParams(window.location.search).get("name");
+    
+            if (!profileName) {
+                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
+                return;
+            }
+    
+            const profileRef = ref(database, "profiles/" + profileName);
+    
+            get(profileRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    document.getElementById("status").value = data.status || "Pending";
+                    document.getElementById("drugTest").value = data.drugTest || "Fail";
+                    document.getElementById("drugTestDate").value = data.drugTestDate || "";
+                    document.getElementById("backgroundCheck").value = data.backgroundCheck || "Pending";
+                } else {
+                    alert("No data found for this profile.");
+                }
+            }).catch((error) => {
+                console.error("Error loading profile:", error);
+            });
         }
-
-        async function loadProfileData() {
-            let profileName = getQueryParam("name");
-            if (!profileName) return;
-
-            document.getElementById("profileName").textContent = profileName;
-
-            const dbRef = ref(database);
-            get(child(dbRef, "profiles/" + profileName))
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        let data = snapshot.val();
-                        document.getElementById("status").value = data.status || "Pending";
-                        document.getElementById("drugTest").value = data.drugTest || "Fail";
-                        document.getElementById("trainingStatus").value = data.trainingStatus || "Pending";
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error loading data:", error);
-                });
-        }
-
-        document.getElementById("saveBtn").addEventListener("click", function () {
-            let profileName = document.getElementById("profileName").textContent;
-            let profileData = {
-                status: document.getElementById("status").value,
-                drugTest: document.getElementById("drugTest").value,
-                trainingStatus: document.getElementById("trainingStatus").value
-            };
-
-            set(ref(database, "profiles/" + profileName), profileData)
-                .then(() => {
-                    alert("Profile saved successfully!");
-                })
-                .catch((error) => {
-                    console.error("Error saving profile:", error);
-                });
-        });
-
-        document.getElementById("cancelBtn").addEventListener("click", function () {
-            window.location.href = "employees.html";
-        });
-
+    
         window.onload = loadProfileData;
     </script>
-
+    
 </body>
 </html>
