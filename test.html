@@ -30,36 +30,57 @@
             <button id="cancelBtn" class="cancel-btn">Cancel</button>
         </div>
     </main>
+
     <script type="module">
-        import { database, ref, get, child } from "./firebase.js";
-    
+        import { database, ref, get, set } from "./firebase.js";
+
+        const profileName = new URLSearchParams(window.location.search).get("name");
+        document.getElementById("profileName").textContent = profileName || "No Name Provided";
+
         function loadProfileData() {
-            const profileName = new URLSearchParams(window.location.search).get("name");
-    
             if (!profileName) {
-                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
+                alert("No profile name provided.");
                 return;
             }
-    
+
             const profileRef = ref(database, "profiles/" + profileName);
-    
+
             get(profileRef).then((snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     document.getElementById("status").value = data.status || "Pending";
                     document.getElementById("drugTest").value = data.drugTest || "Fail";
-                    document.getElementById("drugTestDate").value = data.drugTestDate || "";
-                    document.getElementById("backgroundCheck").value = data.backgroundCheck || "Pending";
+                    document.getElementById("trainingStatus").value = data.trainingStatus || "Pending";
                 } else {
-                    alert("No data found for this profile.");
+                    console.log("No data found for this profile.");
                 }
             }).catch((error) => {
                 console.error("Error loading profile:", error);
             });
         }
-    
+
+        function saveProfileData() {
+            if (!profileName) {
+                alert("No profile name provided.");
+                return;
+            }
+
+            const profileRef = ref(database, "profiles/" + profileName);
+            const data = {
+                status: document.getElementById("status").value,
+                drugTest: document.getElementById("drugTest").value,
+                trainingStatus: document.getElementById("trainingStatus").value
+            };
+
+            set(profileRef, data)
+                .then(() => alert("Profile saved successfully!"))
+                .catch((error) => console.error("Error saving profile:", error));
+        }
+
+        document.getElementById("saveBtn").addEventListener("click", saveProfileData);
+        document.getElementById("cancelBtn").addEventListener("click", () => window.close());
+
         window.onload = loadProfileData;
     </script>
-    
 </body>
 </html>
