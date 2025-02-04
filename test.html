@@ -15,24 +15,19 @@
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
 
+        <!-- Información Adicional -->
         <div id="additionalFields">
             <h3>Additional Information</h3>
             <table>
-                <tr><td><label>Status:</label></td><td><select id="status">
-                    <option value="Pending">Pending</option>
-                    <option value="Complete">Complete</option>
-                </select></td></tr>
-                <tr><td><label>Drug Test:</label></td><td><select id="drugTest">
-                    <option value="Pass">Pass</option>
-                    <option value="Fail">Fail</option>
-                </select></td></tr>
-                <tr><td><label>Drug Test Date:</label></td><td><input type="date" id="drugTestDate"></td></tr>
+                <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
+                <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
             </table>
         </div>
 
         <div class="button-group">
-            <button id="saveBtn">Save</button>
-            <button id="cancelBtn">Cancel</button>
+            <button id="saveBtn" class="save-btn">Save</button>
+            <button id="cancelBtn" class="cancel-btn">Cancel</button>
         </div>
     </main>
 
@@ -45,33 +40,45 @@
         }
 
         async function loadProfileData() {
-            const employeeName = getQueryParam("name");
-            if (!employeeName) return;
+            let profileName = getQueryParam("name");
+            if (!profileName) return;
 
-            document.getElementById("profileName").textContent = employeeName;
+            document.getElementById("profileName").textContent = profileName;
 
             const dbRef = ref(database);
-            const snapshot = await get(child(dbRef, `profiles/${employeeName}`));
-
-            if (snapshot.exists()) {
-                document.getElementById("status").value = snapshot.val().status;
-                document.getElementById("drugTest").value = snapshot.val().drugTest;
-                document.getElementById("drugTestDate").value = snapshot.val().drugTestDate;
-            }
+            get(child(dbRef, "profiles/" + profileName))
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        let data = snapshot.val();
+                        document.getElementById("status").value = data.status || "Pending";
+                        document.getElementById("drugTest").value = data.drugTest || "Fail";
+                        document.getElementById("trainingStatus").value = data.trainingStatus || "Pending";
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error loading data:", error);
+                });
         }
 
-        document.getElementById("saveBtn").addEventListener("click", async function () {
-            const employeeName = document.getElementById("profileName").textContent;
-            if (!employeeName) return;
-
-            const profileData = {
+        document.getElementById("saveBtn").addEventListener("click", function () {
+            let profileName = document.getElementById("profileName").textContent;
+            let profileData = {
                 status: document.getElementById("status").value,
                 drugTest: document.getElementById("drugTest").value,
-                drugTestDate: document.getElementById("drugTestDate").value
+                trainingStatus: document.getElementById("trainingStatus").value
             };
 
-            await set(ref(database, `profiles/${employeeName}`), profileData);
-            alert("Profile saved successfully!");
+            set(ref(database, "profiles/" + profileName), profileData)
+                .then(() => {
+                    alert("Profile saved successfully!");
+                })
+                .catch((error) => {
+                    console.error("Error saving profile:", error);
+                });
+        });
+
+        document.getElementById("cancelBtn").addEventListener("click", function () {
+            window.location.href = "employees.html";
         });
 
         window.onload = loadProfileData;

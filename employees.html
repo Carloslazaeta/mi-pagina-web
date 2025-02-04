@@ -19,23 +19,23 @@
     <script type="module">
         import { database, ref, get, child } from "./firebase.js";
 
-        async function loadEmployees() {
+        function loadEmployees() {
             const employeeList = document.getElementById("employeeList");
             const dbRef = ref(database);
 
-            const snapshot = await get(child(dbRef, "profiles"));
-
-            employeeList.innerHTML = "";
-            if (snapshot.exists()) {
-                snapshot.forEach(childSnapshot => {
-                    let employeeName = childSnapshot.key;
-                    let li = document.createElement("li");
-                    li.innerHTML = `<a href="test.html?name=${encodeURIComponent(employeeName)}">${employeeName}</a>`;
-                    employeeList.appendChild(li);
-                });
-            } else {
-                employeeList.innerHTML = "<p>No employees found.</p>";
-            }
+            get(child(dbRef, "profiles")).then((snapshot) => {
+                if (snapshot.exists()) {
+                    employeeList.innerHTML = "";
+                    snapshot.forEach((childSnapshot) => {
+                        let employeeName = childSnapshot.key;
+                        let li = document.createElement("li");
+                        li.innerHTML = `<a href="test.html?name=${encodeURIComponent(employeeName)}">${employeeName}</a>`;
+                        employeeList.appendChild(li);
+                    });
+                }
+            }).catch((error) => {
+                console.error("Error loading employees:", error);
+            });
         }
 
         window.onload = loadEmployees;
