@@ -13,7 +13,17 @@
 
     <main class="profile-container">
         <h3>Saved Profiles</h3>
-        <ul id="employeeList"></ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="employeeList">
+                <tr><td colspan="2">Loading profiles...</td></tr>
+            </tbody>
+        </table>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
@@ -22,16 +32,24 @@
     <script>
         function loadEmployees() {
             const employeeList = document.getElementById("employeeList");
-            const profilesRef = database.ref("profiles");
+            const dbRef = firebase.database().ref("profiles");
 
-            profilesRef.once("value", (snapshot) => {
+            dbRef.once("value", (snapshot) => {
                 employeeList.innerHTML = "";
                 snapshot.forEach((childSnapshot) => {
                     let employeeName = childSnapshot.key;
-                    let li = document.createElement("li");
-                    li.innerHTML = `<a href="test.html?name=${encodeURIComponent(employeeName)}">${employeeName}</a>`;
-                    employeeList.appendChild(li);
+                    let row = document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>${employeeName}</td>
+                        <td><a href="test.html?name=${encodeURIComponent(employeeName)}">View Profile</a></td>
+                    `;
+
+                    employeeList.appendChild(row);
                 });
+            }).catch(error => {
+                console.error("Error loading profiles:", error);
+                employeeList.innerHTML = `<tr><td colspan="2">Error loading profiles</td></tr>`;
             });
         }
 
