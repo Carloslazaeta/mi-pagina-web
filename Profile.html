@@ -3,128 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
+    <title>Google Sheet Data</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
-        <h1>📄 Profile Details</h1>
-        <p>Employee Information</p>
+        <h1>📄 Employee List</h1>
     </header>
 
     <main class="profile-container">
-        <h2 id="profileName">Loading...</h2>
-
-        <!-- Información del Google Sheet -->
-        <div id="googleSheetData">
-            <h3>Employee Details</h3>
-            <table id="profileDetails">
-                <tr><td colspan="2">Fetching data...</td></tr>
-            </table>
-        </div>
-
-        <!-- Información Adicional -->
-        <div id="additionalFields">
-            <h3>Additional Information</h3>
-            <table>
-                <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
-                <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
-                <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
-            </table>
-        </div>
-
-        <div class="button-group">
-            <button id="saveBtn" class="save-btn">Save</button>
-            <button id="cancelBtn" class="cancel-btn">Cancel</button>
-        </div>
+        <h3>Saved Profiles from Google Sheets</h3>
+        <table id="employeeTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>More Info</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="6">Loading data...</td></tr>
+            </tbody>
+        </table>
     </main>
 
-    <script type="module">
-        import { database, ref, get } from "./firebase.js";
+    <script>
+        const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json";
 
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
-
-        async function loadProfileData() {
-            let selectedName = getQueryParam("name");
-            if (!selectedName) {
-                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
-                return;
-            }
-
-            const profileRef = ref(database, "profiles/" + selectedName);
+        async function loadGoogleSheetData() {
             try {
-                const snapshot = await get(profileRef);
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    document.getElementById("profileName").textContent = selectedName;
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47, text.length - 2)); // Limpiar el formato de Google Sheets
+                
+                const rows = jsonData.table.rows;
+                const tableBody = document.querySelector("#employeeTable tbody");
+                tableBody.innerHTML = "";
 
-                    let detailsHTML = `
-                        <tr><td><strong>First Name:</strong></td><td>${data.firstName || "N/A"}</td></tr>
-                        <tr><td><strong>Last Name:</strong></td><td>${data.lastName || "N/A"}</td></tr>
-                        <tr><td><strong>Email:</strong></td><td>${data.email || "N/A"}</td></tr>
-                        <tr><td><strong>Phone:</strong></td><td>${data.phone || "N/A"}</td></tr>
-                        <tr><td><strong>Address:</strong></td><td>${data.address || "N/A"}</td></tr>
-                    `;
+                rows.forEach(row => {
+                    let name = row.c[1] ? row.c[1].v : "N/A"; // Columna B (Nombre)
+                    let lastName = row.c[2] ? row.c[2].v : "N/A"; // Columna C (Apellido)
+                    let email = row.c[3] ? row.c[3].v : "N/A"; // Columna D (Email)
+                    let phone = row.c[4] ? row.c[4].v : "N/A"; // Columna E (Teléfono)
+                    let address = row.c[8] ? row.c[8].v : "N/A"; // Columna I (Dirección)
+                    let moreInfo = row.c[12] ? `<a href="${row.c[12].v}" target="_blank">Click here</a>` : "N/A"; // Columna M (Link)
 
-                    document.getElementById("profileDetails").innerHTML = detailsHTML;
-                    document.getElementById("status").value = data.status || "Pending";
-                    document.getElementById("drugTest").value = data.drugTest || "Fail";
-                    document.getElementById("trainingStatus").value = data.trainingStatus || "Pending";
-                } else {
-                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this profile.</td></tr>";
-                }
+                    let rowHTML = `<tr>
+                        <td>${name}</td>
+                        <td>${lastName}</td>
+                        <td>${email}</td>
+                        <td>${phone}</td>
+                        <td>${address}</td>
+                        <td>${moreInfo}</td>
+                    </tr>`;
+                    
+                    tableBody.innerHTML += rowHTML;
+                });
+
             } catch (error) {
-                console.error("Error loading profile:", error);
+                console.error("❌ Error loading Google Sheet data:", error);
+                document.querySelector("#employeeTable tbody").innerHTML = "<tr><td colspan='6'>Failed to load data.</td></tr>";
             }
         }
 
-        window.onload = loadProfileData;
+        window.onload = loadGoogleSheetData;
     </script>
 
     <style>
         body {
-            text-align: left; /* Justificar el texto a la izquierda */
+            text-align: center;
             background-color: #f4f4f4;
             font-family: Arial, sans-serif;
         }
         .profile-container {
-            width: 60%;
+            width: 80%;
             margin: auto;
             padding: 20px;
             background: white;
             text-align: left;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
         }
-        td {
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-        .button-group {
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
             text-align: left;
-            margin-top: 10px;
         }
-        button {
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .save-btn {
-            background-color: #28a745;
+        th {
+            background-color: #007BFF;
             color: white;
         }
-        .cancel-btn {
-            background-color: #dc3545;
-            color: white;
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 
