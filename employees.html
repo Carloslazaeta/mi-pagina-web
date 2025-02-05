@@ -13,18 +13,23 @@
 
     <main class="profile-container">
         <h3>Saved Profiles</h3>
-        <ul id="employeeList"></ul>
+        <ul id="employeeList">Loading profiles...</ul>
     </main>
 
     <script type="module">
-        import { database, ref, get, child } from "./firebase.js";
+        // Import Firebase dependencies
+        import { database, ref, get } from "./firebase.js";
 
-        function loadEmployees() {
+        async function loadEmployees() {
             const employeeList = document.getElementById("employeeList");
-            const profilesRef = ref(database, "profiles");
+            employeeList.innerHTML = "Loading profiles...";
 
-            get(profilesRef).then((snapshot) => {
-                employeeList.innerHTML = "";
+            try {
+                const profilesRef = ref(database, "profiles");
+                const snapshot = await get(profilesRef);
+
+                employeeList.innerHTML = ""; // Clear list before adding items
+
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         let employeeName = childSnapshot.key;
@@ -35,11 +40,13 @@
                 } else {
                     employeeList.innerHTML = "<li>No profiles found</li>";
                 }
-            }).catch((error) => {
+            } catch (error) {
                 console.error("Error loading profiles:", error);
-            });
+                employeeList.innerHTML = "<li>Error loading profiles. Try again later.</li>";
+            }
         }
 
+        // Load profiles when the page loads
         window.onload = loadEmployees;
     </script>
 </body>
