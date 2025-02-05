@@ -13,7 +13,11 @@
 
     <main class="profile-container">
         <h3>Saved Profiles</h3>
-        <ul id="employeeList">Loading profiles...</ul>
+        
+        <!-- Contenedor con barra de desplazamiento -->
+        <div class="listbox-container">
+            <ul id="employeeList" class="listbox"></ul>
+        </div>
     </main>
 
     <script type="module">
@@ -22,19 +26,26 @@
 
         async function loadEmployees() {
             const employeeList = document.getElementById("employeeList");
-            employeeList.innerHTML = "Loading profiles...";
+            employeeList.innerHTML = "<li>Loading profiles...</li>";
 
             try {
                 const profilesRef = ref(database, "profiles");
                 const snapshot = await get(profilesRef);
 
-                employeeList.innerHTML = ""; // Clear list before adding items
+                employeeList.innerHTML = ""; // Limpiar la lista antes de agregar elementos
 
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         let employeeName = childSnapshot.key;
                         let li = document.createElement("li");
-                        li.innerHTML = `<a href="profile.html?name=${encodeURIComponent(employeeName)}">${employeeName}</a>`;
+                        li.textContent = employeeName;
+                        li.classList.add("list-item");
+
+                        // Evento para abrir el profile seleccionado
+                        li.onclick = () => {
+                            window.location.href = `profile.html?name=${encodeURIComponent(employeeName)}`;
+                        };
+
                         employeeList.appendChild(li);
                     });
                 } else {
@@ -46,8 +57,45 @@
             }
         }
 
-        // Load profiles when the page loads
+        // Cargar perfiles al iniciar la página
         window.onload = loadEmployees;
     </script>
+
+    <style>
+        /* Contenedor del ListBox */
+        .listbox-container {
+            width: 80%;
+            max-width: 400px;
+            height: 300px; /* Altura fija con scroll */
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            background: #f9f9f9;
+            margin: auto;
+        }
+
+        /* Lista de empleados */
+        .listbox {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Ítems de la lista */
+        .list-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+            transition: background 0.3s ease;
+        }
+
+        /* Hover en los ítems */
+        .list-item:hover {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+
 </body>
 </html>
