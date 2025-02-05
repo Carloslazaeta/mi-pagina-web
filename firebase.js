@@ -1,8 +1,8 @@
-// Importar Firebase
+// Import Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-// Configuración de Firebase
+// Firebase Configuration
 const firebaseConfig = {
     apiKey: "TU_API_KEY",
     authDomain: "TU_AUTH_DOMAIN",
@@ -13,7 +13,7 @@ const firebaseConfig = {
     appId: "1:436210594516:web:4d19dcc66d42929d86c141"
 };
 
-// Inicializar Firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
