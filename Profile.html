@@ -3,50 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saved Profiles</title>
-    <script type="module" src="firebase.js"></script>
+    <title>Profile</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>📂 Saved Employee Profiles</h1>
-    <ul id="profilesList">Loading...</ul>
+    <header>
+        <h1>📄 Profile Details</h1>
+        <p>Employee Information</p>
+    </header>
+
+    <main class="profile-container">
+        <h2 id="profileName">Loading...</h2>
+
+        <!-- Información del Google Sheet -->
+        <div id="googleSheetData">
+            <h3>Employee Details</h3>
+            <table id="profileDetails">
+                <tr><td colspan="2">Fetching data...</td></tr>
+            </table>
+        </div>
+
+        <!-- Información Adicional -->
+        <div id="additionalFields">
+            <h3>Additional Information</h3>
+            <table>
+                <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
+                <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
+            </table>
+        </div>
+
+        <div class="button-group">
+            <button id="saveBtn" class="save-btn">Save</button>
+            <button id="cancelBtn" class="cancel-btn">Cancel</button>
+        </div>
+    </main>
 
     <script type="module">
-        import { database, ref, set } from "./firebase.js";
-    
-        document.getElementById("saveBtn").addEventListener("click", function () {
-            let name = document.getElementById("profileName").textContent;
-            if (!name || name === "Loading...") {
-                alert("No profile name found!");
+        import { database, ref, get } from "./firebase.js";
+
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        async function loadProfileData() {
+            let selectedName = getQueryParam("name");
+            if (!selectedName) {
+                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
                 return;
             }
-    
-            const profileRef = ref(database, "profiles/" + name);
-            set(profileRef, {
-                status: document.getElementById("status").value,
-                offerLetter: document.getElementById("offerLetter").value,
-                drugTest: document.getElementById("drugTest").value,
-                drugTestDate: document.getElementById("drugTestDate").value,
-                backgroundCheck: document.getElementById("backgroundCheck").value,
-                trainingStatus: document.getElementById("trainingStatus").value,
-                trainingDate: document.getElementById("trainingDate").value,
-                adpPayroll: document.getElementById("adpPayroll").value,
-                employeeHandbook: document.getElementById("employeeHandbook").value,
-                handbookAcknowledgment: document.getElementById("handbookAcknowledgment").value,
-                jjkApplication: document.getElementById("jjkApplication").value,
-                jjkApplicationDate: document.getElementById("jjkApplicationDate").value,
-                mecCertificate: document.getElementById("mecCertificate").value,
-                roadTest: document.getElementById("roadTest").value,
-                roadTestDate: document.getElementById("roadTestDate").value,
-                i9Status: document.getElementById("i9Status").value
-            }).then(() => {
-                alert("Profile saved successfully!");
-            }).catch((error) => {
-                alert("Error saving profile: " + error.message);
-            });
-        });
-    
-        document.getElementById("cancelBtn").addEventListener("click", function () {
-            window.location.href = "employees.html"; // Redirige a la lista de empleados
-        });
+
+            const profileRef = ref(database, "profiles/" + selectedName);
+            try {
+                const snapshot = await get(profileRef);
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    document.getElementById("profileName").textContent = selectedName;
+
+                    let detailsHTML = `
+                        <tr><td><strong>First Name:</strong></td><td>${data.firstName || "N/A"}</td></tr>
+                        <tr><td><strong>Last Name:</strong></td><td>${data.lastName || "N/A"}</td></tr>
+                        <tr><td><strong>Email:</strong></td><td>${data.email || "N/A"}</td></tr>
+                        <tr><td><strong>Phone:</strong></td><td>${data.phone || "N/A"}</td></tr>
+                        <tr><td><strong>Address:</strong></td><td>${data.address || "N/A"}</td></tr>
+                    `;
+
+                    document.getElementById("profileDetails").innerHTML = detailsHTML;
+                    document.getElementById("status").value = data.status || "Pending";
+                    document.getElementById("drugTest").value = data.drugTest || "Fail";
+                    document.getElementById("trainingStatus").value = data.trainingStatus || "Pending";
+                } else {
+                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this profile.</td></tr>";
+                }
+            } catch (error) {
+                console.error("Error loading profile:", error);
+            }
+        }
+
+        window.onload = loadProfileData;
     </script>
-    
+
+    <style>
+        body {
+            text-align: left; /* Justificar el texto a la izquierda */
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+        .profile-container {
+            width: 60%;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            text-align: left;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .button-group {
+            text-align: left;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .save-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .cancel-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+
+</body>
+</html>
