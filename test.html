@@ -43,33 +43,66 @@
     <script type="module">
         import { database, ref, get, set } from "./firebase.js";
 
+        const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json";
+
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
 
-        function loadProfileData() {
+        async function loadProfileData() {
             const profileName = getQueryParam("name");
             if (!profileName) {
                 document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
                 return;
             }
 
-            const profileRef = ref(database, "profiles/" + profileName);
-            get(profileRef).then((snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    document.getElementById("status").value = data.status || "Pending";
-                    document.getElementById("drugTest").value = data.drugTest || "Fail";
-                    document.getElementById("trainingStatus").value = data.trainingStatus || "Pending";
-                } else {
-                    alert("No data found for this profile.");
+            try {
+                // 🔹 Obtener datos de Google Sheets
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47, text.length - 2));
+
+                const rows = jsonData.table.rows;
+                const headers = jsonData.table.cols.map(col => col.label);
+
+                let foundRow = null;
+
+                for (let i = 1; i < rows.length; i++) {
+                    let row = rows[i].c;
+                    let firstName = row[1]?.v?.trim() || "";
+                    let lastName = row[2]?.v?.trim() || "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName === profileName) {
+                        foundRow = row;
+                        break;
+                    }
                 }
-            }).catch((error) => {
-                console.error("Error loading profile:", error);
-            });
+
+                if (foundRow) {
+                    document.getElementById("profileName").textContent = profileName;
+
+                    let detailsHTML = `
+                        <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || ""}</td></tr>
+                        <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || ""}</td></tr>
+                        <tr><td><strong>Email:</strong></td><td><a href="mailto:${foundRow[3]?.v}">${foundRow[3]?.v || "N/A"}</a></td></tr>
+                        <tr><td><strong>Phone:</strong></td><td><a href="tel:${foundRow[4]?.v}">${foundRow[4]?.v || "N/A"}</a></td></tr>
+                        <tr><td><strong>Address:</strong></td><td>${foundRow[8]?.v || ""}</td></tr>
+                        <tr><td><strong>Document:</strong></td><td><a href="${foundRow[12]?.v || "#"}" target="_blank">Click here</a></td></tr>
+                    `;
+
+                    document.getElementById("profileDetails").innerHTML = detailsHTML;
+                } else {
+                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
+                }
+
+            } catch (error) {
+                console.error("❌ Error loading profile data:", error);
+            }
         }
 
+        // 🔹 Guardar en Firebase
         document.getElementById("saveBtn").addEventListener("click", function() {
             const profileName = getQueryParam("name");
             if (!profileName) {
@@ -88,8 +121,9 @@
                 .catch((error) => console.error("Error saving profile:", error));
         });
 
+        // 🔹 Cancelar (cerrar página)
         document.getElementById("cancelBtn").addEventListener("click", function () {
-            window.close();
+            window.history.back();
         });
 
         window.onload = loadProfileData;
