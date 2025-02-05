@@ -3,36 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Profile</title>
+    <title>Profile</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
-        <h1>📄 Employee Profile</h1>
+        <h1>📄 Profile Details</h1>
+        <p>Employee Information</p>
     </header>
 
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
 
-        <!-- Información del empleado desde Google Sheets -->
-        <div id="profileDetails">
-            <table>
-                <tr><td><strong>Name:</strong></td><td id="empName"></td></tr>
-                <tr><td><strong>Last Name:</strong></td><td id="empLastName"></td></tr>
-                <tr><td><strong>Email:</strong></td><td id="empEmail"></td></tr>
-                <tr><td><strong>Phone:</strong></td><td id="empPhone"></td></tr>
-                <tr><td><strong>Address:</strong></td><td id="empAddress"></td></tr>
-                <tr><td><strong>More Info:</strong></td><td id="empMoreInfo"></td></tr>
+        <!-- Sección de Datos desde Google Sheets -->
+        <div id="googleSheetData">
+            <h3>Employee Details</h3>
+            <table id="profileDetails">
+                <tr><td colspan="2">Fetching data...</td></tr>
             </table>
         </div>
 
-        <!-- Campos adicionales -->
+        <!-- Sección de Información Adicional -->
         <div id="additionalFields">
             <h3>Additional Information</h3>
             <table>
-                <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
-                <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
-                <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
+                <tr><td><label>Status:</label></td><td><select id="status">
+                    <option value="Pending">Pending</option>
+                    <option value="Does not meet requirements">Does not meet requirements</option>
+                    <option value="Complete">Complete</option>
+                </select></td></tr>
+                <tr><td><label>Drug Test:</label></td><td><select id="drugTest">
+                    <option value="Fail">Fail</option>
+                    <option value="Pass">Pass</option>
+                </select></td></tr>
+                <tr><td><label>Training Status:</label></td><td><select id="trainingStatus">
+                    <option value="Pending">Pending</option>
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select></td></tr>
             </table>
         </div>
 
@@ -42,7 +50,10 @@
         </div>
     </main>
 
-    <script>
+    <!-- Firebase y Script -->
+    <script type="module">
+        import { database, ref, set, get, child } from "./firebase.js";
+
         const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json";
 
         function getQueryParam(param) {
@@ -63,6 +74,7 @@
                 const jsonData = JSON.parse(text.substring(47, text.length - 2));
 
                 const rows = jsonData.table.rows;
+                const headers = jsonData.table.cols.map(col => col.label);
                 let foundRow = null;
 
                 for (let i = 1; i < rows.length; i++) {
@@ -79,59 +91,62 @@
 
                 if (foundRow) {
                     document.getElementById("profileName").textContent = selectedName;
-                    document.getElementById("empName").textContent = foundRow[1] ? foundRow[1].v : "N/A";
-                    document.getElementById("empLastName").textContent = foundRow[2] ? foundRow[2].v : "N/A";
-                    document.getElementById("empEmail").textContent = foundRow[3] ? foundRow[3].v : "N/A";
-                    document.getElementById("empPhone").textContent = foundRow[4] ? foundRow[4].v : "N/A";
-                    document.getElementById("empAddress").textContent = foundRow[8] ? foundRow[8].v : "N/A";
-                    document.getElementById("empMoreInfo").innerHTML = foundRow[12] ? `<a href="${foundRow[12].v}" target="_blank">Click here</a>` : "N/A";
+
+                    let detailsHTML = `
+                        <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || ""}</td></tr>
+                        <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || ""}</td></tr>
+                        <tr><td><strong>Email:</strong></td><td><a href="mailto:${foundRow[3]?.v || ""}">${foundRow[3]?.v || "N/A"}</a></td></tr>
+                        <tr><td><strong>Phone:</strong></td><td><a href="tel:${foundRow[4]?.v || ""}">${foundRow[4]?.v || "N/A"}</a></td></tr>
+                        <tr><td><strong>Address:</strong></td><td>${foundRow[5]?.v || ""}</td></tr>
+                        <tr><td><strong>Profile Link:</strong></td><td><a href="${foundRow[12]?.v || "#"}" target="_blank">Click Here</a></td></tr>
+                    `;
+
+                    document.getElementById("profileDetails").innerHTML = detailsHTML;
                 } else {
                     document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
                 }
-
             } catch (error) {
                 console.error("❌ Error loading profile data:", error);
             }
         }
 
+        document.getElementById("saveBtn").addEventListener("click", function() {
+            const profileName = document.getElementById("profileName").textContent;
+            if (!profileName || profileName === "Loading...") {
+                alert("No profile selected.");
+                return;
+            }
+
+            const profileRef = ref(database, "profiles/" + profileName);
+            const profileData = {
+                status: document.getElementById("status").value,
+                drugTest: document.getElementById("drugTest").value,
+                trainingStatus: document.getElementById("trainingStatus").value
+            };
+
+            set(profileRef, profileData)
+                .then(() => {
+                    alert("Profile saved successfully!");
+                })
+                .catch((error) => {
+                    console.error("Error saving profile:", error);
+                });
+        });
+
+        document.getElementById("cancelBtn").addEventListener("click", function() {
+            window.close();
+        });
+
         window.onload = loadProfileData;
     </script>
 
     <style>
-        body {
-            text-align: center;
-            background-color: #f4f4f4;
-            font-family: Arial, sans-serif;
-        }
-        .profile-container {
-            width: 60%;
-            margin: auto;
-            padding: 20px;
-            background: white;
-            text-align: left;
-            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-        th {
-            background-color: #007BFF;
-            color: white;
-        }
-        a {
-            color: #007BFF;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
+        body { text-align: center; background-color: #f4f4f4; }
+        .profile-container { width: 60%; margin: auto; padding: 20px; background: white; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; }
+        .button-group { margin-top: 20px; }
+        .save-btn, .cancel-btn { padding: 10px 20px; margin: 5px; cursor: pointer; }
     </style>
 
 </body>
