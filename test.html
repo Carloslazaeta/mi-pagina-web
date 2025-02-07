@@ -27,7 +27,7 @@
         <!-- 🔹 Additional Information -->
         <div class="section">
             <h3>Additional Information</h3>
-            <table id="additionalInfo">
+            <table>
                 <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
                 <tr><td><label>Offer Letter & Handbook:</label></td><td><select id="offerLetter"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
                 <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
@@ -53,9 +53,9 @@
     </main>
 
     <script type="module">
-        import { database, ref, set } from "./firebase.js";
+        import { database, ref, get, set } from "./firebase.js";
 
-        const sheetURL = `https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/gviz/tq?tqx=out:json&tq=SELECT%20A,B,C,D,E,M`;
+        const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json";
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -78,9 +78,15 @@
                 }
 
                 const jsonData = JSON.parse(text.substring(47, text.length - 2));
+                console.log("✅ Google Sheets Data:", jsonData);
+                
                 const rows = jsonData.table.rows;
-                let foundRow = null;
+                if (rows.length === 0) {
+                    console.error("❌ No data found in Google Sheet.");
+                    return;
+                }
 
+                let foundRow = null;
                 for (let row of rows) {
                     let cells = row.c;
                     let firstName = cells[1]?.v || "";
@@ -110,6 +116,29 @@
                 console.error("Error fetching Google Sheets data:", error);
             }
         }
+
+        document.getElementById("saveBtn").addEventListener("click", async function () {
+            const profileName = getQueryParam("name");
+            if (!profileName) {
+                alert("No profile name provided.");
+                return;
+            }
+
+            const profileRef = ref(database, "profiles/" + profileName);
+            const data = {
+                status: document.getElementById("status").value,
+                offerLetter: document.getElementById("offerLetter").value,
+                drugTest: document.getElementById("drugTest").value,
+                trainingStatus: document.getElementById("trainingStatus").value
+            };
+
+            try {
+                await set(profileRef, data);
+                alert("Profile saved successfully!");
+            } catch (error) {
+                console.error("Error saving profile:", error);
+            }
+        });
 
         window.onload = loadProfileData;
     </script>
