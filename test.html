@@ -16,17 +16,36 @@
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
 
-        <!-- 🔹 Employee Details -->
-        <div id="googleSheetData">
-            <h3>Employee Details</h3>
-            <table id="profileDetails">
+        <!-- 🔹 Sección de Datos Generales -->
+        <div id="generalData">
+            <h3>General Information</h3>
+            <table id="generalDetails">
                 <tr><td colspan="2">Fetching data...</td></tr>
             </table>
         </div>
 
-        <!-- 🔹 Save to Firebase -->
+        <!-- 🔹 Sección de Información Adicional -->
+        <div id="additionalFields">
+            <h3>Additional Information</h3>
+            <table>
+                <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Does not meet requirements">Does not meet requirements</option><option value="Complete">Complete</option></select></td></tr>
+                <tr><td><label>Offer Letter & Handbook:</label></td><td><select id="offerLetter"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
+                <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>Drug Test Date:</label></td><td><input type="date" id="drugTestDate"></td></tr>
+                <tr><td><label>Background Check:</label></td><td><select id="backgroundCheck"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
+                <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select></td></tr>
+                <tr><td><label>Training Date:</label></td><td><input type="date" id="trainingDate"></td></tr>
+                <tr><td><label>ADP Payroll Onboarding:</label></td><td><select id="adpPayroll"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
+                <tr><td><label>Employee Handbook:</label></td><td><input type="date" id="employeeHandbook"></td></tr>
+                <tr><td><label>Handbook Acknowledgment:</label></td><td><select id="handbookAcknowledgment"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
+                <tr><td><label>JJK Application:</label></td><td><select id="jjkApplication"><option value="Pending">Pending</option><option value="Assign">Assign</option></select></td></tr>
+                <tr><td><label>JJK Application Date:</label></td><td><input type="date" id="jjkApplicationDate"></td></tr>
+            </table>
+        </div>
+
         <div class="button-group">
             <button id="saveBtn" class="save-btn">Save to Firebase</button>
+            <button id="cancelBtn" class="cancel-btn">Cancel</button>
         </div>
     </main>
 
@@ -37,10 +56,12 @@
         const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json";
 
         async function loadProfileData() {
-            if (!profileName) return;
+            if (!profileName) {
+                document.getElementById("generalDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
+                return;
+            }
 
             try {
-                // 🔹 Fetch data from Google Sheets
                 const response = await fetch(sheetURL);
                 const text = await response.text();
                 const jsonData = JSON.parse(text.substring(47, text.length - 2));
@@ -52,52 +73,44 @@
                     let cells = row.c;
                     let firstName = cells[1]?.v || "";
                     let lastName = cells[2]?.v || "";
-                    let fullName = `${firstName} ${lastName}`.trim();
-                    if (fullName.toLowerCase() === profileName.toLowerCase()) {
+                    let fullName = `${firstName} ${lastName}`;
+
+                    if (fullName.trim().toLowerCase() === profileName.trim().toLowerCase()) {
                         foundRow = cells;
                         break;
                     }
                 }
 
                 if (foundRow) {
-                    let profileData = {
-                        firstName: foundRow[1]?.v || "N/A",
-                        lastName: foundRow[2]?.v || "N/A",
-                        email: foundRow[3]?.v || "N/A",
-                        phone: foundRow[4]?.v || "N/A",
-                        address: foundRow[8]?.v || "N/A",
-                        position: foundRow[5]?.v || "N/A",
-                        hireDate: foundRow[6]?.v || "N/A",
-                        status: foundRow[7]?.v || "N/A",
-                        documentLink: foundRow[12]?.v ? `<a href="${foundRow[12].v}" target="_blank">Click here</a>` : "N/A"
-                    };
-
-                    document.getElementById("profileDetails").innerHTML = `
-                        <tr><td><strong>First Name:</strong></td><td>${profileData.firstName}</td></tr>
-                        <tr><td><strong>Last Name:</strong></td><td>${profileData.lastName}</td></tr>
-                        <tr><td><strong>Email:</strong></td><td>${profileData.email}</td></tr>
-                        <tr><td><strong>Phone:</strong></td><td>${profileData.phone}</td></tr>
-                        <tr><td><strong>Address:</strong></td><td>${profileData.address}</td></tr>
-                        <tr><td><strong>Position:</strong></td><td>${profileData.position}</td></tr>
-                        <tr><td><strong>Hire Date:</strong></td><td>${profileData.hireDate}</td></tr>
-                        <tr><td><strong>Status:</strong></td><td>${profileData.status}</td></tr>
-                        <tr><td><strong>Document:</strong></td><td>${profileData.documentLink}</td></tr>
+                    document.getElementById("generalDetails").innerHTML = `
+                        <tr><td><strong>Date Apply:</strong></td><td>${foundRow[0]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Phone Number:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Selfie:</strong></td><td><a href="${foundRow[12]?.v || "#"}" target="_blank">Click here</a></td></tr>
                     `;
-
-                    // Guardar en Firebase
-                    document.getElementById("saveBtn").addEventListener("click", async () => {
-                        const profileRef = ref(database, "profiles/" + profileName);
-
-                        await set(profileRef, profileData);
-                        alert("Profile saved to Firebase!");
-                    });
                 }
             } catch (error) {
-                console.error("Error loading Google Sheets data:", error);
+                console.error("Error fetching Google Sheets data:", error);
             }
         }
 
+        document.getElementById("saveBtn").addEventListener("click", function() {
+            const profileRef = ref(database, "profiles/" + profileName);
+            const data = {
+                status: document.getElementById("status").value,
+                drugTest: document.getElementById("drugTest").value,
+                trainingStatus: document.getElementById("trainingStatus").value
+            };
+
+            set(profileRef, data).then(() => alert("Profile saved successfully!"));
+        });
+
+        document.getElementById("cancelBtn").addEventListener("click", () => window.history.back());
+
         window.onload = loadProfileData;
     </script>
+
 </body>
 </html>
