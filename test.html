@@ -69,6 +69,11 @@
             try {
                 const response = await fetch(sheetURL);
                 const text = await response.text();
+
+                if (!text.startsWith("/*O_o*/")) {
+                    throw new Error("Invalid JSON response. Check your Google Sheet permissions.");
+                }
+
                 const jsonData = JSON.parse(text.substring(47, text.length - 2));
                 const rows = jsonData.table.rows;
                 let foundRow = null;
