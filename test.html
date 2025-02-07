@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
     <link rel="stylesheet" href="styles.css">
-    <script type="module" src="firebase.js"></script>
 </head>
 <body>
     <header>
@@ -16,16 +15,16 @@
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
 
-        <!-- Employee Details -->
-        <div class="section">
+        <!-- Sección de Datos desde Google Sheets (Origen) -->
+        <div id="googleSheetData">
             <h3>Employee Details</h3>
             <table id="profileDetails">
                 <tr><td colspan="2">Fetching data...</td></tr>
             </table>
         </div>
 
-        <!-- Additional Information -->
-        <div class="section">
+        <!-- Sección de Información Adicional -->
+        <div id="additionalFields">
             <h3>Additional Information</h3>
             <table>
                 <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Does not meet requirements">Does not meet requirements</option><option value="Complete">Complete</option></select></td></tr>
@@ -47,21 +46,24 @@
             </table>
         </div>
 
-        <!-- Botones -->
         <div class="button-group">
             <button id="saveBtn" class="save-btn">Save</button>
             <button id="cancelBtn" class="cancel-btn">Cancel</button>
         </div>
     </main>
 
-    <script type="module">
-        import { database, ref, set } from "./firebase.js";
+    <script>
+        const sheetURL = "https://docs.google.com/spreadsheets/d/129nnMs3yOcnYcNSkRVoobSQIh5q1uWN0eJ9I3JpFyIU/gviz/tq?tqx=out:json";
+        const saveURL = "https://script.google.com/macros/s/AKfycbw1234-your-script-url-here/exec"; // Reemplaza con la URL del script de Google Apps Script
 
-        const profileName = new URLSearchParams(window.location.search).get("name");
-        const sheetURL = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/gviz/tq?tqx=out:json"; 
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
 
         async function loadProfileData() {
-            if (!profileName) {
+            let selectedName = getQueryParam("name");
+            if (!selectedName) {
                 document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
                 return;
             }
@@ -69,56 +71,58 @@
             try {
                 const response = await fetch(sheetURL);
                 const text = await response.text();
-
-                if (!text.startsWith("/*O_o*/")) {
-                    throw new Error("Invalid JSON response. Check your Google Sheet permissions.");
-                }
-
                 const jsonData = JSON.parse(text.substring(47, text.length - 2));
+
                 const rows = jsonData.table.rows;
+                const headers = jsonData.table.cols.map(col => col.label);
+
                 let foundRow = null;
 
-                for (let row of rows) {
-                    let cells = row.c;
-                    let firstName = cells[1]?.v || "";
-                    let lastName = cells[2]?.v || "";
-                    let fullName = `${firstName} ${lastName}`;
+                for (let i = 1; i < rows.length; i++) {
+                    let row = rows[i].c;
+                    let firstName = row[1] && row[1].v ? row[1].v.toString().trim() : "";
+                    let lastName = row[2] && row[2].v ? row[2].v.toString().trim() : "";
+                    let fullName = `${firstName} ${lastName}`.trim();
 
-                    if (fullName.trim() === profileName.trim()) {
-                        foundRow = cells;
+                    if (fullName === selectedName) {
+                        foundRow = row;
                         break;
                     }
                 }
 
                 if (foundRow) {
-                    document.getElementById("profileName").textContent = profileName;
-                    document.getElementById("profileDetails").innerHTML = `
-                        <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Phone Number:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
-                    `;
+                    document.getElementById("profileName").textContent = selectedName;
+
+                    let detailsHTML = "";
+                    headers.forEach((header, index) => {
+                        if (header && foundRow[index] && foundRow[index].v) {
+                            detailsHTML += `<tr><td><strong>${header}:</strong></td><td>${foundRow[index].v}</td></tr>`;
+                        }
+                    });
+
+                    document.getElementById("profileDetails").innerHTML = detailsHTML;
+                } else {
+                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
                 }
+
             } catch (error) {
-                console.error("Error fetching Google Sheets data:", error);
+                console.error("❌ Error loading profile data:", error);
             }
         }
 
-        document.getElementById("saveBtn").addEventListener("click", function() {
-            const profileRef = ref(database, "profiles/" + profileName);
-            const data = {
-                status: document.getElementById("status").value,
-                drugTest: document.getElementById("drugTest").value,
-                trainingStatus: document.getElementById("trainingStatus").value
-            };
-
-            set(profileRef, data).then(() => alert("Profile saved successfully!"));
+        document.getElementById("cancelBtn").addEventListener("click", function () {
+            window.close();
         });
-
-        document.getElementById("cancelBtn").addEventListener("click", () => window.history.back());
 
         window.onload = loadProfileData;
     </script>
+
+    <style>
+        body { text-align: center; background-color: #f4f4f4; }
+        .profile-container { width: 60%; margin: auto; padding: 20px; background: white; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; }
+    </style>
 
 </body>
 </html>
