@@ -30,7 +30,19 @@
             <table>
                 <tr><td><label>Status:</label></td><td><input type="text" id="status"></td></tr>
                 <tr><td><label>Drug Test:</label></td><td><input type="text" id="drugTest"></td></tr>
+                <tr><td><label>Drug Test Date:</label></td><td><input type="date" id="drugTestDate"></td></tr>
+                <tr><td><label>Background Check:</label></td><td><input type="text" id="backgroundCheck"></td></tr>
                 <tr><td><label>Training Status:</label></td><td><input type="text" id="trainingStatus"></td></tr>
+                <tr><td><label>Training Date:</label></td><td><input type="date" id="trainingDate"></td></tr>
+                <tr><td><label>ADP Payroll Onboarding:</label></td><td><input type="text" id="adpPayroll"></td></tr>
+                <tr><td><label>Employee Handbook:</label></td><td><input type="date" id="employeeHandbook"></td></tr>
+                <tr><td><label>Handbook Acknowledgment:</label></td><td><input type="text" id="handbookAcknowledgment"></td></tr>
+                <tr><td><label>JJK Application:</label></td><td><input type="text" id="jjkApplication"></td></tr>
+                <tr><td><label>JJK Application Date:</label></td><td><input type="date" id="jjkApplicationDate"></td></tr>
+                <tr><td><label>MEC (Medical Examiner's Certificate):</label></td><td><input type="text" id="mecCertificate"></td></tr>
+                <tr><td><label>Road Test:</label></td><td><input type="text" id="roadTest"></td></tr>
+                <tr><td><label>Road Test Date:</label></td><td><input type="date" id="roadTestDate"></td></tr>
+                <tr><td><label>i9 Status:</label></td><td><input type="text" id="i9Status"></td></tr>
             </table>
         </div>
 
@@ -100,7 +112,11 @@
                 document: document.getElementById("generalDetails").rows[5].cells[1].querySelector("a").href,
                 status: document.getElementById("status").value,
                 drugTest: document.getElementById("drugTest").value,
-                trainingStatus: document.getElementById("trainingStatus").value
+                trainingStatus: document.getElementById("trainingStatus").value,
+                trainingDate: document.getElementById("trainingDate").value,
+                backgroundCheck: document.getElementById("backgroundCheck").value,
+                adpPayroll: document.getElementById("adpPayroll").value,
+                jjkApplication: document.getElementById("jjkApplication").value
             };
 
             set(profileRef, data)
@@ -110,48 +126,5 @@
 
         window.onload = loadProfileData;
     </script>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-        }
-        .profile-container {
-            width: 60%;
-            margin: auto;
-            padding: 20px;
-            background: white;
-            text-align: left;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        td {
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-        .button-group {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .save-btn {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            border-radius: 5px;
-        }
-        .save-btn:hover {
-            background-color: #218838;
-        }
-    </style>
-
 </body>
 </html>
