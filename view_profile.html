@@ -4,6 +4,7 @@
     async function loadProfileData() {
         const profileName = new URLSearchParams(window.location.search).get("name");
         if (!profileName) {
+            console.error("❌ No profile name provided in the URL");
             document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
             return;
         }
@@ -19,36 +20,40 @@
                 const data = snapshot.val();
                 console.log("✅ Profile Data:", data);
 
-                // Verificar si los datos tienen la estructura correcta
-                if (typeof data === "object") {
-                    // Asignar valores a la tabla
-                    document.getElementById("profileName").textContent = profileName;
-                    document.getElementById("firstName").textContent = data.firstName || "N/A";
-                    document.getElementById("lastName").textContent = data.lastName || "N/A";
-                    document.getElementById("email").textContent = data.email || "N/A";
-                    document.getElementById("phone").textContent = data.phone || "N/A";
-                    document.getElementById("address").textContent = data.address || "N/A";
-
-                    document.getElementById("status").textContent = data.status || "N/A";
-                    document.getElementById("offerLetter").textContent = data.offerLetter || "N/A";
-                    document.getElementById("drugTest").textContent = data.drugTest || "N/A";
-                    document.getElementById("drugTestDate").textContent = data.drugTestDate || "N/A";
-                    document.getElementById("backgroundCheck").textContent = data.backgroundCheck || "N/A";
-                    document.getElementById("trainingStatus").textContent = data.trainingStatus || "N/A";
-                    document.getElementById("trainingDate").textContent = data.trainingDate || "N/A";
-                    document.getElementById("adpPayroll").textContent = data.adpPayroll || "N/A";
-                    document.getElementById("employeeHandbook").textContent = data.employeeHandbook || "N/A";
-                    document.getElementById("handbookAcknowledgment").textContent = data.handbookAcknowledgment || "N/A";
-                    document.getElementById("jjkApplication").textContent = data.jjkApplication || "N/A";
-                    document.getElementById("jjkApplicationDate").textContent = data.jjkApplicationDate || "N/A";
-                    document.getElementById("mecCertificate").textContent = data.mecCertificate || "N/A";
-                    document.getElementById("roadTest").textContent = data.roadTest || "N/A";
-                    document.getElementById("roadTestDate").textContent = data.roadTestDate || "N/A";
-                    document.getElementById("i9Status").textContent = data.i9Status || "N/A";
-                } else {
-                    console.warn("⚠️ Unexpected Data Format:", data);
-                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>Unexpected data format.</td></tr>";
+                // Verificar si los elementos existen antes de asignar valores
+                function setText(id, value) {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = value || "N/A";
+                    } else {
+                        console.warn(`⚠️ Element with id '${id}' not found.`);
+                    }
                 }
+
+                // Asignar valores a los campos
+                setText("profileName", profileName);
+                setText("firstName", data.firstName);
+                setText("lastName", data.lastName);
+                setText("email", data.email);
+                setText("phone", data.phone);
+                setText("address", data.address);
+
+                setText("status", data.status);
+                setText("offerLetter", data.offerLetter);
+                setText("drugTest", data.drugTest);
+                setText("drugTestDate", data.drugTestDate);
+                setText("backgroundCheck", data.backgroundCheck);
+                setText("trainingStatus", data.trainingStatus);
+                setText("trainingDate", data.trainingDate);
+                setText("adpPayroll", data.adpPayroll);
+                setText("employeeHandbook", data.employeeHandbook);
+                setText("handbookAcknowledgment", data.handbookAcknowledgment);
+                setText("jjkApplication", data.jjkApplication);
+                setText("jjkApplicationDate", data.jjkApplicationDate);
+                setText("mecCertificate", data.mecCertificate);
+                setText("roadTest", data.roadTest);
+                setText("roadTestDate", data.roadTestDate);
+                setText("i9Status", data.i9Status);
             } else {
                 console.warn("⚠️ No data found for:", profileName);
                 document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found.</td></tr>";
