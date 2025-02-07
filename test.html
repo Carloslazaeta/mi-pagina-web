@@ -55,7 +55,7 @@
     <script type="module">
         import { database, ref, set } from "./firebase.js";
 
-        const sheetURL = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/gviz/tq?tqx=out:json&tq=SELECT%20A,B,C,D,E,M";
+        const sheetURL = `https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/gviz/tq?tqx=out:json&tq=SELECT%20A,B,C,D,E,M`;
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
