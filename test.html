@@ -50,33 +50,45 @@
 
                 for (let row of rows) {
                     let cells = row.c;
-                    let fullName = `${cells[1]?.v || ""} ${cells[2]?.v || ""}`.trim();
-                    if (fullName === profileName) {
+                    let firstName = cells[1]?.v || "";
+                    let lastName = cells[2]?.v || "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+                    if (fullName.toLowerCase() === profileName.toLowerCase()) {
                         foundRow = cells;
                         break;
                     }
                 }
 
                 if (foundRow) {
+                    let profileData = {
+                        firstName: foundRow[1]?.v || "N/A",
+                        lastName: foundRow[2]?.v || "N/A",
+                        email: foundRow[3]?.v || "N/A",
+                        phone: foundRow[4]?.v || "N/A",
+                        address: foundRow[8]?.v || "N/A",
+                        position: foundRow[5]?.v || "N/A",
+                        hireDate: foundRow[6]?.v || "N/A",
+                        status: foundRow[7]?.v || "N/A",
+                        documentLink: foundRow[12]?.v ? `<a href="${foundRow[12].v}" target="_blank">Click here</a>` : "N/A"
+                    };
+
                     document.getElementById("profileDetails").innerHTML = `
-                        <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Email:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Phone:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Address:</strong></td><td>${foundRow[8]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>First Name:</strong></td><td>${profileData.firstName}</td></tr>
+                        <tr><td><strong>Last Name:</strong></td><td>${profileData.lastName}</td></tr>
+                        <tr><td><strong>Email:</strong></td><td>${profileData.email}</td></tr>
+                        <tr><td><strong>Phone:</strong></td><td>${profileData.phone}</td></tr>
+                        <tr><td><strong>Address:</strong></td><td>${profileData.address}</td></tr>
+                        <tr><td><strong>Position:</strong></td><td>${profileData.position}</td></tr>
+                        <tr><td><strong>Hire Date:</strong></td><td>${profileData.hireDate}</td></tr>
+                        <tr><td><strong>Status:</strong></td><td>${profileData.status}</td></tr>
+                        <tr><td><strong>Document:</strong></td><td>${profileData.documentLink}</td></tr>
                     `;
 
+                    // Guardar en Firebase
                     document.getElementById("saveBtn").addEventListener("click", async () => {
                         const profileRef = ref(database, "profiles/" + profileName);
-                        const data = {
-                            firstName: foundRow[1]?.v || "N/A",
-                            lastName: foundRow[2]?.v || "N/A",
-                            email: foundRow[3]?.v || "N/A",
-                            phone: foundRow[4]?.v || "N/A",
-                            address: foundRow[8]?.v || "N/A"
-                        };
 
-                        await set(profileRef, data);
+                        await set(profileRef, profileData);
                         alert("Profile saved to Firebase!");
                     });
                 }
