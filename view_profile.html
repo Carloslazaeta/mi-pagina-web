@@ -1,112 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Details</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <header>
-        <h1>📄 Profile Details</h1>
-    </header>
+<script type="module">
+    import { database, ref, get } from "./firebase.js";
 
-    <main class="profile-container">
-        <h2 id="profileName">Loading...</h2>
-
-        <!-- Sección de Datos del Perfil -->
-        <div id="profileData">
-            <h3>Employee Details</h3>
-            <table id="profileDetails">
-                <tr><td><strong>First Name:</strong></td><td id="firstName"></td></tr>
-                <tr><td><strong>Last Name:</strong></td><td id="lastName"></td></tr>
-                <tr><td><strong>Email:</strong></td><td id="email"></td></tr>
-                <tr><td><strong>Phone:</strong></td><td id="phone"></td></tr>
-                <tr><td><strong>Address:</strong></td><td id="address"></td></tr>
-            </table>
-        </div>
-
-        <!-- Sección de Información Adicional -->
-        <div id="additionalFields">
-            <h3>Additional Information</h3>
-            <table id="additionalDetails">
-                <tr><td><strong>Status:</strong></td><td id="status"></td></tr>
-                <tr><td><strong>Offer Letter & Handbook:</strong></td><td id="offerLetter"></td></tr>
-                <tr><td><strong>Drug Test:</strong></td><td id="drugTest"></td></tr>
-                <tr><td><strong>Drug Test Date:</strong></td><td id="drugTestDate"></td></tr>
-                <tr><td><strong>Background Check:</strong></td><td id="backgroundCheck"></td></tr>
-                <tr><td><strong>Training Status:</strong></td><td id="trainingStatus"></td></tr>
-                <tr><td><strong>Training Date:</strong></td><td id="trainingDate"></td></tr>
-                <tr><td><strong>ADP Payroll Onboarding:</strong></td><td id="adpPayroll"></td></tr>
-                <tr><td><strong>Employee Handbook:</strong></td><td id="employeeHandbook"></td></tr>
-                <tr><td><strong>Handbook Acknowledgment:</strong></td><td id="handbookAcknowledgment"></td></tr>
-                <tr><td><strong>JJK Application:</strong></td><td id="jjkApplication"></td></tr>
-                <tr><td><strong>JJK Application Date:</strong></td><td id="jjkApplicationDate"></td></tr>
-                <tr><td><strong>MEC (Medical Examiner's Certificate):</strong></td><td id="mecCertificate"></td></tr>
-                <tr><td><strong>Road Test:</strong></td><td id="roadTest"></td></tr>
-                <tr><td><strong>Road Test Date:</strong></td><td id="roadTestDate"></td></tr>
-                <tr><td><strong>i9 Status:</strong></td><td id="i9Status"></td></tr>
-            </table>
-        </div>
-    </main>
-
-    <script type="module">
-        import { database, ref, get } from "./firebase.js";
-
-        async function loadProfileData() {
-            const profileName = new URLSearchParams(window.location.search).get("name");
-            if (!profileName) {
-                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
-                return;
-            }
-
-            const profileRef = ref(database, "profiles/" + profileName);
-
-            try {
-                const snapshot = await get(profileRef);
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    console.log("Profile Data:", data); // ✅ Verificar en consola qué datos trae
-
-                    document.getElementById("profileName").textContent = profileName;
-
-                    // Asignar datos principales si existen
-                    document.getElementById("firstName").textContent = data.firstName ?? "N/A";
-                    document.getElementById("lastName").textContent = data.lastName ?? "N/A";
-                    document.getElementById("email").textContent = data.email ?? "N/A";
-                    document.getElementById("phone").textContent = data.phone ?? "N/A";
-                    document.getElementById("address").textContent = data.address ?? "N/A";
-
-                    // Asignar Additional Information si existen
-                    const additionalFields = [
-                        "status", "offerLetter", "drugTest", "drugTestDate", "backgroundCheck",
-                        "trainingStatus", "trainingDate", "adpPayroll", "employeeHandbook",
-                        "handbookAcknowledgment", "jjkApplication", "jjkApplicationDate",
-                        "mecCertificate", "roadTest", "roadTestDate", "i9Status"
-                    ];
-
-                    additionalFields.forEach(field => {
-                        document.getElementById(field).textContent = data[field] ?? "N/A";
-                    });
-
-                } else {
-                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this profile.</td></tr>";
-                }
-            } catch (error) {
-                console.error("Error loading profile data:", error);
-            }
+    async function loadProfileData() {
+        const profileName = new URLSearchParams(window.location.search).get("name");
+        if (!profileName) {
+            document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
+            return;
         }
 
-        window.onload = loadProfileData;
-    </script>
+        console.log("🔍 Searching profile:", profileName);
 
-    <style>
-        body { text-align: center; background-color: #f4f4f4; font-family: Arial, sans-serif; }
-        .profile-container { width: 60%; margin: auto; padding: 20px; background: white; text-align: left; border-radius: 8px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        td { padding: 8px; border-bottom: 1px solid #ddd; }
-        h3 { border-bottom: 2px solid #007bff; padding-bottom: 5px; }
-    </style>
+        const profileRef = ref(database, "profiles/" + profileName);
 
-</body>
-</html>
+        try {
+            const snapshot = await get(profileRef);
+
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                console.log("✅ Profile Data:", data);
+
+                // Verificar si los datos tienen la estructura correcta
+                if (typeof data === "object") {
+                    // Asignar valores a la tabla
+                    document.getElementById("profileName").textContent = profileName;
+                    document.getElementById("firstName").textContent = data.firstName || "N/A";
+                    document.getElementById("lastName").textContent = data.lastName || "N/A";
+                    document.getElementById("email").textContent = data.email || "N/A";
+                    document.getElementById("phone").textContent = data.phone || "N/A";
+                    document.getElementById("address").textContent = data.address || "N/A";
+
+                    document.getElementById("status").textContent = data.status || "N/A";
+                    document.getElementById("offerLetter").textContent = data.offerLetter || "N/A";
+                    document.getElementById("drugTest").textContent = data.drugTest || "N/A";
+                    document.getElementById("drugTestDate").textContent = data.drugTestDate || "N/A";
+                    document.getElementById("backgroundCheck").textContent = data.backgroundCheck || "N/A";
+                    document.getElementById("trainingStatus").textContent = data.trainingStatus || "N/A";
+                    document.getElementById("trainingDate").textContent = data.trainingDate || "N/A";
+                    document.getElementById("adpPayroll").textContent = data.adpPayroll || "N/A";
+                    document.getElementById("employeeHandbook").textContent = data.employeeHandbook || "N/A";
+                    document.getElementById("handbookAcknowledgment").textContent = data.handbookAcknowledgment || "N/A";
+                    document.getElementById("jjkApplication").textContent = data.jjkApplication || "N/A";
+                    document.getElementById("jjkApplicationDate").textContent = data.jjkApplicationDate || "N/A";
+                    document.getElementById("mecCertificate").textContent = data.mecCertificate || "N/A";
+                    document.getElementById("roadTest").textContent = data.roadTest || "N/A";
+                    document.getElementById("roadTestDate").textContent = data.roadTestDate || "N/A";
+                    document.getElementById("i9Status").textContent = data.i9Status || "N/A";
+                } else {
+                    console.warn("⚠️ Unexpected Data Format:", data);
+                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>Unexpected data format.</td></tr>";
+                }
+            } else {
+                console.warn("⚠️ No data found for:", profileName);
+                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found.</td></tr>";
+            }
+        } catch (error) {
+            console.error("❌ Error loading profile:", error);
+            document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>Error loading data.</td></tr>";
+        }
+    }
+
+    window.onload = loadProfileData;
+</script>
