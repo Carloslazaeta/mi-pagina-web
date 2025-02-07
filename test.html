@@ -55,33 +55,63 @@
     <script type="module">
         import { database, ref, set } from "./firebase.js";
 
+        const sheetURL = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/gviz/tq?tqx=out:json&tq=SELECT%20A,B,C,D,E,M";
+
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
 
-        document.getElementById("saveBtn").addEventListener("click", async function () {
-            const profileName = getQueryParam("name");
-            if (!profileName) {
-                alert("No profile name provided.");
+        async function loadProfileData() {
+            let selectedName = getQueryParam("name");
+            if (!selectedName) {
+                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
                 return;
             }
 
-            const profileRef = ref(database, "profiles/" + profileName);
-            const data = {};
-
-            // Guardar los datos de los inputs y selects dinámicamente
-            document.querySelectorAll("input, select").forEach(element => {
-                data[element.id] = element.value;
-            });
-
             try {
-                await set(profileRef, data);
-                alert("Profile saved successfully!");
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+
+                if (!text.startsWith("/*")) {
+                    throw new Error("Invalid JSON response. Check Google Sheet permissions.");
+                }
+
+                const jsonData = JSON.parse(text.substring(47, text.length - 2));
+                const rows = jsonData.table.rows;
+                let foundRow = null;
+
+                for (let row of rows) {
+                    let cells = row.c;
+                    let firstName = cells[1]?.v || "";
+                    let lastName = cells[2]?.v || "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName.toLowerCase() === selectedName.toLowerCase()) {
+                        foundRow = cells;
+                        break;
+                    }
+                }
+
+                if (foundRow) {
+                    document.getElementById("profileName").textContent = selectedName;
+
+                    document.getElementById("profileDetails").innerHTML = `
+                        <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Phone Number:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Selfie:</strong></td><td><a href="${foundRow[5]?.v || "#"}" target="_blank">Click here</a></td></tr>
+                    `;
+                } else {
+                    document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
+                }
             } catch (error) {
-                console.error("Error saving profile:", error);
+                console.error("Error fetching Google Sheets data:", error);
             }
-        });
+        }
+
+        window.onload = loadProfileData;
     </script>
 </body>
 </html>
