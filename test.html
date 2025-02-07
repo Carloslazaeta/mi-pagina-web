@@ -3,70 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
+    <title>Profile Editor</title>
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="firebase.js"></script>
 </head>
 <body>
     <header>
-        <h1>📄 Profile Details</h1>
-        <p>Employee Information</p>
+        <h1>📄 Edit Profile</h1>
+        <p>Modify employee details and save changes.</p>
     </header>
 
     <main class="profile-container">
-        <h2 id="profileName">Loading...</h2>
+        <section class="card">
+            <h2 id="profileName">Loading...</h2>
 
-        <!-- 🔹 Datos Generales desde Google Sheets -->
-        <div id="generalData">
-            <h3>General Information</h3>
-            <table id="generalDetails">
+            <!-- Datos Generales -->
+            <h3>Employee Details</h3>
+            <table id="profileDetails">
                 <tr><td colspan="2">Fetching data...</td></tr>
             </table>
-        </div>
 
-        <!-- 🔹 Información Adicional -->
-        <div id="additionalFields">
+            <!-- Información Adicional -->
             <h3>Additional Information</h3>
-            <table>
-                <tr><td><label>Status:</label></td><td><input type="text" id="status"></td></tr>
-                <tr><td><label>Drug Test:</label></td><td><input type="text" id="drugTest"></td></tr>
-                <tr><td><label>Drug Test Date:</label></td><td><input type="date" id="drugTestDate"></td></tr>
-                <tr><td><label>Background Check:</label></td><td><input type="text" id="backgroundCheck"></td></tr>
-                <tr><td><label>Training Status:</label></td><td><input type="text" id="trainingStatus"></td></tr>
-                <tr><td><label>Training Date:</label></td><td><input type="date" id="trainingDate"></td></tr>
-                <tr><td><label>ADP Payroll Onboarding:</label></td><td><input type="text" id="adpPayroll"></td></tr>
-                <tr><td><label>Employee Handbook:</label></td><td><input type="date" id="employeeHandbook"></td></tr>
-                <tr><td><label>Handbook Acknowledgment:</label></td><td><input type="text" id="handbookAcknowledgment"></td></tr>
-                <tr><td><label>JJK Application:</label></td><td><input type="text" id="jjkApplication"></td></tr>
-                <tr><td><label>JJK Application Date:</label></td><td><input type="date" id="jjkApplicationDate"></td></tr>
-                <tr><td><label>MEC (Medical Examiner's Certificate):</label></td><td><input type="text" id="mecCertificate"></td></tr>
-                <tr><td><label>Road Test:</label></td><td><input type="text" id="roadTest"></td></tr>
-                <tr><td><label>Road Test Date:</label></td><td><input type="date" id="roadTestDate"></td></tr>
-                <tr><td><label>i9 Status:</label></td><td><input type="text" id="i9Status"></td></tr>
+            <table id="additionalInfo">
+                <tr><td colspan="2">Loading...</td></tr>
             </table>
-        </div>
 
-        <div class="button-group">
-            <button id="saveBtn" class="save-btn">Save to Firebase</button>
-        </div>
+            <!-- Área 1 -->
+            <h3>Area 1</h3>
+            <div class="area1-buttons">
+                <button class="area-btn">Option 1</button>
+                <button class="area-btn">Option 2</button>
+                <button class="area-btn">Option 3</button>
+                <button class="area-btn">Option 4</button>
+                <button class="area-btn">Option 5</button>
+                <button class="area-btn">Option 6</button>
+                <button class="area-btn">Option 7</button>
+                <button class="area-btn">Option 8</button>
+                <button class="area-btn">Option 9</button>
+                <button class="area-btn">Option 10</button>
+            </div>
+
+            <!-- Botones de Guardado -->
+            <div class="button-group">
+                <button id="saveBtn" class="save-btn">Save Profile</button>
+                <button id="cancelBtn" class="cancel-btn">Cancel</button>
+            </div>
+        </section>
     </main>
 
     <script type="module">
         import { database, ref, get, set } from "./firebase.js";
 
         const profileName = new URLSearchParams(window.location.search).get("name");
-        const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json";
+        const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json"; 
 
         async function loadProfileData() {
             if (!profileName) {
-                document.getElementById("generalDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
+                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
                 return;
             }
 
             document.getElementById("profileName").textContent = profileName;
 
-            // 🔹 Obtener datos desde Google Sheets
             try {
+                // Cargar datos desde Google Sheets
                 const response = await fetch(sheetURL);
                 const text = await response.text();
                 const jsonData = JSON.parse(text.substring(47, text.length - 2));
@@ -78,53 +79,118 @@
                     let cells = row.c;
                     let firstName = cells[1]?.v || "";
                     let lastName = cells[2]?.v || "";
-                    let fullName = `${firstName} ${lastName}`.trim();
+                    let fullName = `${firstName} ${lastName}`;
 
-                    if (fullName === profileName) {
+                    if (fullName.trim().toLowerCase() === profileName.trim().toLowerCase()) {
                         foundRow = cells;
                         break;
                     }
                 }
 
                 if (foundRow) {
-                    document.getElementById("generalDetails").innerHTML = `
+                    document.getElementById("profileDetails").innerHTML = `
                         <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || "N/A"}</td></tr>
                         <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Phone Number:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
                         <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Phone:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Address:</strong></td><td>${foundRow[8]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Document:</strong></td><td><a href="${foundRow[12]?.v || "#"}" target="_blank">Click here</a></td></tr>
+                        <tr><td><strong>Selfie:</strong></td><td><a href="${foundRow[12]?.v || "#"}" target="_blank">Click here</a></td></tr>
+                        <tr><td><strong>Date Applied:</strong></td><td>${foundRow[0]?.v || "N/A"}</td></tr>
                     `;
                 }
+
+                // Cargar información adicional desde Firebase
+                const profileRef = ref(database, "profiles/" + profileName);
+                const snapshot = await get(profileRef);
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    document.getElementById("additionalInfo").innerHTML = `
+                        <tr><td><strong>Status:</strong></td><td>${data.status || "N/A"}</td></tr>
+                        <tr><td><strong>Offer Letter & Handbook:</strong></td><td>${data.offerLetter || "N/A"}</td></tr>
+                        <tr><td><strong>Drug Test:</strong></td><td>${data.drugTest || "N/A"}</td></tr>
+                        <tr><td><strong>Training Status:</strong></td><td>${data.trainingStatus || "N/A"}</td></tr>
+                        <tr><td><strong>Background Check:</strong></td><td>${data.backgroundCheck || "N/A"}</td></tr>
+                        <tr><td><strong>Road Test:</strong></td><td>${data.roadTest || "N/A"}</td></tr>
+                    `;
+                }
+
             } catch (error) {
-                console.error("Error fetching Google Sheets data:", error);
+                console.error("Error loading profile:", error);
             }
         }
 
-        document.getElementById("saveBtn").addEventListener("click", function () {
+        // Guardar datos en Firebase
+        document.getElementById("saveBtn").addEventListener("click", function() {
             const profileRef = ref(database, "profiles/" + profileName);
             const data = {
-                firstName: document.getElementById("generalDetails").rows[0].cells[1].textContent,
-                lastName: document.getElementById("generalDetails").rows[1].cells[1].textContent,
-                email: document.getElementById("generalDetails").rows[2].cells[1].textContent,
-                phone: document.getElementById("generalDetails").rows[3].cells[1].textContent,
-                address: document.getElementById("generalDetails").rows[4].cells[1].textContent,
-                document: document.getElementById("generalDetails").rows[5].cells[1].querySelector("a").href,
-                status: document.getElementById("status").value,
-                drugTest: document.getElementById("drugTest").value,
-                trainingStatus: document.getElementById("trainingStatus").value,
-                trainingDate: document.getElementById("trainingDate").value,
-                backgroundCheck: document.getElementById("backgroundCheck").value,
-                adpPayroll: document.getElementById("adpPayroll").value,
-                jjkApplication: document.getElementById("jjkApplication").value
+                status: document.getElementById("status")?.value || "N/A",
+                drugTest: document.getElementById("drugTest")?.value || "N/A",
+                trainingStatus: document.getElementById("trainingStatus")?.value || "N/A"
             };
 
-            set(profileRef, data)
-                .then(() => alert("Profile saved successfully!"))
-                .catch((error) => console.error("Error saving profile:", error));
+            set(profileRef, data).then(() => alert("Profile saved successfully!"));
         });
+
+        // Cancelar y regresar
+        document.getElementById("cancelBtn").addEventListener("click", () => window.history.back());
 
         window.onload = loadProfileData;
     </script>
+
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        h3 {
+            margin-top: 20px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+
+        .area1-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .area-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
 </body>
 </html>
