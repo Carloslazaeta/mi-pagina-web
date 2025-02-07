@@ -29,7 +29,7 @@
         <!-- Sección de Información Adicional -->
         <div id="additionalFields">
             <h3>Additional Information</h3>
-            <table>
+            <table id="additionalDetails">
                 <tr><td><strong>Status:</strong></td><td id="status"></td></tr>
                 <tr><td><strong>Offer Letter & Handbook:</strong></td><td id="offerLetter"></td></tr>
                 <tr><td><strong>Drug Test:</strong></td><td id="drugTest"></td></tr>
@@ -66,20 +66,27 @@
                 const snapshot = await get(profileRef);
                 if (snapshot.exists()) {
                     const data = snapshot.val();
+                    console.log("Profile Data:", data); // ✅ Verificar en consola qué datos trae
+
                     document.getElementById("profileName").textContent = profileName;
 
-                    // Asignar datos principales
-                    document.getElementById("firstName").textContent = data.firstName || "N/A";
-                    document.getElementById("lastName").textContent = data.lastName || "N/A";
-                    document.getElementById("email").textContent = data.email || "N/A";
-                    document.getElementById("phone").textContent = data.phone || "N/A";
-                    document.getElementById("address").textContent = data.address || "N/A";
+                    // Asignar datos principales si existen
+                    document.getElementById("firstName").textContent = data.firstName ?? "N/A";
+                    document.getElementById("lastName").textContent = data.lastName ?? "N/A";
+                    document.getElementById("email").textContent = data.email ?? "N/A";
+                    document.getElementById("phone").textContent = data.phone ?? "N/A";
+                    document.getElementById("address").textContent = data.address ?? "N/A";
 
-                    // Asignar Additional Information
-                    Object.keys(data).forEach(key => {
-                        if (document.getElementById(key)) {
-                            document.getElementById(key).textContent = data[key] || "N/A";
-                        }
+                    // Asignar Additional Information si existen
+                    const additionalFields = [
+                        "status", "offerLetter", "drugTest", "drugTestDate", "backgroundCheck",
+                        "trainingStatus", "trainingDate", "adpPayroll", "employeeHandbook",
+                        "handbookAcknowledgment", "jjkApplication", "jjkApplicationDate",
+                        "mecCertificate", "roadTest", "roadTestDate", "i9Status"
+                    ];
+
+                    additionalFields.forEach(field => {
+                        document.getElementById(field).textContent = data[field] ?? "N/A";
                     });
 
                 } else {
