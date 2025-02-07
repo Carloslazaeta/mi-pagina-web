@@ -6,6 +6,88 @@
     <title>Profile</title>
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="firebase.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .profile-container {
+            background: white;
+            width: 60%;
+            max-width: 800px;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            margin-top: 20px;
+        }
+
+        h3 {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select, input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .save-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .save-btn:hover {
+            background: #218838;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -72,11 +154,6 @@
             try {
                 const response = await fetch(sheetURL);
                 const text = await response.text();
-
-                if (!text.startsWith("/*")) {
-                    throw new Error("Invalid JSON response. Check Google Sheet permissions.");
-                }
-
                 const jsonData = JSON.parse(text.substring(47, text.length - 2));
                 const rows = jsonData.table.rows;
                 let foundRow = null;
@@ -95,13 +172,6 @@
 
                 if (foundRow) {
                     document.getElementById("profileName").textContent = selectedName;
-                    document.getElementById("profileDetails").innerHTML = `
-                        <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Phone Number:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Selfie:</strong></td><td><a href="${foundRow[5]?.v || "#"}" target="_blank">Click here</a></td></tr>
-                    `;
                 }
             } catch (error) {
                 console.error("Error fetching Google Sheets data:", error);
@@ -109,26 +179,7 @@
         }
 
         document.getElementById("saveBtn").addEventListener("click", async function () {
-            const profileName = getQueryParam("name");
-            if (!profileName) {
-                alert("No profile name provided.");
-                return;
-            }
-
-            const profileRef = ref(database, "profiles/" + profileName);
-            const fields = document.querySelectorAll("select, input");
-            const data = {};
-
-            fields.forEach(field => {
-                data[field.id] = field.value;
-            });
-
-            try {
-                await set(profileRef, data);
-                alert("Profile saved successfully!");
-            } catch (error) {
-                console.error("Error saving profile:", error);
-            }
+            alert("Saving...");
         });
 
         window.onload = loadProfileData;
