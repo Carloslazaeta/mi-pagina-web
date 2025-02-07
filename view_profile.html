@@ -1,68 +1,126 @@
-<script type="module">
-    import { database, ref, get } from "./firebase.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Details</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>📄 Profile Details</h1>
+    </header>
 
-    async function loadProfileData() {
-        const profileName = new URLSearchParams(window.location.search).get("name");
-        if (!profileName) {
-            console.error("❌ No profile name provided in the URL");
-            document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
-            return;
-        }
+    <main class="profile-container">
+        <h2 id="profileName">Loading...</h2>
 
-        console.log("🔍 Searching profile:", profileName);
+        <section>
+            <h3>Employee Details</h3>
+            <table>
+                <tr><td><strong>First Name:</strong></td><td id="firstName">N/A</td></tr>
+                <tr><td><strong>Last Name:</strong></td><td id="lastName">N/A</td></tr>
+                <tr><td><strong>Email:</strong></td><td id="email">N/A</td></tr>
+                <tr><td><strong>Phone:</strong></td><td id="phone">N/A</td></tr>
+                <tr><td><strong>Address:</strong></td><td id="address">N/A</td></tr>
+            </table>
+        </section>
 
-        const profileRef = ref(database, "profiles/" + profileName);
+        <section>
+            <h3>Additional Information</h3>
+            <table>
+                <tr><td><strong>Status:</strong></td><td id="status">N/A</td></tr>
+                <tr><td><strong>Offer Letter & Handbook:</strong></td><td id="offerLetter">N/A</td></tr>
+                <tr><td><strong>Drug Test:</strong></td><td id="drugTest">N/A</td></tr>
+                <tr><td><strong>Drug Test Date:</strong></td><td id="drugTestDate">N/A</td></tr>
+                <tr><td><strong>Background Check:</strong></td><td id="backgroundCheck">N/A</td></tr>
+                <tr><td><strong>Training Status:</strong></td><td id="trainingStatus">N/A</td></tr>
+                <tr><td><strong>Training Date:</strong></td><td id="trainingDate">N/A</td></tr>
+                <tr><td><strong>ADP Payroll Onboarding:</strong></td><td id="adpPayroll">N/A</td></tr>
+                <tr><td><strong>Employee Handbook:</strong></td><td id="employeeHandbook">N/A</td></tr>
+                <tr><td><strong>Handbook Acknowledgment:</strong></td><td id="handbookAcknowledgment">N/A</td></tr>
+                <tr><td><strong>JJK Application:</strong></td><td id="jjkApplication">N/A</td></tr>
+                <tr><td><strong>JJK Application Date:</strong></td><td id="jjkApplicationDate">N/A</td></tr>
+                <tr><td><strong>MEC Certificate:</strong></td><td id="mecCertificate">N/A</td></tr>
+                <tr><td><strong>Road Test:</strong></td><td id="roadTest">N/A</td></tr>
+                <tr><td><strong>Road Test Date:</strong></td><td id="roadTestDate">N/A</td></tr>
+                <tr><td><strong>i9 Status:</strong></td><td id="i9Status">N/A</td></tr>
+            </table>
+        </section>
+    </main>
 
-        try {
-            const snapshot = await get(profileRef);
+    <script type="module">
+        import { database, ref, get } from "./firebase.js";
 
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                console.log("✅ Profile Data:", data);
-
-                // Verificar si los elementos existen antes de asignar valores
-                function setText(id, value) {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        element.textContent = value || "N/A";
-                    } else {
-                        console.warn(`⚠️ Element with id '${id}' not found.`);
-                    }
-                }
-
-                // Asignar valores a los campos
-                setText("profileName", profileName);
-                setText("firstName", data.firstName);
-                setText("lastName", data.lastName);
-                setText("email", data.email);
-                setText("phone", data.phone);
-                setText("address", data.address);
-
-                setText("status", data.status);
-                setText("offerLetter", data.offerLetter);
-                setText("drugTest", data.drugTest);
-                setText("drugTestDate", data.drugTestDate);
-                setText("backgroundCheck", data.backgroundCheck);
-                setText("trainingStatus", data.trainingStatus);
-                setText("trainingDate", data.trainingDate);
-                setText("adpPayroll", data.adpPayroll);
-                setText("employeeHandbook", data.employeeHandbook);
-                setText("handbookAcknowledgment", data.handbookAcknowledgment);
-                setText("jjkApplication", data.jjkApplication);
-                setText("jjkApplicationDate", data.jjkApplicationDate);
-                setText("mecCertificate", data.mecCertificate);
-                setText("roadTest", data.roadTest);
-                setText("roadTestDate", data.roadTestDate);
-                setText("i9Status", data.i9Status);
-            } else {
-                console.warn("⚠️ No data found for:", profileName);
-                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found.</td></tr>";
+        async function loadProfileData() {
+            const profileName = new URLSearchParams(window.location.search).get("name");
+            if (!profileName) {
+                console.error("❌ No profile name provided in the URL");
+                document.getElementById("profileName").textContent = "No name provided";
+                return;
             }
-        } catch (error) {
-            console.error("❌ Error loading profile:", error);
-            document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>Error loading data.</td></tr>";
-        }
-    }
 
-    window.onload = loadProfileData;
-</script>
+            console.log("🔍 Searching profile:", profileName);
+            const profileRef = ref(database, "profiles/" + profileName);
+
+            try {
+                const snapshot = await get(profileRef);
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    console.log("✅ Profile Data:", data);
+
+                    function setText(id, value) {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            element.textContent = value || "N/A";
+                        } else {
+                            console.warn(`⚠️ Element with id '${id}' not found.`);
+                        }
+                    }
+
+                    setText("profileName", profileName);
+                    setText("firstName", data.firstName);
+                    setText("lastName", data.lastName);
+                    setText("email", data.email);
+                    setText("phone", data.phone);
+                    setText("address", data.address);
+
+                    setText("status", data.status);
+                    setText("offerLetter", data.offerLetter);
+                    setText("drugTest", data.drugTest);
+                    setText("drugTestDate", data.drugTestDate);
+                    setText("backgroundCheck", data.backgroundCheck);
+                    setText("trainingStatus", data.trainingStatus);
+                    setText("trainingDate", data.trainingDate);
+                    setText("adpPayroll", data.adpPayroll);
+                    setText("employeeHandbook", data.employeeHandbook);
+                    setText("handbookAcknowledgment", data.handbookAcknowledgment);
+                    setText("jjkApplication", data.jjkApplication);
+                    setText("jjkApplicationDate", data.jjkApplicationDate);
+                    setText("mecCertificate", data.mecCertificate);
+                    setText("roadTest", data.roadTest);
+                    setText("roadTestDate", data.roadTestDate);
+                    setText("i9Status", data.i9Status);
+                } else {
+                    console.warn("⚠️ No data found for:", profileName);
+                    document.getElementById("profileName").textContent = "Profile not found";
+                }
+            } catch (error) {
+                console.error("❌ Error loading profile:", error);
+                document.getElementById("profileName").textContent = "Error loading data";
+            }
+        }
+
+        window.onload = loadProfileData;
+    </script>
+
+    <style>
+        body { text-align: center; background-color: #f4f4f4; }
+        .profile-container { width: 60%; margin: auto; padding: 20px; background: white; text-align: left; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; }
+        h3 { border-bottom: 2px solid blue; padding-bottom: 5px; }
+    </style>
+
+</body>
+</html>
