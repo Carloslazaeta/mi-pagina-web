@@ -31,8 +31,19 @@
                 <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
                 <tr><td><label>Offer Letter & Handbook:</label></td><td><select id="offerLetter"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
                 <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>Drug Test Date:</label></td><td><input type="date" id="drugTestDate"></td></tr>
+                <tr><td><label>Background Check:</label></td><td><select id="backgroundCheck"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
                 <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>Training Date:</label></td><td><input type="date" id="trainingDate"></td></tr>
                 <tr><td><label>Road Test:</label></td><td><select id="roadTest"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>Road Test Date:</label></td><td><input type="date" id="roadTestDate"></td></tr>
+                <tr><td><label>MEC (Medical Examiner's Certificate):</label></td><td><select id="mecCertificate"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>JJK Application:</label></td><td><select id="jjkApplication"><option value="Pending">Pending</option><option value="Assign">Assign</option></select></td></tr>
+                <tr><td><label>JJK Application Date:</label></td><td><input type="date" id="jjkApplicationDate"></td></tr>
+                <tr><td><label>i9 Status:</label></td><td><select id="i9Status"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>ADP Payroll Onboarding:</label></td><td><select id="adpPayroll"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
+                <tr><td><label>Employee Handbook:</label></td><td><input type="date" id="employeeHandbook"></td></tr>
+                <tr><td><label>Handbook Acknowledgment:</label></td><td><select id="handbookAcknowledgment"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
             </table>
         </div>
 
@@ -44,11 +55,17 @@
     <script type="module">
         import { database, ref, get, set } from "./firebase.js";
 
-        const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json&tq=SELECT%20A,B,C,D,E,M";
+        const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json&tq=SELECT%20A,B,C,D,E,M,N,O,P,Q,R,S,T,U,V,W,X";
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return "N/A";
+            const date = new Date(dateStr);
+            return date.toISOString().split("T")[0]; // Formato YYYY-MM-DD
         }
 
         async function loadProfileData() {
@@ -61,7 +78,7 @@
             try {
                 const response = await fetch(sheetURL);
                 const text = await response.text();
-                
+
                 if (!text.startsWith("/*")) {
                     throw new Error("Invalid JSON response. Check Google Sheet permissions.");
                 }
@@ -91,7 +108,7 @@
                         <tr><td><strong>Phone Number:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
                         <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
                         <tr><td><strong>Selfie:</strong></td><td><a href="${foundRow[5]?.v || "#"}" target="_blank">Click here</a></td></tr>
-                        <tr><td><strong>Date Applied:</strong></td><td>${foundRow[0]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Date Applied:</strong></td><td>${formatDate(foundRow[0]?.v)}</td></tr>
                     `;
                 } else {
                     document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
@@ -110,17 +127,8 @@
 
             const profileRef = ref(database, "profiles/" + profileName);
             const data = {
-                firstName: document.getElementById("profileDetails").rows[0].cells[1].textContent,
-                lastName: document.getElementById("profileDetails").rows[1].cells[1].textContent,
-                phoneNumber: document.getElementById("profileDetails").rows[2].cells[1].textContent,
-                email: document.getElementById("profileDetails").rows[3].cells[1].textContent,
-                selfie: document.getElementById("profileDetails").rows[4].cells[1].querySelector("a")?.href || "N/A",
-                dateApplied: document.getElementById("profileDetails").rows[5].cells[1].textContent,
                 status: document.getElementById("status").value,
-                offerLetter: document.getElementById("offerLetter").value,
-                drugTest: document.getElementById("drugTest").value,
-                trainingStatus: document.getElementById("trainingStatus").value,
-                roadTest: document.getElementById("roadTest").value
+                adpPayroll: document.getElementById("adpPayroll").value
             };
 
             try {
@@ -133,15 +141,5 @@
 
         window.onload = loadProfileData;
     </script>
-
-    <style>
-        body { text-align: center; background-color: #f4f4f4; font-family: Arial, sans-serif; }
-        .profile-container { width: 60%; margin: auto; padding: 20px; background: white; text-align: left; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        td { padding: 8px; border-bottom: 1px solid #ddd; }
-        .button-group { margin-top: 20px; text-align: center; }
-        .save-btn { padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; }
-        .save-btn:hover { background: #0056b3; }
-    </style>
 </body>
 </html>
