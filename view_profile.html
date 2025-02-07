@@ -3,41 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Details</title>
+    <title>View Profile</title>
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="firebase.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .profile-container {
+            background: white;
+            width: 60%;
+            max-width: 800px;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .profile-header img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .section {
+            margin-top: 20px;
+        }
+
+        h3 {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select, input[type="date"], input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .edit-btn {
+            background: #ffc107;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .edit-btn:hover {
+            background: #e0a800;
+        }
+
+        .save-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .save-btn:hover {
+            background: #218838;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>📄 Profile Details</h1>
-        <p>Employee Information</p>
+        <h1>📄 View Profile</h1>
     </header>
 
     <main class="profile-container">
-        <section class="card">
+        <div class="profile-header">
             <h2 id="profileName">Loading...</h2>
+            <img id="profileImage" src="default.jpg" alt="Profile Image">
+        </div>
 
-            <!-- Datos Generales -->
+        <!-- 🔹 Employee Details -->
+        <div class="section">
             <h3>Employee Details</h3>
             <table id="profileDetails">
                 <tr><td colspan="2">Fetching data...</td></tr>
             </table>
+        </div>
 
-            <!-- Información Adicional -->
+        <!-- 🔹 Additional Information -->
+        <div class="section">
             <h3>Additional Information</h3>
-            <table id="additionalInfo">
-                <tr><td colspan="2">Loading...</td></tr>
+            <table>
+                <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
+                <tr><td><label>Offer Letter & Handbook:</label></td><td><select id="offerLetter"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
+                <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
             </table>
+        </div>
 
-            <!-- Área de Acción -->
-            <div class="button-group">
-                <button id="editProfileBtn" class="edit-btn">Edit Profile</button>
-            </div>
-        </section>
+        <div class="button-group">
+            <button id="editBtn" class="edit-btn">Edit</button>
+            <button id="saveBtn" class="save-btn">Save</button>
+        </div>
     </main>
 
     <script type="module">
-        import { database, ref, get } from "./firebase.js";
+        import { database, ref, get, set } from "./firebase.js";
 
         const profileName = new URLSearchParams(window.location.search).get("name");
         const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json";
@@ -48,14 +171,10 @@
                 return;
             }
 
-            document.getElementById("profileName").textContent = profileName;
-
             try {
-                // Cargar datos de Google Sheets
                 const response = await fetch(sheetURL);
                 const text = await response.text();
                 const jsonData = JSON.parse(text.substring(47, text.length - 2));
-
                 const rows = jsonData.table.rows;
                 let foundRow = null;
 
@@ -63,112 +182,53 @@
                     let cells = row.c;
                     let firstName = cells[1]?.v || "";
                     let lastName = cells[2]?.v || "";
-                    let fullName = `${firstName} ${lastName}`;
+                    let fullName = `${firstName} ${lastName}`.trim();
 
-                    if (fullName.trim().toLowerCase() === profileName.trim().toLowerCase()) {
+                    if (fullName.toLowerCase() === profileName.toLowerCase()) {
                         foundRow = cells;
                         break;
                     }
                 }
 
                 if (foundRow) {
+                    document.getElementById("profileName").textContent = profileName;
+                    document.getElementById("profileImage").src = foundRow[5]?.v || "default.jpg"; 
+
                     document.getElementById("profileDetails").innerHTML = `
                         <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || "N/A"}</td></tr>
                         <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
                         <tr><td><strong>Phone Number:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
                         <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Selfie:</strong></td><td><a href="${foundRow[12]?.v || "#"}" target="_blank">Click here</a></td></tr>
-                        <tr><td><strong>Date Applied:</strong></td><td>${foundRow[0]?.v || "N/A"}</td></tr>
                     `;
                 }
-
-                // Cargar información adicional desde Firebase
-                const profileRef = ref(database, "profiles/" + profileName);
-                const snapshot = await get(profileRef);
-
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    document.getElementById("additionalInfo").innerHTML = `
-                        <tr><td><strong>Status:</strong></td><td>${data.status || "N/A"}</td></tr>
-                        <tr><td><strong>Offer Letter & Handbook:</strong></td><td>${data.offerLetter || "N/A"}</td></tr>
-                        <tr><td><strong>Drug Test:</strong></td><td>${data.drugTest || "N/A"}</td></tr>
-                        <tr><td><strong>Drug Test Date:</strong></td><td>${data.drugTestDate || "N/A"}</td></tr>
-                        <tr><td><strong>Background Check:</strong></td><td>${data.backgroundCheck || "N/A"}</td></tr>
-                        <tr><td><strong>Training Status:</strong></td><td>${data.trainingStatus || "N/A"}</td></tr>
-                        <tr><td><strong>Training Date:</strong></td><td>${data.trainingDate || "N/A"}</td></tr>
-                        <tr><td><strong>ADP Payroll Onboarding:</strong></td><td>${data.adpPayroll || "N/A"}</td></tr>
-                        <tr><td><strong>Handbook Acknowledgment:</strong></td><td>${data.handbookAcknowledgment || "N/A"}</td></tr>
-                        <tr><td><strong>JJK Application:</strong></td><td>${data.jjkApplication || "N/A"}</td></tr>
-                        <tr><td><strong>Road Test:</strong></td><td>${data.roadTest || "N/A"}</td></tr>
-                        <tr><td><strong>Road Test Date:</strong></td><td>${data.roadTestDate || "N/A"}</td></tr>
-                        <tr><td><strong>i9 Status:</strong></td><td>${data.i9Status || "N/A"}</td></tr>
-                    `;
-                }
-
             } catch (error) {
-                console.error("Error loading profile:", error);
+                console.error("Error fetching Google Sheets data:", error);
             }
         }
 
-        document.getElementById("editProfileBtn").addEventListener("click", function() {
-            window.location.href = `test.html?name=${encodeURIComponent(profileName)}`;
+        document.getElementById("editBtn").addEventListener("click", function () {
+            document.querySelectorAll("select, input").forEach(field => field.removeAttribute("disabled"));
+        });
+
+        document.getElementById("saveBtn").addEventListener("click", async function () {
+            const profileRef = ref(database, "profiles/" + profileName);
+            const fields = document.querySelectorAll("select, input");
+            const data = {};
+
+            fields.forEach(field => {
+                data[field.id] = field.value;
+            });
+
+            try {
+                await set(profileRef, data);
+                alert("Profile updated successfully!");
+            } catch (error) {
+                console.error("Error saving profile:", error);
+            }
         });
 
         window.onload = loadProfileData;
     </script>
 
-    <style>
-        .profile-container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .card {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        h3 {
-            margin-top: 20px;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 5px;
-        }
-
-        .button-group {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .edit-btn {
-            background: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .edit-btn:hover {
-            background: #218838;
-        }
-    </style>
 </body>
 </html>
