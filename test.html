@@ -134,56 +134,5 @@
         </div>
     </main>
 
-    <script type="module">
-        import { database, ref, set } from "./firebase.js";
-
-        const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json";
-
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
-
-        async function loadProfileData() {
-            let selectedName = getQueryParam("name");
-            if (!selectedName) {
-                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
-                return;
-            }
-
-            try {
-                const response = await fetch(sheetURL);
-                const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2));
-                const rows = jsonData.table.rows;
-                let foundRow = null;
-
-                for (let row of rows) {
-                    let cells = row.c;
-                    let firstName = cells[1]?.v || "";
-                    let lastName = cells[2]?.v || "";
-                    let fullName = `${firstName} ${lastName}`.trim();
-
-                    if (fullName.toLowerCase() === selectedName.toLowerCase()) {
-                        foundRow = cells;
-                        break;
-                    }
-                }
-
-                if (foundRow) {
-                    document.getElementById("profileName").textContent = selectedName;
-                }
-            } catch (error) {
-                console.error("Error fetching Google Sheets data:", error);
-            }
-        }
-
-        document.getElementById("saveBtn").addEventListener("click", async function () {
-            alert("Saving...");
-        });
-
-        window.onload = loadProfileData;
-    </script>
-
 </body>
 </html>
