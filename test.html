@@ -16,16 +16,16 @@
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
 
-        <!-- Employee Details -->
-        <div id="googleSheetData">
+        <!-- 🔹 Employee Details -->
+        <div class="section">
             <h3>Employee Details</h3>
             <table id="profileDetails">
                 <tr><td colspan="2">Fetching data...</td></tr>
             </table>
         </div>
 
-        <!-- Additional Information -->
-        <div id="additionalFields">
+        <!-- 🔹 Additional Information -->
+        <div class="section">
             <h3>Additional Information</h3>
             <table>
                 <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
@@ -35,10 +35,15 @@
                 <tr><td><label>Background Check:</label></td><td><select id="backgroundCheck"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
                 <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
                 <tr><td><label>Training Date:</label></td><td><input type="date" id="trainingDate"></td></tr>
-                <tr><td><label>JJK Application:</label></td><td><select id="jjkApplication"><option value="Pending">Pending</option><option value="Assign">Assign</option></select></td></tr>
-                <tr><td><label>JJK Application Date:</label></td><td><input type="date" id="jjkApplicationDate"></td></tr>
                 <tr><td><label>Road Test:</label></td><td><select id="roadTest"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
                 <tr><td><label>Road Test Date:</label></td><td><input type="date" id="roadTestDate"></td></tr>
+                <tr><td><label>MEC (Medical Examiner's Certificate):</label></td><td><select id="mecCertificate"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>JJK Application:</label></td><td><select id="jjkApplication"><option value="Pending">Pending</option><option value="Assign">Assign</option></select></td></tr>
+                <tr><td><label>JJK Application Date:</label></td><td><input type="date" id="jjkApplicationDate"></td></tr>
+                <tr><td><label>i9 Status:</label></td><td><select id="i9Status"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>ADP Payroll Onboarding:</label></td><td><select id="adpPayroll"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
+                <tr><td><label>Employee Handbook:</label></td><td><input type="date" id="employeeHandbook"></td></tr>
+                <tr><td><label>Handbook Acknowledgment:</label></td><td><select id="handbookAcknowledgment"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
             </table>
         </div>
 
@@ -50,75 +55,84 @@
     <script type="module">
         import { database, ref, get, set } from "./firebase.js";
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const profileName = new URLSearchParams(window.location.search).get("name");
-            const sheetURL = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/gviz/tq?tqx=out:json"; // Reemplaza con tu Sheet ID
+        const sheetURL = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/gviz/tq?tqx=out:json&tq=SELECT%20A,B,C,D,E,M";
 
-            if (!profileName) {
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        async function loadProfileData() {
+            let selectedName = getQueryParam("name");
+            if (!selectedName) {
                 document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
                 return;
             }
 
-            async function loadProfileData() {
-                try {
-                    const response = await fetch(sheetURL);
-                    const text = await response.text();
-                    const jsonData = JSON.parse(text.substring(47, text.length - 2));
-                    const rows = jsonData.table.rows;
+            try {
+                const response = await fetch(sheetURL);
+                const text = await response.text();
 
-                    let foundRow = null;
-                    for (let row of rows) {
-                        let cells = row.c;
-                        let firstName = cells[1]?.v || "";
-                        let lastName = cells[2]?.v || "";
-                        let fullName = `${firstName} ${lastName}`.trim();
-
-                        if (fullName === profileName) {
-                            foundRow = cells;
-                            break;
-                        }
-                    }
-
-                    if (foundRow) {
-                        document.getElementById("profileName").textContent = profileName;
-                        document.getElementById("profileDetails").innerHTML = `
-                            <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || "N/A"}</td></tr>
-                            <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
-                            <tr><td><strong>Phone:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
-                            <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
-                            <tr><td><strong>JJK Application:</strong></td><td>${foundRow[10]?.v || "N/A"}</td></tr>
-                        `;
-                    } else {
-                        document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No data found for this name.</td></tr>";
-                    }
-                } catch (error) {
-                    console.error("❌ Error loading profile data:", error);
+                if (!text.startsWith("/*")) {
+                    throw new Error("Invalid JSON response. Check Google Sheet permissions.");
                 }
+
+                const jsonData = JSON.parse(text.substring(47, text.length - 2));
+                const rows = jsonData.table.rows;
+                let foundRow = null;
+
+                for (let row of rows) {
+                    let cells = row.c;
+                    let firstName = cells[1]?.v || "";
+                    let lastName = cells[2]?.v || "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName.toLowerCase() === selectedName.toLowerCase()) {
+                        foundRow = cells;
+                        break;
+                    }
+                }
+
+                if (foundRow) {
+                    document.getElementById("profileName").textContent = selectedName;
+
+                    document.getElementById("profileDetails").innerHTML = `
+                        <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Phone Number:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Selfie:</strong></td><td><a href="${foundRow[5]?.v || "#"}" target="_blank">Click here</a></td></tr>
+                    `;
+                }
+            } catch (error) {
+                console.error("Error fetching Google Sheets data:", error);
+            }
+        }
+
+        document.getElementById("saveBtn").addEventListener("click", async function () {
+            const profileName = getQueryParam("name");
+            if (!profileName) {
+                alert("No profile name provided.");
+                return;
             }
 
-            document.getElementById("saveBtn").addEventListener("click", async function () {
-                const profileRef = ref(database, "profiles/" + profileName);
-                const data = {
-                    status: document.getElementById("status").value,
-                    drugTest: document.getElementById("drugTest").value,
-                    trainingStatus: document.getElementById("trainingStatus").value,
-                    jjkApplication: document.getElementById("jjkApplication").value,
-                    roadTest: document.getElementById("roadTest").value,
-                    trainingDate: document.getElementById("trainingDate").value,
-                    roadTestDate: document.getElementById("roadTestDate").value
-                };
+            const profileRef = ref(database, "profiles/" + profileName);
+            const fields = document.querySelectorAll("input, select");
+            const data = {};
 
-                try {
-                    await set(profileRef, data);
-                    alert("Profile saved successfully!");
-                } catch (error) {
-                    console.error("❌ Error saving profile:", error);
-                }
+            fields.forEach(field => {
+                data[field.id] = field.value;
             });
 
-            loadProfileData();
+            try {
+                await set(profileRef, data);
+                alert("Profile saved successfully!");
+            } catch (error) {
+                console.error("Error saving profile:", error);
+            }
         });
-    </script>
 
+        window.onload = loadProfileData;
+    </script>
 </body>
 </html>
