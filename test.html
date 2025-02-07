@@ -16,8 +16,8 @@
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
 
-        <!-- 🔹 Employee Details from Google Sheets -->
-        <div id="googleSheetData">
+        <!-- 🔹 Employee Details -->
+        <div class="section">
             <h3>Employee Details</h3>
             <table id="profileDetails">
                 <tr><td colspan="2">Fetching data...</td></tr>
@@ -25,7 +25,7 @@
         </div>
 
         <!-- 🔹 Additional Information -->
-        <div id="additionalFields">
+        <div class="section">
             <h3>Additional Information</h3>
             <table>
                 <tr><td><label>Status:</label></td><td><select id="status"><option value="Pending">Pending</option><option value="Complete">Complete</option></select></td></tr>
@@ -48,7 +48,7 @@
         </div>
 
         <div class="button-group">
-            <button id="saveBtn" class="save-btn">Save to Firebase</button>
+            <button id="saveBtn" class="save-btn">Save</button>
         </div>
     </main>
 
@@ -60,12 +60,6 @@
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
-        }
-
-        function formatDate(dateStr) {
-            if (!dateStr) return "N/A";
-            const date = new Date(dateStr);
-            return date.toISOString().split("T")[0]; // Formato YYYY-MM-DD
         }
 
         async function loadProfileData() {
