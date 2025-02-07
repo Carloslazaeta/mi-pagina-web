@@ -53,7 +53,7 @@
     </main>
 
     <script type="module">
-        import { database, ref, get, set } from "./firebase.js";
+        import { database, ref, set } from "./firebase.js";
 
         const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json";
 
@@ -78,15 +78,9 @@
                 }
 
                 const jsonData = JSON.parse(text.substring(47, text.length - 2));
-                console.log("✅ Google Sheets Data:", jsonData);
-                
                 const rows = jsonData.table.rows;
-                if (rows.length === 0) {
-                    console.error("❌ No data found in Google Sheet.");
-                    return;
-                }
-
                 let foundRow = null;
+
                 for (let row of rows) {
                     let cells = row.c;
                     let firstName = cells[1]?.v || "";
@@ -125,12 +119,12 @@
             }
 
             const profileRef = ref(database, "profiles/" + profileName);
-            const data = {
-                status: document.getElementById("status").value,
-                offerLetter: document.getElementById("offerLetter").value,
-                drugTest: document.getElementById("drugTest").value,
-                trainingStatus: document.getElementById("trainingStatus").value
-            };
+            const fields = document.querySelectorAll("select, input");
+            const data = {};
+
+            fields.forEach(field => {
+                data[field.id] = field.value;
+            });
 
             try {
                 await set(profileRef, data);
