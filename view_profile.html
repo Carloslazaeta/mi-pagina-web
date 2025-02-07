@@ -10,85 +10,185 @@
 <body>
     <header>
         <h1>📄 Profile Details</h1>
+        <p>Employee Information</p>
     </header>
 
     <main class="profile-container">
         <h2 id="profileName">Loading...</h2>
 
-        <!-- 🔹 Employee Details -->
-        <div id="profileData">
-            <h3>Employee Details</h3>
-            <table id="profileDetails">
+        <!-- 🔹 Datos Generales -->
+        <div id="generalData">
+            <h3>General Information</h3>
+            <table id="generalDetails">
                 <tr><td colspan="2">Fetching data...</td></tr>
             </table>
         </div>
 
-        <!-- 🔹 Edit Profile -->
-        <div class="button-group">
-            <button id="editBtn">Edit Profile</button>
-            <button id="saveBtn" style="display: none;">Save Changes</button>
+        <!-- 🔹 Información Adicional -->
+        <div id="additionalFields">
+            <h3>Additional Information</h3>
+            <table>
+                <tr><td><label>Status:</label></td><td><input type="text" id="status" disabled></td></tr>
+                <tr><td><label>Drug Test:</label></td><td><input type="text" id="drugTest" disabled></td></tr>
+                <tr><td><label>Training Status:</label></td><td><input type="text" id="trainingStatus" disabled></td></tr>
+            </table>
         </div>
 
-        <!-- 🔹 New Section: Area1 -->
+        <!-- 🔹 Área 1 con botones de selección -->
         <div id="area1">
-            <h3>Area1</h3>
+            <h3>Area 1</h3>
             <div class="button-group">
-                <button class="area-btn">Option 1</button>
-                <button class="area-btn">Option 2</button>
-                <button class="area-btn">Option 3</button>
-                <button class="area-btn">Option 4</button>
-                <button class="area-btn">Option 5</button>
-                <button class="area-btn">Option 6</button>
-                <button class="area-btn">Option 7</button>
-                <button class="area-btn">Option 8</button>
-                <button class="area-btn">Option 9</button>
-                <button class="area-btn">Option 10</button>
+                <button class="select-btn">Option 1</button>
+                <button class="select-btn">Option 2</button>
+                <button class="select-btn">Option 3</button>
+                <button class="select-btn">Option 4</button>
+                <button class="select-btn">Option 5</button>
+                <button class="select-btn">Option 6</button>
+                <button class="select-btn">Option 7</button>
+                <button class="select-btn">Option 8</button>
+                <button class="select-btn">Option 9</button>
+                <button class="select-btn">Option 10</button>
             </div>
+        </div>
+
+        <div class="button-group">
+            <button id="editBtn" class="edit-btn">Edit Profile</button>
+            <button id="saveBtn" class="save-btn" style="display: none;">Save Changes</button>
+            <button id="cancelBtn" class="cancel-btn">Back</button>
         </div>
     </main>
 
     <script type="module">
-        import { database, ref, get, update } from "./firebase.js";
+        import { database, ref, get, set } from "./firebase.js";
 
         const profileName = new URLSearchParams(window.location.search).get("name");
-        const profileRef = ref(database, "profiles/" + profileName);
+        
+        async function loadProfileData() {
+            if (!profileName) {
+                document.getElementById("generalDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
+                return;
+            }
 
-        async function loadProfile() {
+            document.getElementById("profileName").textContent = profileName;
+
+            // Obtener los datos desde Firebase
+            const profileRef = ref(database, "profiles/" + profileName);
             try {
                 const snapshot = await get(profileRef);
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    document.getElementById("profileName").textContent = profileName;
-                    document.getElementById("profileDetails").innerHTML = `
-                        <tr><td><strong>First Name:</strong></td><td contenteditable="false" id="firstName">${data.firstName}</td></tr>
-                        <tr><td><strong>Last Name:</strong></td><td contenteditable="false" id="lastName">${data.lastName}</td></tr>
-                        <tr><td><strong>Email:</strong></td><td contenteditable="false" id="email">${data.email}</td></tr>
-                        <tr><td><strong>Phone:</strong></td><td contenteditable="false" id="phone">${data.phone}</td></tr>
-                        <tr><td><strong>Address:</strong></td><td contenteditable="false" id="address">${data.address}</td></tr>
-                    `;
+                    document.getElementById("status").value = data.status || "N/A";
+                    document.getElementById("drugTest").value = data.drugTest || "N/A";
+                    document.getElementById("trainingStatus").value = data.trainingStatus || "N/A";
+                } else {
+                    alert("Profile not found in Firebase.");
                 }
             } catch (error) {
                 console.error("Error loading profile:", error);
             }
         }
 
-        document.getElementById("editBtn").addEventListener("click", () => {
-            document.querySelectorAll("#profileDetails td[contenteditable]").forEach(td => td.contentEditable = "true");
-            document.getElementById("saveBtn").style.display = "inline";
+        document.getElementById("editBtn").addEventListener("click", function () {
+            document.getElementById("status").disabled = false;
+            document.getElementById("drugTest").disabled = false;
+            document.getElementById("trainingStatus").disabled = false;
+            document.getElementById("saveBtn").style.display = "inline-block";
+            document.getElementById("editBtn").style.display = "none";
         });
 
-        document.getElementById("saveBtn").addEventListener("click", async () => {
-            await update(profileRef, {
-                firstName: document.getElementById("firstName").textContent,
-                lastName: document.getElementById("lastName").textContent,
-                email: document.getElementById("email").textContent,
-                phone: document.getElementById("phone").textContent,
-                address: document.getElementById("address").textContent
-            });
-            alert("Profile updated!");
+        document.getElementById("saveBtn").addEventListener("click", function () {
+            const profileRef = ref(database, "profiles/" + profileName);
+            const updatedData = {
+                status: document.getElementById("status").value,
+                drugTest: document.getElementById("drugTest").value,
+                trainingStatus: document.getElementById("trainingStatus").value
+            };
+
+            set(profileRef, updatedData)
+                .then(() => {
+                    alert("Profile updated successfully!");
+                    document.getElementById("status").disabled = true;
+                    document.getElementById("drugTest").disabled = true;
+                    document.getElementById("trainingStatus").disabled = true;
+                    document.getElementById("saveBtn").style.display = "none";
+                    document.getElementById("editBtn").style.display = "inline-block";
+                })
+                .catch((error) => {
+                    console.error("Error updating profile:", error);
+                });
         });
 
-        window.onload = loadProfile;
+        document.getElementById("cancelBtn").addEventListener("click", () => window.history.back());
+
+        window.onload = loadProfileData;
     </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .profile-container {
+            width: 60%;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            text-align: left;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .button-group {
+            margin-top: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .edit-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+        .save-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .cancel-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        #area1 {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eee;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .select-btn {
+            background-color: #007bff;
+            color: white;
+            margin: 5px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .select-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </body>
 </html>
