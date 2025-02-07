@@ -18,7 +18,11 @@
         <div id="profileData">
             <h3>Employee Details</h3>
             <table id="profileDetails">
-                <tr><td colspan="2">Fetching data...</td></tr>
+                <tr><td><strong>First Name:</strong></td><td id="firstName"></td></tr>
+                <tr><td><strong>Last Name:</strong></td><td id="lastName"></td></tr>
+                <tr><td><strong>Email:</strong></td><td id="email"></td></tr>
+                <tr><td><strong>Phone:</strong></td><td id="phone"></td></tr>
+                <tr><td><strong>Address:</strong></td><td id="address"></td></tr>
             </table>
         </div>
 
@@ -26,22 +30,22 @@
         <div id="additionalFields">
             <h3>Additional Information</h3>
             <table>
-                <tr><td><label>Status:</label></td><td id="status"></td></tr>
-                <tr><td><label>Offer Letter & Handbook:</label></td><td id="offerLetter"></td></tr>
-                <tr><td><label>Drug Test:</label></td><td id="drugTest"></td></tr>
-                <tr><td><label>Drug Test Date:</label></td><td id="drugTestDate"></td></tr>
-                <tr><td><label>Background Check:</label></td><td id="backgroundCheck"></td></tr>
-                <tr><td><label>Training Status:</label></td><td id="trainingStatus"></td></tr>
-                <tr><td><label>Training Date:</label></td><td id="trainingDate"></td></tr>
-                <tr><td><label>ADP Payroll Onboarding:</label></td><td id="adpPayroll"></td></tr>
-                <tr><td><label>Employee Handbook:</label></td><td id="employeeHandbook"></td></tr>
-                <tr><td><label>Handbook Acknowledgment:</label></td><td id="handbookAcknowledgment"></td></tr>
-                <tr><td><label>JJK Application:</label></td><td id="jjkApplication"></td></tr>
-                <tr><td><label>JJK Application Date:</label></td><td id="jjkApplicationDate"></td></tr>
-                <tr><td><label>MEC (Medical Examiner's Certificate):</label></td><td id="mecCertificate"></td></tr>
-                <tr><td><label>Road Test:</label></td><td id="roadTest"></td></tr>
-                <tr><td><label>Road Test Date:</label></td><td id="roadTestDate"></td></tr>
-                <tr><td><label>i9 Status:</label></td><td id="i9Status"></td></tr>
+                <tr><td><strong>Status:</strong></td><td id="status"></td></tr>
+                <tr><td><strong>Offer Letter & Handbook:</strong></td><td id="offerLetter"></td></tr>
+                <tr><td><strong>Drug Test:</strong></td><td id="drugTest"></td></tr>
+                <tr><td><strong>Drug Test Date:</strong></td><td id="drugTestDate"></td></tr>
+                <tr><td><strong>Background Check:</strong></td><td id="backgroundCheck"></td></tr>
+                <tr><td><strong>Training Status:</strong></td><td id="trainingStatus"></td></tr>
+                <tr><td><strong>Training Date:</strong></td><td id="trainingDate"></td></tr>
+                <tr><td><strong>ADP Payroll Onboarding:</strong></td><td id="adpPayroll"></td></tr>
+                <tr><td><strong>Employee Handbook:</strong></td><td id="employeeHandbook"></td></tr>
+                <tr><td><strong>Handbook Acknowledgment:</strong></td><td id="handbookAcknowledgment"></td></tr>
+                <tr><td><strong>JJK Application:</strong></td><td id="jjkApplication"></td></tr>
+                <tr><td><strong>JJK Application Date:</strong></td><td id="jjkApplicationDate"></td></tr>
+                <tr><td><strong>MEC (Medical Examiner's Certificate):</strong></td><td id="mecCertificate"></td></tr>
+                <tr><td><strong>Road Test:</strong></td><td id="roadTest"></td></tr>
+                <tr><td><strong>Road Test Date:</strong></td><td id="roadTestDate"></td></tr>
+                <tr><td><strong>i9 Status:</strong></td><td id="i9Status"></td></tr>
             </table>
         </div>
     </main>
@@ -64,19 +68,17 @@
                     const data = snapshot.val();
                     document.getElementById("profileName").textContent = profileName;
 
-                    // Mostrar los datos principales
-                    let detailsHTML = "";
-                    for (const [key, value] of Object.entries(data)) {
-                        if (key !== "additionalInfo") {
-                            detailsHTML += `<tr><td><strong>${key}:</strong></td><td>${value}</td></tr>`;
-                        }
-                    }
-                    document.getElementById("profileDetails").innerHTML = detailsHTML;
+                    // Asignar datos principales
+                    document.getElementById("firstName").textContent = data.firstName || "N/A";
+                    document.getElementById("lastName").textContent = data.lastName || "N/A";
+                    document.getElementById("email").textContent = data.email || "N/A";
+                    document.getElementById("phone").textContent = data.phone || "N/A";
+                    document.getElementById("address").textContent = data.address || "N/A";
 
-                    // Mostrar Additional Information
+                    // Asignar Additional Information
                     Object.keys(data).forEach(key => {
                         if (document.getElementById(key)) {
-                            document.getElementById(key).textContent = data[key];
+                            document.getElementById(key).textContent = data[key] || "N/A";
                         }
                     });
 
