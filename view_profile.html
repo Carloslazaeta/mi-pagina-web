@@ -84,15 +84,6 @@
             margin-top: 20px;
         }
 
-        .edit-btn {
-            background: #ffc107;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
         .save-btn {
             background: #28a745;
             color: white;
@@ -100,7 +91,6 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-left: 10px;
         }
     </style>
 </head>
@@ -125,7 +115,7 @@
             </table>
         </div>
 
-        <!-- 🔹 Additional Information -->
+        <!-- 🔹 Additional Information (No se toca) -->
         <div class="section">
             <h3>Additional Information</h3>
             <table id="additionalInfo">
@@ -138,13 +128,6 @@
                 <tr><td><label>Training Date:</label></td><td><input type="date" id="trainingDate"></td></tr>
                 <tr><td><label>Road Test:</label></td><td><select id="roadTest"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
                 <tr><td><label>Road Test Date:</label></td><td><input type="date" id="roadTestDate"></td></tr>
-                <tr><td><label>MEC (Medical Examiner's Certificate):</label></td><td><select id="mecCertificate"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
-                <tr><td><label>JJK Application:</label></td><td><select id="jjkApplication"><option value="Pending">Pending</option><option value="Assign">Assign</option></select></td></tr>
-                <tr><td><label>JJK Application Date:</label></td><td><input type="date" id="jjkApplicationDate"></td></tr>
-                <tr><td><label>i9 Status:</label></td><td><select id="i9Status"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
-                <tr><td><label>ADP Payroll Onboarding:</label></td><td><select id="adpPayroll"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
-                <tr><td><label>Employee Handbook:</label></td><td><input type="date" id="employeeHandbook"></td></tr>
-                <tr><td><label>Handbook Acknowledgment:</label></td><td><select id="handbookAcknowledgment"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
             </table>
         </div>
 
@@ -161,13 +144,38 @@
         const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json";
 
         async function loadProfileData() {
-            const snapshot = await get(profileRef);
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                for (const key in data) {
-                    const field = document.getElementById(key);
-                    if (field) field.value = data[key];
+            // 🔹 Cargar datos desde Google Sheets
+            try {
+                const response = await fetch(sheetURL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47, text.length - 2));
+                const rows = jsonData.table.rows;
+
+                let foundRow = null;
+                for (let row of rows) {
+                    let cells = row.c;
+                    let firstName = cells[1]?.v || "";
+                    let lastName = cells[2]?.v || "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName.toLowerCase() === profileName.toLowerCase()) {
+                        foundRow = cells;
+                        break;
+                    }
                 }
+
+                if (foundRow) {
+                    document.getElementById("profileName").textContent = profileName;
+                    document.getElementById("profileDetails").innerHTML = `
+                        <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Phone Number:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Selfie:</strong></td><td><img id="profilePhoto" src="${foundRow[5]?.v || "#"}" alt="Profile Picture" style="display: block;"></td></tr>
+                    `;
+                }
+            } catch (error) {
+                console.error("Error fetching Google Sheets data:", error);
             }
         }
 
