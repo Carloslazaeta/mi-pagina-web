@@ -102,7 +102,9 @@
     <main class="profile-container">
         <!-- Foto del empleado -->
         <div class="photo-container">
-            <img id="profilePhoto" src="" alt="Profile Picture" style="display: none;">
+            <a id="photoLink" href="#" target="_blank">
+                <img id="profilePhoto" src="" alt="Profile Picture" style="display: none;">
+            </a>
         </div>
 
         <h2 id="profileName">Loading...</h2>
@@ -171,29 +173,17 @@
                         <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
                         <tr><td><strong>Phone Number:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
                         <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Selfie:</strong></td><td><img id="profilePhoto" src="${foundRow[5]?.v || "#"}" alt="Profile Picture" style="display: block;"></td></tr>
+                        <tr><td><strong>Selfie:</strong></td><td><a id="photoLink" href="${foundRow[5]?.v || "#"}" target="_blank">View Photo</a></td></tr>
                     `;
+
+                    document.getElementById("profilePhoto").src = foundRow[5]?.v || "#";
+                    document.getElementById("photoLink").href = foundRow[5]?.v || "#";
+                    document.getElementById("profilePhoto").style.display = "block";
                 }
             } catch (error) {
                 console.error("Error fetching Google Sheets data:", error);
             }
         }
-
-        document.getElementById("saveBtn").addEventListener("click", async () => {
-            const fields = document.querySelectorAll("select, input");
-            const data = {};
-
-            fields.forEach(field => {
-                data[field.id] = field.value;
-            });
-
-            try {
-                await set(profileRef, data);
-                alert("Profile saved successfully!");
-            } catch (error) {
-                console.error("Error saving profile:", error);
-            }
-        });
 
         window.onload = loadProfileData;
     </script>
