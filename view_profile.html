@@ -150,6 +150,8 @@
                 <tr><td><label>Offer Letter & Handbook:</label></td><td><select id="offerLetter"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
                 <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
                 <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
+                <tr><td><label>Background Check:</label></td><td><select id="backgroundCheck"><option value="Pending">Pending</option><option value="Clear">Clear</option></select></td></tr>
+                <tr><td><label>Work Authorization:</label></td><td><select id="workAuthorization"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
             </table>
         </div>
 
@@ -158,77 +160,5 @@
             <button id="saveBtn" class="save-btn">Save</button>
         </div>
     </main>
-
-    <script type="module">
-        import { database, ref, get, set } from "./firebase.js";
-
-        const profileName = new URLSearchParams(window.location.search).get("name");
-        const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json";
-
-        async function loadProfileData() {
-            if (!profileName) {
-                document.getElementById("profileDetails").innerHTML = "<tr><td colspan='2'>No name provided</td></tr>";
-                return;
-            }
-
-            try {
-                const response = await fetch(sheetURL);
-                const text = await response.text();
-                const jsonData = JSON.parse(text.substring(47, text.length - 2));
-                const rows = jsonData.table.rows;
-                let foundRow = null;
-
-                for (let row of rows) {
-                    let cells = row.c;
-                    let firstName = cells[1]?.v || "";
-                    let lastName = cells[2]?.v || "";
-                    let fullName = `${firstName} ${lastName}`.trim();
-
-                    if (fullName.toLowerCase() === profileName.toLowerCase()) {
-                        foundRow = cells;
-                        break;
-                    }
-                }
-
-                if (foundRow) {
-                    document.getElementById("profileName").textContent = profileName;
-                    document.getElementById("profileImage").src = foundRow[5]?.v || "default.jpg"; 
-
-                    document.getElementById("profileDetails").innerHTML = `
-                        <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Phone Number:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
-                        <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
-                    `;
-                }
-            } catch (error) {
-                console.error("Error fetching Google Sheets data:", error);
-            }
-        }
-
-        document.getElementById("editBtn").addEventListener("click", function () {
-            document.querySelectorAll("select, input").forEach(field => field.removeAttribute("disabled"));
-        });
-
-        document.getElementById("saveBtn").addEventListener("click", async function () {
-            const profileRef = ref(database, "profiles/" + profileName);
-            const fields = document.querySelectorAll("select, input");
-            const data = {};
-
-            fields.forEach(field => {
-                data[field.id] = field.value;
-            });
-
-            try {
-                await set(profileRef, data);
-                alert("Profile updated successfully!");
-            } catch (error) {
-                console.error("Error saving profile:", error);
-            }
-        });
-
-        window.onload = loadProfileData;
-    </script>
-
 </body>
 </html>
