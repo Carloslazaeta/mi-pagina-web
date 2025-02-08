@@ -33,10 +33,25 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .photo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .photo-container img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #007bff;
         }
 
         .section {
             margin-top: 20px;
+            text-align: left;
         }
 
         h3 {
@@ -95,6 +110,11 @@
     </header>
 
     <main class="profile-container">
+        <!-- Foto del empleado -->
+        <div class="photo-container">
+            <img id="profilePhoto" src="" alt="Profile Picture" style="display: none;">
+        </div>
+
         <h2 id="profileName">Loading...</h2>
 
         <!-- 🔹 Employee Details -->
@@ -114,17 +134,6 @@
                 <tr><td><label>Drug Test:</label></td><td><select id="drugTest"><option value="Fail">Fail</option><option value="Pass">Pass</option></select></td></tr>
                 <tr><td><label>Drug Test Date:</label></td><td><input type="date" id="drugTestDate"></td></tr>
                 <tr><td><label>Background Check:</label></td><td><select id="backgroundCheck"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
-                <tr><td><label>Training Status:</label></td><td><select id="trainingStatus"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
-                <tr><td><label>Training Date:</label></td><td><input type="date" id="trainingDate"></td></tr>
-                <tr><td><label>Road Test:</label></td><td><select id="roadTest"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
-                <tr><td><label>Road Test Date:</label></td><td><input type="date" id="roadTestDate"></td></tr>
-                <tr><td><label>MEC (Medical Examiner's Certificate):</label></td><td><select id="mecCertificate"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
-                <tr><td><label>JJK Application:</label></td><td><select id="jjkApplication"><option value="Pending">Pending</option><option value="Assign">Assign</option></select></td></tr>
-                <tr><td><label>JJK Application Date:</label></td><td><input type="date" id="jjkApplicationDate"></td></tr>
-                <tr><td><label>i9 Status:</label></td><td><select id="i9Status"><option value="Pending">Pending</option><option value="Pass">Pass</option></select></td></tr>
-                <tr><td><label>ADP Payroll Onboarding:</label></td><td><select id="adpPayroll"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
-                <tr><td><label>Employee Handbook:</label></td><td><input type="date" id="employeeHandbook"></td></tr>
-                <tr><td><label>Handbook Acknowledgment:</label></td><td><select id="handbookAcknowledgment"><option value="Yes">Yes</option><option value="No">No</option></select></td></tr>
             </table>
         </div>
 
@@ -139,16 +148,51 @@
 
         const profileName = new URLSearchParams(window.location.search).get("name");
         const profileRef = ref(database, "profiles/" + profileName);
+        const sheetURL = "https://docs.google.com/spreadsheets/d/1rh8lsHyVt8jgxv6zBJVx2poX7go6DTz-vQl0KzaRWhc/gviz/tq?tqx=out:json";
 
         async function loadProfileData() {
             if (!profileName) return;
 
             try {
+                const sheetResponse = await fetch(sheetURL);
+                const sheetText = await sheetResponse.text();
+                const jsonData = JSON.parse(sheetText.substring(47, sheetText.length - 2));
+
+                const rows = jsonData.table.rows;
+                let foundRow = null;
+
+                for (let row of rows) {
+                    let cells = row.c;
+                    let firstName = cells[1]?.v || "";
+                    let lastName = cells[2]?.v || "";
+                    let fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName.toLowerCase() === profileName.toLowerCase()) {
+                        foundRow = cells;
+                        break;
+                    }
+                }
+
+                if (foundRow) {
+                    document.getElementById("profileName").textContent = profileName;
+                    document.getElementById("profileDetails").innerHTML = `
+                        <tr><td><strong>First Name:</strong></td><td>${foundRow[1]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Last Name:</strong></td><td>${foundRow[2]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Phone:</strong></td><td>${foundRow[3]?.v || "N/A"}</td></tr>
+                        <tr><td><strong>Email:</strong></td><td>${foundRow[4]?.v || "N/A"}</td></tr>
+                    `;
+
+                    const photoURL = foundRow[5]?.v || "";
+                    if (photoURL) {
+                        const profilePhoto = document.getElementById("profilePhoto");
+                        profilePhoto.src = photoURL;
+                        profilePhoto.style.display = "block";
+                    }
+                }
+
                 const snapshot = await get(profileRef);
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-
-                    document.getElementById("profileName").textContent = profileName;
 
                     for (const key in data) {
                         const field = document.getElementById(key);
